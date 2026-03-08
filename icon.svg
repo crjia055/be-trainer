@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Internal Reporting & Cross-Team Trainer</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f5f5f5;--surface:#fff;--surface2:#ebebeb;--border:#dcdcdc;--ink:#1c1c2e;--muted:#7a7f94;--gold:#b8892a;--gold-bg:#fdf6e3;--green:#1a7a4a;--green-bg:#edf7f1;--red:#c0392b;--red-bg:#fdf0ee;--blue:#2060a8;--blue-bg:#edf3fd;--teal:#1a6b5a;--teal-bg:#edf5f2;--accent:#5b3fa0}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
+header{background:var(--ink);color:#f4efe4;padding:17px 32px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid var(--gold)}
+.header-title{font-family:'Lora',serif;font-size:1.3rem}.header-title em{color:#d4aa50}
+.header-sub{font-family:'DM Mono',monospace;font-size:.63rem;opacity:.55;margin-top:3px}
+.header-meta{font-family:'DM Mono',monospace;font-size:.68rem;opacity:.7;text-align:right}.header-meta strong{color:#d4aa50}
+.tabs{display:flex;background:var(--surface2);border-bottom:2px solid var(--border);padding:0 32px;overflow-x:auto}
+.tab{padding:13px 20px;font-family:'DM Mono',monospace;font-size:.67rem;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;border:none;background:transparent;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap;transition:all .18s}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold);font-weight:600}.tab:hover:not(.active){color:var(--ink)}
+main{padding-bottom:env(safe-area-inset-bottom,0px);max-width:720px;margin:0 auto;padding:28px 32px}
+
+/* BROWSE */
+.section-label{font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;display:inline-flex;align-items:center;gap:8px;padding:5px 12px;border-radius:3px;margin-bottom:14px;margin-top:6px}
+.sl-internal{background:#1c1c2e;color:#d4aa50}
+.sl-cross{background:var(--teal);color:#fff}
+.phrase-card{background:var(--surface);border:1.5px solid var(--border);border-radius:8px;margin-bottom:10px;overflow:hidden;cursor:pointer;transition:border-color .15s}
+.phrase-card:hover{border-color:var(--gold)}.phrase-card.open{border-color:var(--accent)}
+.pc-top{padding:15px 20px;display:flex;align-items:center;gap:12px}
+.pc-phrase{font-family:'Lora',serif;font-size:.97rem;color:var(--ink);flex:1;line-height:1.45}
+.pc-arrow{font-size:.75rem;color:var(--muted);transition:transform .2s;flex-shrink:0}
+.phrase-card.open .pc-arrow{transform:rotate(90deg)}
+.pc-body{display:none;padding:4px 20px 18px;border-top:1px solid var(--border)}
+.phrase-card.open .pc-body{display:block}
+.pc-when{font-family:'DM Mono',monospace;font-size:.58rem;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);margin:12px 0 6px}
+.pc-def{font-size:.88rem;line-height:1.7;color:var(--ink);margin-bottom:10px}
+.ex-block{border-radius:5px;padding:11px 14px;margin-bottom:8px}
+.ex-block.biz{background:#f0f4ff}
+.ex-block.daily{background:var(--surface2)}
+.ex-label{font-family:'DM Mono',monospace;font-size:.58rem;text-transform:uppercase;color:var(--muted);margin-bottom:7px}
+.ex-line{font-family:'Lora',serif;font-style:italic;font-size:.84rem;color:var(--muted);line-height:1.65;margin-bottom:5px;padding-left:10px;border-left:2px solid var(--border)}
+.ex-line:last-child{margin-bottom:0}
+.ex-line span{font-style:normal;font-family:'DM Mono',monospace;font-size:.58rem;color:var(--muted);display:block;margin-top:2px}
+.pc-tip{font-size:.8rem;color:var(--blue);background:var(--blue-bg);padding:9px 13px;border-radius:4px;line-height:1.55}
+
+/* DRILL */
+.prog-row{display:flex;align-items:center;gap:12px;margin-bottom:22px}
+.prog-text{font-family:'DM Mono',monospace;font-size:.68rem;color:var(--muted);white-space:nowrap}
+.prog-track{flex:1;height:3px;background:var(--border);border-radius:2px}
+.prog-fill{height:100%;background:var(--gold);border-radius:2px;transition:width .4s}
+.sec-tag{display:inline-block;font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;padding:3px 9px;border-radius:3px;margin-bottom:8px}
+.sec-int{background:#f0ebff;color:var(--accent)}.sec-cross{background:#e8f5f2;color:var(--teal)}
+.drill-card{background:var(--surface);border:1.5px solid var(--border);border-radius:8px;padding:24px 28px;margin-bottom:16px;box-shadow:0 1px 6px rgba(0,0,0,.06);position:relative;overflow:hidden}
+.drill-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--teal))}
+.dc-sit{font-size:.93rem;line-height:1.75;color:var(--muted);margin-bottom:10px}
+.dc-prompt{font-family:'Lora',serif;font-style:italic;font-size:1.1rem;color:var(--ink);line-height:1.55}
+.reveal-box{background:var(--surface);border:1.5px solid var(--border);border-radius:8px;padding:22px 26px;margin-bottom:16px;display:none}
+.reveal-box.show{display:block}
+.rev-label{font-family:'DM Mono',monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin-bottom:10px}
+.rev-phrase{font-family:'Lora',serif;font-size:1.3rem;font-weight:600;color:var(--ink);margin-bottom:10px;line-height:1.4}
+.rev-ex{font-family:'Lora',serif;font-style:italic;font-size:.86rem;color:var(--muted);border-left:2px solid var(--gold);padding-left:14px;line-height:1.65;margin-bottom:10px}
+.rev-tip{font-size:.82rem;color:var(--blue);background:var(--blue-bg);padding:10px 14px;border-radius:5px;line-height:1.55}
+.rate-row{display:flex;gap:9px;margin-top:14px}
+.rate-btn{flex:1;padding:10px;border-radius:5px;border:1px solid;font-family:'DM Mono',monospace;font-size:.64rem;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;transition:all .15s}
+.rate-hard{border-color:var(--red);color:var(--red);background:transparent}.rate-hard:hover{background:var(--red-bg)}
+.rate-ok{border-color:var(--gold);color:var(--gold);background:transparent}.rate-ok:hover{background:var(--gold-bg)}
+.rate-easy{border-color:var(--green);color:var(--green);background:transparent}.rate-easy:hover{background:var(--green-bg)}
+.nav-row{display:flex;gap:10px;justify-content:center}
+.btn{padding:9px 22px;border-radius:5px;border:1px solid;font-family:'DM Mono',monospace;font-size:.68rem;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;transition:all .15s}
+.btn-ghost{background:transparent;color:var(--muted);border-color:var(--border)}.btn-ghost:hover{color:var(--ink);border-color:var(--muted)}
+.btn-gold{background:var(--gold);color:#fff;border-color:var(--gold)}.btn-gold:hover{opacity:.88}
+.btn-sm{padding:6px 14px;font-size:.62rem}
+
+/* CHOICE */
+.choice-card{background:var(--surface);border:1.5px solid var(--border);border-radius:8px;padding:22px 26px;margin-bottom:14px;box-shadow:0 1px 6px rgba(0,0,0,.06)}
+.ch-label{font-family:'DM Mono',monospace;font-size:.62rem;color:var(--gold);letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px}
+.ch-q{font-size:.95rem;line-height:1.7;color:var(--ink)}
+.ch-opts{display:flex;flex-direction:column;gap:9px;margin:14px 0}
+.ch-opt{padding:13px 16px;border:1.5px solid var(--border);border-radius:6px;background:var(--surface);font-size:.86rem;line-height:1.5;cursor:pointer;text-align:left;font-family:'DM Sans',sans-serif;transition:all .15s;color:var(--ink)}
+.ch-opt:hover:not(:disabled){border-color:var(--gold);background:var(--gold-bg)}
+.ch-opt.correct{border-color:var(--green);background:var(--green-bg);color:var(--green);font-weight:600}
+.ch-opt.wrong{border-color:var(--red);background:var(--red-bg);color:var(--red)}
+.ch-opt.show-correct{border-color:var(--green);background:var(--green-bg)}
+.ch-fb{padding:11px 14px;border-radius:5px;font-size:.84rem;line-height:1.6;display:none;margin-bottom:10px}
+.ch-fb.show{display:block}.ch-fb.ok{background:var(--green-bg);border-left:3px solid var(--green);color:var(--green)}
+.ch-fb.no{background:var(--red-bg);border-left:3px solid var(--red);color:var(--red)}
+.score-badge{font-family:'DM Mono',monospace;font-size:.68rem;color:var(--muted)}
+
+/* ROLEPLAY */
+.rp-scene{background:var(--surface);border:1.5px solid var(--border);border-radius:8px;padding:22px 26px;margin-bottom:14px;box-shadow:0 1px 6px rgba(0,0,0,.06)}
+.rp-ctx{font-family:'DM Mono',monospace;font-size:.6rem;color:var(--accent);letter-spacing:.08em;text-transform:uppercase;margin-bottom:5px}
+.rp-setup{font-size:.87rem;color:var(--muted);line-height:1.65;margin-bottom:10px;font-style:italic}
+.rp-cue{background:var(--surface2);border-left:3px solid var(--accent);padding:12px 16px;border-radius:0 6px 6px 0;font-size:.97rem;line-height:1.65;color:var(--ink)}
+.rp-ta{width:100%;min-height:80px;padding:12px 14px;background:var(--surface);border:1.5px solid var(--border);border-radius:6px;color:var(--ink);font-size:.92rem;line-height:1.65;font-family:'DM Sans',sans-serif;resize:vertical;outline:none;margin-bottom:10px;transition:border .2s}
+.rp-ta:focus{border-color:var(--accent)}
+.rp-reveal{background:var(--surface);border:1.5px solid var(--border);border-radius:8px;padding:20px 24px;display:none;margin-bottom:14px}
+.rp-reveal.show{display:block}
+.rp-rev-label{font-family:'DM Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.1em;color:var(--gold);margin-bottom:10px}
+.model-resp{font-family:'Lora',serif;font-size:1.02rem;line-height:1.85;color:var(--ink);margin-bottom:10px}
+.rp-why{font-size:.8rem;color:var(--muted);line-height:1.6;background:var(--blue-bg);padding:9px 13px;border-radius:5px}
+
+@media(max-width:560px){main{padding-bottom:env(safe-area-inset-bottom,0px);padding:16px}header,.tabs{padding-left:16px;padding-right:16px}.rate-row{flex-direction:column}}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <div class="header-title"><em>Internal Reporting</em> &amp; <em>Cross-Team</em></div>
+    <div class="header-sub">23 phrases for internal meetings, management updates, and cross-department collaboration</div>
+  </div>
+  <div class="header-meta">Done: <strong id="s-done">0</strong> &nbsp;|&nbsp; Fluent: <strong id="s-fluent">0</strong></div>
+</header>
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('ref',this)">① Browse All</button>
+  <button class="tab" onclick="switchTab('drill',this)">② Speaking Drill</button>
+  <button class="tab" onclick="switchTab('choice',this)">③ Right Phrase?</button>
+  <button class="tab" onclick="switchTab('roleplay',this)">④ Role-Play</button>
+</div>
+<main>
+
+<!-- ① BROWSE -->
+<div id="m-ref">
+
+<div class="section-label sl-internal">📊 Internal Reporting</div>
+
+<div class="phrase-card" onclick="toggleCard(this)">
+  <div class="pc-top"><div class="pc-phrase">"We are pacing ahead of our Q1 targets."</div><span class="pc-arrow">›</span></div>
+  <div class="pc-body">
+    <div class="pc-when">What it means</div>
+    <div class="pc-def">You are progressing faster than the plan requires at this point — you're on track to beat the quarter-end target, not just meet it. 'Pacing' implies a steady, monitored rate of progress.</div>
+    <div class="ex-block biz"><div class="ex-label">💼 Business</div>
+      <div class="ex-line">"We are pacing ahead of our Q1 targets, so we might have the bandwidth to take on that extra client."<span>Management committee update</span></div>
+      <div class="ex-line">"Revenue is pacing slightly behind Q2 — we need to look at where the gap is opening."<span>Internal review flagging underperformance</span></div>
+    </div>
+    <div class="ex-block daily"><div class="ex-label">🗣️ Daily</div>
+      <div class="ex-line">"We're pacing ahead of schedule on the renovation — the builders are two weeks early, which almost never happens."<span>Home project update</span></div>
+      <div class="ex-line">"I'm pacing well for the marathon — I hit the 20-mile mark in better shape than I expected."<span>Training conversation</span></div>
+    </div>
+    <div class="pc-tip">💡 'Pacing' signals you are monitoring progress against a rate, not just a final outcome. More precise than 'we're doing well'. Use it when you want to sound like someone who tracks performance systematically.</div>
+  </div>
+</div>
+
+<div class="phrase-card" onclick="toggleCard(this)">
+  <div class="pc-top"><div class="pc-phrase">"I'd like to double-click on that — why did it spike in November?"</div><span class="pc-arrow">›</span></div>
+  <div class="pc-body">
+    <div class="pc-when">What it means</div>
+    <div class="pc-def">Go one level deeper into a specific data point or issue — beyond the summary number to understand what is actually driving it.</div>
+    <div class="ex-block biz"><div class="ex-label">💼 Business</div>
+      <div class="ex-line">"I'd like to double-click on that customer churn rate — why did it spike in November specifically?"<span>Internal reporting meeting</span></div>
+      <div class="ex-line">"Before we move on — can we double-click on the Asia revenue line? The growth looks strong but I want to understand the mix."<span>Management committee</span></div>
+    </div>
+    <div class="ex-block daily"><div class="ex-label">🗣️ Daily</div>
+      <div class="ex-line">"Let me double-click on that for a second — you said the doctor wasn't concerned, but what exactly did he say?"<span>Following up carefully on a friend's health news</span></div>
+      <div class="ex-line">"I want to double-click on the cost — the headline price looks fine but what's included and what isn't?"<span>Reviewing a quote or invoice</span></div>
+    </div>
+    <div class="pc-tip">💡 From the computer metaphor: clicking once gives you the label, double-clicking opens the contents. In meetings, 'double-click on that' signals analytical rigour — you don't accept a surface number, you want to understand what's inside it.</div>
+  </div>
+</div>
+
+<div class="phrase-card" onclick="toggleCard(this)">
+  <div class="pc-top"><div class="pc-phrase">"I'm trying to get a pulse on the market sentiment."</div><span class="pc-arrow">›</span></div>
+  <div class="pc-body">
+    <div class="pc-when">What it means</div>
+    <div class="pc-def">You are in the process of informally gauging how the market — or a group of people — is feeling about something, before forming a firm view or making a decision.</div>
+    <div class="ex-block biz"><div class="ex-label">💼 Business</div>
+      <div class="ex-line">"I'm trying to get a pulse on the market sentiment regarding the latest interest rate hike before we finalise the timing."<span>Pre-deal preparation</span></div>
+      <div class="ex-line">"I spent the morning getting a pulse on the investor base — the feedback is more cautious than I expected."<span>Post-call internal debrief</span></div>
+    </div>
+    <div class="ex-block daily"><div class="ex-label">🗣️ Daily</div>
+      <div class="ex-line">"I'm getting a pulse on the team before I bring this idea to the boss — I want to know if there's appetite."<span>Sounding out colleagues informally</span></div>
+      <div class="ex-line">"I called a few parents to get a pulse on how people feel about the new school policy."<span>Community conversation</span></div>
+    </div>
+    <div class="pc-tip">💡 'Get a pulse' = check the vital signs of a situation informally. Like a doctor's hand on a wrist — a quick, real-time read rather than a full analysis. Very natural for describing informal market or stakeholder checks.</div>
+  </div>
+</div>
+
+<div class="phrase-card" onclick="toggleCard(this)">
+  <div class="pc-top"><div class="pc-phrase">"The team is being spread too thin — we need to prioritise."</div><span class="pc-arrow">›</span></div>
+  <div class="pc-body">
+    <div class="pc-when">What it means</div>
+    <div class="pc-def">Resources — people, time, attention — are being divided across too many things simultaneously, which means none of them will be done well. A call to focus.</div>
+    <div class="ex-block biz"><div class="ex-label">💼 Business</div>
+      <div class="ex-line">"The marketing department is being spread too thin across five different product launches — we need to prioritise the two that actually move the needle."<span>Management review</span></div>
+      <div class="ex-line">"I'm concerned we're spreading the junior team too thin — three live deals and two pitches at the same time is not sustainable."<span>Team capacity conversation with MD</span></div>
+    </div>
+    <div class="ex-block daily"><div class="ex-label">🗣️ Daily</div>
+      <div class="ex-line">"I've been spreading myself too thin this month — three projects, the kids' schedule, and the renovation. Something has to give."<span>Personal reflection</span></div>
+      <div class="ex-line">"The committee is spread too thin — we need to either get more volunteers or cut the number of events."<span>Community organisation meeting</span></div>
+    </div>
+    <div class="pc-tip">💡 'Spread too thin' comes from spreading butter — if you try to cover too much bread with the same amount, none of it gets properly covered. One of the most natural and vivid ways to flag a resource problem without sounding alarmist.</div>
+  </div>
+</div>
+
+<div class="phrase-card" onclick="toggleCard(this)">
+  <div class="pc-top"><div class="pc-phrase">"Does the committee have any reservations we should address?"</div><span class="pc-arrow">›</span></div>
+  <div class="pc-body">
+    <div class="pc-when">What it means</div>
+    <div class="pc-def">A direct but respectful invitation for the approval body to raise concerns before a decision is finalised — giving them space to voice doubts rather than leaving them unspoken.</div>
+    <div class="ex-block biz"><div class="ex-label">💼 Business</div>
+      <div class="ex-line">"Does the committee have any reservations we should address before we move to final execution?"<span>Risk committee or credit committee presentation</span></div>
+      <div class="ex-line">"Before we put this to a vote — are there reservations on the table that we haven't properly addressed?"<span>Board meeting</span></div>
+    </div>
+    <div class="ex-block daily"><div class="ex-label">🗣️ Daily</div>
+      <div class="ex-line">"Do you have any reservations about the venue before I put down the deposit?"<span>Event planning with a partner</span></div>
+      <div class="ex-line">"My parents have some reservations about the timing — I want to address them before we announce anything."<span>Personal planning conversation</span></div>
+    </div>
+    <div class="pc-tip">💡 'Reservations' is more sophisticated than 'concerns' or 'worries' — it implies a considered, partially-formed doubt rather than an alarm. Asking for reservations before execution shows political awareness and prevents silent opposition from becoming a problem later.</div>
+  </div>
+</div>
+
+<div class="phrase-card" onclick="toggleCard(this)">
+  <div class="pc-top"><div class="pc-phrase">"We believe this is the most prudent path — we're looking for your authorisation to execute."</div><span class="pc-arrow">›</span></div>
+  <div class="pc-body">
+    <div class="pc-when">What it means</div>
+    <div class="pc-def">You have assessed the options, selected the most careful and well-judged course of action, and are now formally requesting sign-off to proceed.</div>
+    <div class="ex-block biz"><div class="ex-label">💼 Business</div>
+      <div class="ex-line">"We believe this is the most prudent path forward, and we're looking for your authorisation to execute."<span>Risk committee or investment committee</span></div>
+      <div class="ex-line">"Given the current environment, the prudent path is to hold rather than deploy — we wanted to flag that before acting."<span>Internal capital allocation discussion</span></div>
+    </div>
+    <div class="ex-block daily"><div class="ex-label">🗣️ Daily</div>
+      <div class="ex-line">"The most prudent thing to do right now is wait for the full survey before making an offer."<span>Property decision</span></div>
+      <div class="ex-line">"I know it's not exciting, but the prudent path is to keep three months of expenses in cash before investing anything."<span>Personal finance advice</span></div>
+    </div>
+    <div class="pc-tip">💡 'Prudent' = wise and careful, especially with regard to risk. More formal than 'sensible' or 'safe'. It implies you've weighed the options and this is the most responsible choice. 'Looking for your authorisation' is the formal, correct way to ask for sign-off in a committee setting.</div>
+  </div>
+</div>
+
+<div class="phrase-card" onclick="toggleCard(this)">
+  <div class="pc-top"><div class="pc-phrase">"Our meeting offered a brief glimpse of the upcoming organisational pivot."</div><span class="pc-arrow">›</span></div>
+  <div class="pc-body">
+    <div class="pc-when">What it means</div>
+    <div class="pc-def">The meeting gave a partial, early view of a major strategic change that is coming — not the full picture, but enough to signal direction.</div>
+    <div class="ex-block biz"><div class="ex-label">💼 Business</div>
+      <div class="ex-line">"Our meeting with the CEO offered a brief glimpse of the upcoming organisational pivot — it sounds significant but the details aren't confirmed yet."<span>Internal debrief after a leadership meeting</span></div>
+      <div class="ex-line">"The town hall gave us a glimpse of the new strategy — it's a meaningful pivot toward the institutional market."<span>Post-all-hands debrief with your team</span></div>
+    </div>
+    <div class="ex-block daily"><div class="ex-label">🗣️ Daily</div>
+      <div class="ex-line">"The preview gave us a glimpse of the new season — it looks like a big pivot from what they were doing before."<span>Discussing a TV show or film</span></div>
+      <div class="ex-line">"That conversation gave me a glimpse of how he really feels about the move — I think there's more to it than he's saying."<span>Reading between the lines of a conversation</span></div>
+    </div>
+    <div class="pc-tip">💡 'A brief glimpse' = a partial, early, incomplete view — not a full reveal. 'Organisational pivot' = a significant change in the structure or direction of the firm. Using 'glimpse' manages expectations — you saw something but you're not claiming to know the full picture.</div>
+  </div>
+</div>
+
+<div class="phrase-card" onclick="toggleCard(this)">
+  <div class="pc-top"><div class="pc-phrase">"We need to clear the internal hurdle at the committee meeting."</div><span class="pc-arrow">›</span></div>
+  <div class="pc-body">
+    <div class="pc-when">What it means</div>
+    <div class="pc-def">Before the deal or project can proceed externally, it must first pass an internal approval process — the committee is a formal obstacle that must be successfully navigated.</div>
+    <div class="ex-block biz"><div class="ex-label">💼 Business</div>
+      <div class="ex-line">"We try to clear the internal hurdle at the committee meeting on Thursday before we take this to the client."<span>Deal preparation</span></div>
+      <div class="ex-line">"The hardest part of this deal isn't the client — it's clearing the credit committee internally. The leverage ratio is going to be a sticking point."<span>Internal strategy discussion</span></div>
+    </div>
+    <div class="ex-block daily"><div class="ex-label">🗣️ Daily</div>
+      <div class="ex-line">"The planning application is ready — now we just need to clear the hurdle with the council."<span>Home renovation discussion</span></div>
+      <div class="ex-line">"I still need to clear the hurdle with my parents before I can commit — they want to meet him first."<span>Personal situation</span></div>
+    </div>
+    <div class="pc-tip">💡 'Clear the hurdle' = pass a required threshold or obstacle. In finance, 'internal hurdle' specifically refers to internal approval gates (credit committee, risk committee, investment committee) that must be passed before external execution. Very common in banking and asset management.</div>
+  </div>
+</div>
+
+<div class="phrase-card" onclick="toggleCard(this)">
+  <div class="pc-top"><div class="pc-phrase">"I'm looking to deepen the touchpoints within their Treasury team."</div><span class="pc-arrow">›</span></div>
+  <div class="pc-body">
+    <div class="pc-when">What it means</div>
+    <div class="pc-def">You want to build more frequent and meaningful contact with multiple people inside the client's Treasury function — so the relationship is broader and deeper than a single point of contact.</div>
+    <div class="ex-block biz"><div class="ex-label">💼 Business</div>
+      <div class="ex-line">"I'm looking to deepen the touchpoints within their Treasury team to ensure we are their first call for the next mandate."<span>Account strategy review</span></div>
+      <div class="ex-line">"We have a strong relationship at CFO level, but the touchpoints further down the organisation are thin — that's a risk."<span>Client coverage review</span></div>
+    </div>
+    <div class="ex-block daily"><div class="ex-label">🗣️ Daily</div>
+      <div class="ex-line">"I want to deepen my touchpoints with the senior team before I ask for a promotion — I need more people to know my work."<span>Career planning</span></div>
+      <div class="ex-line">"I've realised my touchpoints with that part of the family are really limited — I only see them at Christmas."<span>Family relationship reflection</span></div>
+    </div>
+    <div class="pc-tip">💡 'Touchpoints' = moments of contact or interaction between two parties. 'Deepen the touchpoints' = make existing contacts more meaningful AND build new ones at different levels. Essential coverage language in client-facing roles.</div>
+  </div>
+</div>
+
+<div class="section-label sl-cross" style="margin-top:28px">🤝 Cross-Team</div>
+
+<div class="phrase-card" onclick="toggleCard(this)">
+  <div class="pc-top"><div class="pc-phrase">"What are the gating items?"</div><span class="pc-arrow">›</span></div>
+  <div class="pc-body">
+    <div class="pc-when">What it means</div>
+    <div class="pc-def">Which specific tasks, approvals, or dependencies must be completed before the project can move forward? A gating item is a blocker — nothing progresses until it is resolved.</div>
+    <div class="ex-block biz"><div class="ex-label">💼 Business</div>
+      <div class="ex-line">"Before we discuss the timeline — what are the gating items? What absolutely has to happen before we can launch?"<span>Project kick-off meeting</span></div>
+      <div class="ex-line">"Legal sign-off and the KYC clearance are the two gating items. Everything else can run in parallel."<span>Deal execution coordination</span></div>
+    </div>
+    <div class="ex-block daily"><div class="ex-label">🗣️ Daily</div>
+      <div class="ex-line">"What are the gating items before we can book? Do we need the visa sorted first, or can we do that after?"<span>Holiday planning</span></div>
+      <div class="ex-line">"The gating item for the whole renovation is the structural survey — everything else depends on that."<span>Home project</span></div>
+    </div>
+    <div class="pc-tip">💡 'Gating item' = a prerequisite that controls access to the next stage — like a gate that opens only when the condition is met. One of the most useful project management phrases in business English. It immediately forces a meeting to focus on what is actually blocking progress.</div>
+  </div>
+</div>
+
+<div class="phrase-card" onclick="toggleCard(this)">
+  <div class="pc-top"><div class="pc-phrase">"I think we're in the same ballpark."</div><span class="pc-arrow">›</span></div>
+  <div class="pc-body">
+    <div class="pc-when">What it means</div>
+    <div class="pc-def">Your positions, estimates, or views are broadly similar — close enough that agreement is reachable, even if the exact figures or details aren't yet aligned.</div>
+    <div class="ex-block biz"><div class="ex-label">💼 Business</div>
+      <div class="ex-line">"I think we're in the same ballpark on the valuation — the gap between us is 5%, not 50%. Let's focus on closing it."<span>Negotiation with a co-lead or counterparty</span></div>
+      <div class="ex-line">"Good — we're in the same ballpark on timeline. Now let's work out who owns what."<span>Cross-team planning meeting</span></div>
+    </div>
+    <div class="ex-block daily"><div class="ex-label">🗣️ Daily</div>
+      <div class="ex-line">"We're in the same ballpark on the budget — neither of us wants to spend more than £500 per person."<span>Planning a group holiday</span></div>
+      <div class="ex-line">"I think we're in the same ballpark in terms of what we want from a flat — location matters more than size for both of us."<span>Flat-hunting with a flatmate</span></div>
+    </div>
+    <div class="pc-tip">💡 From baseball — being 'in the ballpark' means you're in the same general area. It signals approximate alignment without claiming full agreement. Very useful in negotiations and planning meetings to establish that the gap is closeable.</div>
+  </div>
+</div>
+
+<div class="phrase-card" onclick="toggleCard(this)">
+  <div class="pc-top"><div class="pc-phrase">"Thank you for flagging that."</div><span class="pc-arrow">›</span></div>
+  <div class="pc-body">
+    <div class="pc-when">What it means</div>
+    <div class="pc-def">Acknowledging that someone has raised an issue, risk, or piece of information that you needed to know — validating the act of raising it, regardless of whether you have a solution yet.</div>
+    <div class="ex-block biz"><div class="ex-label">💼 Business</div>
+      <div class="ex-line">"Thank you for flagging that — I wasn't aware the legal timeline had slipped. Let me look into it and come back to you."<span>Cross-team update meeting</span></div>
+      <div class="ex-line">"Thanks for flagging the model error before it went to the client. That's exactly the kind of check we need."<span>Feedback to a junior analyst</span></div>
+    </div>
+    <div class="ex-block daily"><div class="ex-label">🗣️ Daily</div>
+      <div class="ex-line">"Thanks for flagging that the restaurant is fully booked on Saturday — I had no idea. Let me find an alternative."<span>Planning a dinner</span></div>
+      <div class="ex-line">"Thank you for flagging your concern — I'll make sure we talk about it properly before we make a final decision."<span>Responding to a family member's worry</span></div>
+    </div>
+    <div class="pc-tip">💡 'Flag' = raise to someone's attention, like raising a flag to be noticed. 'Thank you for flagging' is one of the most important phrases in collaborative work — it rewards people for speaking up, which encourages them to do it again. Use it every time someone raises a risk or problem proactively.</div>
+  </div>
+</div>
+
+<div class="phrase-card" onclick="toggleCard(this)">
+  <div class="pc-top"><div class="pc-phrase">"Let's delineate the responsibilities / roles / workstream."</div><span class="pc-arrow">›</span></div>
+  <div class="pc-body">
+    <div class="pc-when">What it means</div>
+    <div class="pc-def">Draw clear, explicit boundaries between who does what — removing ambiguity about ownership, roles, or the scope of different work streams before execution begins.</div>
+    <div class="ex-block biz"><div class="ex-label">💼 Business</div>
+      <div class="ex-line">"Before we get started, let's delineate the responsibilities — I want to be clear about who owns what so we don't have gaps or overlaps."<span>Cross-team project kick-off</span></div>
+      <div class="ex-line">"We need to delineate the workstream more clearly — right now both teams think they own the investor communication."<span>Resolving a cross-team confusion</span></div>
+    </div>
+    <div class="ex-block daily"><div class="ex-label">🗣️ Daily</div>
+      <div class="ex-line">"Let's delineate who does what on the move — you handle the estate agent, I'll deal with the solicitor."<span>Dividing tasks with a partner</span></div>
+      <div class="ex-line">"We need to delineate the roles more clearly in this event committee — otherwise three people end up doing the same thing."<span>Volunteer organisation</span></div>
+    </div>
+    <div class="pc-tip">💡 'Delineate' = define boundaries with precision. More formal and exact than 'clarify' or 'sort out'. It implies you are drawing lines, not just having a chat. Use it at the start of any collaborative project to prevent the confusion and duplication that comes from undefined ownership.</div>
+  </div>
+</div>
+
+<div class="phrase-card" onclick="toggleCard(this)">
+  <div class="pc-top"><div class="pc-phrase">"Let's socialise this idea across departments first."</div><span class="pc-arrow">›</span></div>
+  <div class="pc-body">
+    <div class="pc-when">What it means</div>
+    <div class="pc-def">Share the idea informally with key stakeholders across different teams before it becomes a formal proposal — building awareness, gathering reactions, and creating buy-in before the official decision point.</div>
+    <div class="ex-block biz"><div class="ex-label">💼 Business</div>
+      <div class="ex-line">"Before we put this to the committee, let's socialise the idea across the key departments and see where the friction is."<span>Pre-committee strategy</span></div>
+      <div class="ex-line">"I want to socialise this with Risk and Legal before we go to the MD — I'd rather know the objections now than in the meeting."<span>Internal proposal preparation</span></div>
+    </div>
+    <div class="ex-block daily"><div class="ex-label">🗣️ Daily</div>
+      <div class="ex-line">"I'm going to socialise the idea of a summer trip with the group before I book anything — I want to make sure people are actually keen."<span>Group holiday planning</span></div>
+      <div class="ex-line">"I need to socialise the idea with my parents first before we make any announcements."<span>Personal news that affects family</span></div>
+    </div>
+    <div class="pc-tip">💡 'Socialise an idea' (business use) = share informally to build support and identify resistance before formal decision-making. This is one of the most valuable skills in large organisations — decisions rarely fail in a meeting if the groundwork has been laid properly beforehand.</div>
+  </div>
+</div>
+
+<div class="phrase-card" onclick="toggleCard(this)">
+  <div class="pc-top"><div class="pc-phrase">"It looks a bit obscure — can you clarify?"</div><span class="pc-arrow">›</span></div>
+  <div class="pc-body">
+    <div class="pc-when">What it means</div>
+    <div class="pc-def">The information, slide, or explanation is unclear, hard to follow, or not easily understood — politely asking for simplification or clarification.</div>
+    <div class="ex-block biz"><div class="ex-label">💼 Business</div>
+      <div class="ex-line">"The methodology on slide 7 looks a bit obscure to me — can we simplify the language before this goes to the client?"<span>Internal document review</span></div>
+      <div class="ex-line">"The footnote structure is a bit obscure — an investor reading this for the first time won't understand what it refers to."<span>Reviewing a term sheet or prospectus</span></div>
+    </div>
+    <div class="ex-block daily"><div class="ex-label">🗣️ Daily</div>
+      <div class="ex-line">"The instructions are a bit obscure — I've read them three times and I'm still not sure which step comes first."<span>Assembling furniture or following a recipe</span></div>
+      <div class="ex-line">"His explanation was a bit obscure — I nodded but I'm not sure I actually understood what he was proposing."<span>After a confusing conversation</span></div>
+    </div>
+    <div class="pc-tip">💡 'Obscure' = difficult to understand; not clear or obvious. A more precise and polished alternative to 'confusing' or 'unclear'. It describes a quality of the material itself rather than your failure to understand it — which makes it a less embarrassing observation to raise.</div>
+  </div>
+</div>
+
+<div class="phrase-card" onclick="toggleCard(this)">
+  <div class="pc-top"><div class="pc-phrase">"Don't dwell too much on the formatting."</div><span class="pc-arrow">›</span></div>
+  <div class="pc-body">
+    <div class="pc-when">What it means</div>
+    <div class="pc-def">Don't spend excessive time on the visual presentation or layout — the content and substance matter more at this stage. A signal to prioritise substance over appearance.</div>
+    <div class="ex-block biz"><div class="ex-label">💼 Business</div>
+      <div class="ex-line">"Don't dwell too much on the formatting at this stage — I'd rather see the analysis right and clean up the slides later."<span>Feedback to a junior on a draft</span></div>
+      <div class="ex-line">"The first draft doesn't need to look perfect. Don't dwell on the formatting — get the numbers right first."<span>Managing a tight deadline</span></div>
+    </div>
+    <div class="ex-block daily"><div class="ex-label">🗣️ Daily</div>
+      <div class="ex-line">"Don't dwell too much on what to wear — it's a casual dinner, not a presentation."<span>Getting ready for a social event</span></div>
+      <div class="ex-line">"Don't dwell on the wording of the message — just send it. Overthinking it makes it worse."<span>Encouraging someone to send a difficult message</span></div>
+    </div>
+    <div class="pc-tip">💡 'Dwell' = spend too much time on something; linger. 'Don't dwell on X' is one of the most useful phrases for managing priorities and redirecting someone's attention from the irrelevant to the important. Works in professional and personal contexts equally well.</div>
+  </div>
+</div>
+
+<div class="phrase-card" onclick="toggleCard(this)">
+  <div class="pc-top"><div class="pc-phrase">"Please sanity-check the formulas before this goes out."</div><span class="pc-arrow">›</span></div>
+  <div class="pc-body">
+    <div class="pc-when">What it means</div>
+    <div class="pc-def">Do a quick, practical check to make sure the calculations or logic are correct and produce results that make sense — catching obvious errors before the work is presented externally.</div>
+    <div class="ex-block biz"><div class="ex-label">💼 Business</div>
+      <div class="ex-line">"Please sanity-check the formulas before this goes to the client — especially the IRR calculation on tab 3."<span>Request to a junior analyst</span></div>
+      <div class="ex-line">"Can someone sanity-check the revenue projections? They're implying 40% growth in year one and I want to make sure that's intentional."<span>Model review meeting</span></div>
+    </div>
+    <div class="ex-block daily"><div class="ex-label">🗣️ Daily</div>
+      <div class="ex-line">"Can you sanity-check my maths on this? I want to make sure I haven't made an error on the mortgage calculation."<span>Personal finance</span></div>
+      <div class="ex-line">"Just sanity-check the recipe timings before we start — I want to make sure everything finishes at the same time."<span>Cooking a complex meal</span></div>
+    </div>
+    <div class="pc-tip">💡 'Sanity-check' = a quick verification that results pass a basic test of logic and reasonableness — not a full audit, but a check that nothing is obviously wrong. The implication is: does this make sense? Is it producing numbers that a reasonable person would expect?</div>
+  </div>
+</div>
+
+<div class="phrase-card" onclick="toggleCard(this)">
+  <div class="pc-top"><div class="pc-phrase">"We need a bulletproof valuation before this goes to the committee."</div><span class="pc-arrow">›</span></div>
+  <div class="pc-body">
+    <div class="pc-when">What it means</div>
+    <div class="pc-def">The valuation must be so rigorous, well-supported, and defensible that no challenge or objection can undermine it — it must withstand the most sceptical scrutiny.</div>
+    <div class="ex-block biz"><div class="ex-label">💼 Business</div>
+      <div class="ex-line">"We need a bulletproof valuation before this goes to the committee — every assumption needs to be sourced and every comp needs to be justified."<span>Preparing for an investment committee</span></div>
+      <div class="ex-line">"The MD will challenge every number in that room. Make sure the valuation is bulletproof."<span>Coaching a junior before a committee presentation</span></div>
+    </div>
+    <div class="ex-block daily"><div class="ex-label">🗣️ Daily</div>
+      <div class="ex-line">"I want a bulletproof case before I raise this with HR — I need to document everything first."<span>Preparing to address a workplace issue</span></div>
+      <div class="ex-line">"My argument needs to be bulletproof before I bring it up with the landlord — he'll find any weakness."<span>Preparing for a difficult conversation</span></div>
+    </div>
+    <div class="pc-tip">💡 'Bulletproof' = impossible to shoot down; able to withstand any attack. In finance, a bulletproof valuation is one where every assumption, comparable, and methodology can be defended under hostile questioning. The standard you should always be aiming for before a committee.</div>
+  </div>
+</div>
+
+<div class="phrase-card" onclick="toggleCard(this)">
+  <div class="pc-top"><div class="pc-phrase">"We should be an early mover on this."</div><span class="pc-arrow">›</span></div>
+  <div class="pc-body">
+    <div class="pc-when">What it means</div>
+    <div class="pc-def">Act before others do — take advantage of the opportunity while it is still open and before competitors or the market catches up.</div>
+    <div class="ex-block biz"><div class="ex-label">💼 Business</div>
+      <div class="ex-line">"We should be an early mover on this sector before every other bank has a coverage team in place."<span>Strategic coverage discussion</span></div>
+      <div class="ex-line">"The ESG bond market is developing fast — the banks that are early movers will have a real advantage in two years."<span>Product strategy meeting</span></div>
+    </div>
+    <div class="ex-block daily"><div class="ex-label">🗣️ Daily</div>
+      <div class="ex-line">"We should be early movers on the neighbourhood — prices are still reasonable but that won't last."<span>Property market discussion</span></div>
+      <div class="ex-line">"He was an early mover on the AI tools — while everyone was sceptical, he was already using them daily."<span>Describing a forward-thinking colleague</span></div>
+    </div>
+    <div class="pc-tip">💡 'Early mover advantage' = the benefit of acting before others, while conditions are still optimal. The counterpart phrase is 'late mover disadvantage'. In internal strategy meetings, calling for early mover action is a way to argue for speed without being alarmist.</div>
+  </div>
+</div>
+
+<div class="phrase-card" onclick="toggleCard(this)">
+  <div class="pc-top"><div class="pc-phrase">"Can we compress the timeline on this?"</div><span class="pc-arrow">›</span></div>
+  <div class="pc-body">
+    <div class="pc-when">What it means</div>
+    <div class="pc-def">Is it possible to complete this in a shorter timeframe than currently planned — by running tasks in parallel, removing delays, or increasing resources?</div>
+    <div class="ex-block biz"><div class="ex-label">💼 Business</div>
+      <div class="ex-line">"Can we compress the timeline? If we run the legal review in parallel with the model build, we could shave a week off."<span>Deal execution planning</span></div>
+      <div class="ex-line">"The client wants to compress the timeline to before the earnings blackout — what would that take?"<span>Client-driven urgency conversation</span></div>
+    </div>
+    <div class="ex-block daily"><div class="ex-label">🗣️ Daily</div>
+      <div class="ex-line">"Is there any way to compress the delivery timeline? We need it before the weekend."<span>Chasing an order or contractor</span></div>
+      <div class="ex-line">"I'm trying to compress my revision timeline — I've got two weeks instead of four, so I need to prioritise."<span>Exam preparation</span></div>
+    </div>
+    <div class="pc-tip">💡 'Compress' = squeeze into a shorter space. More precise than 'speed up' — it implies a structural change to the plan (parallelising, removing steps) rather than just working faster. Always pair it with a specific proposal for how the compression would actually work.</div>
+  </div>
+</div>
+
+<div class="phrase-card" onclick="toggleCard(this)">
+  <div class="pc-top"><div class="pc-phrase">"That's the backbone of our pitch."</div><span class="pc-arrow">›</span></div>
+  <div class="pc-body">
+    <div class="pc-when">What it means</div>
+    <div class="pc-def">The central, structural argument that holds the entire pitch or proposal together — the core idea that everything else is built around.</div>
+    <div class="ex-block biz"><div class="ex-label">💼 Business</div>
+      <div class="ex-line">"The timing argument is the backbone of our pitch — if we can't make the window compelling, the rest doesn't matter."<span>Internal pitch preparation</span></div>
+      <div class="ex-line">"We've squared away the primary marketing materials and the backbone of the investor list is solid."<span>Deal execution update</span></div>
+    </div>
+    <div class="ex-block daily"><div class="ex-label">🗣️ Daily</div>
+      <div class="ex-line">"The location is the backbone of any good restaurant — everything else can be fixed, but you can't move the building."<span>Discussing a restaurant investment</span></div>
+      <div class="ex-line">"Trust is the backbone of any good relationship — without it, everything else is fragile."<span>General conversation about relationships</span></div>
+    </div>
+    <div class="pc-tip">💡 'Backbone' = the spine — the central structural element that everything else attaches to and that collapses without it. When you call something 'the backbone of the pitch', you are identifying the single most critical argument. It forces clarity about what your pitch is actually built on.</div>
+  </div>
+</div>
+
+</div><!-- end ref -->
+
+<!-- ② DRILL -->
+<div id="m-drill" style="display:none">
+  <div class="prog-row">
+    <span class="prog-text" id="dr-cnt">1 / 23</span>
+    <div class="prog-track"><div class="prog-fill" id="dr-prg" style="width:0%"></div></div>
+    <span class="prog-text" id="dr-lbl">—</span>
+  </div>
+  <div class="drill-card">
+    <div id="dr-sec-tag" class="sec-tag sec-int">Internal</div>
+    <div class="dc-sit" id="dr-sit">—</div>
+    <div class="dc-prompt" id="dr-prompt">—</div>
+  </div>
+  <div class="reveal-box" id="dr-reveal">
+    <div class="rev-label">✓ Model Phrase</div>
+    <div class="rev-phrase" id="dr-phrase">—</div>
+    <div class="rev-ex" id="dr-ex">—</div>
+    <div class="rev-tip" id="dr-tip">—</div>
+    <div class="rate-row">
+      <button class="rate-btn rate-hard" onclick="rateDr('hard')">🔴 Couldn't say it</button>
+      <button class="rate-btn rate-ok" onclick="rateDr('ok')">🟡 Said it, not fluently</button>
+      <button class="rate-btn rate-easy" onclick="rateDr('easy')">🟢 Said it naturally</button>
+    </div>
+  </div>
+  <div class="nav-row">
+    <button class="btn btn-ghost" onclick="drNav(-1)">← Prev</button>
+    <button class="btn btn-gold" id="dr-rev-btn" onclick="revealDr()">Reveal Phrase</button>
+    <button class="btn btn-ghost" onclick="drNav(1)">Next →</button>
+  </div>
+  <div style="text-align:center;margin-top:10px">
+    <button class="btn btn-ghost btn-sm" onclick="shuffleDr()">⇄ Shuffle</button>
+  </div>
+</div>
+
+<!-- ③ CHOICE -->
+<div id="m-choice">
+  <div class="prog-row">
+    <span class="prog-text" id="ch-cnt">1 / 23</span>
+    <div class="prog-track"><div class="prog-fill" id="ch-prg" style="width:0%"></div></div>
+    <span class="score-badge" id="ch-score">Score: 0 / 0</span>
+  </div>
+  <div class="choice-card">
+    <div class="ch-label">📍 What do you say here?</div>
+    <div class="ch-q" id="ch-q">—</div>
+  </div>
+  <div class="ch-opts" id="ch-opts"></div>
+  <div class="ch-fb" id="ch-fb"></div>
+  <div class="nav-row"><button class="btn btn-ghost" id="ch-next" style="display:none" onclick="nextChoice()">Next →</button></div>
+</div>
+
+<!-- ④ ROLEPLAY -->
+<div id="m-roleplay">
+  <div class="prog-row">
+    <span class="prog-text" id="rp-cnt">1 / 5</span>
+    <div class="prog-track"><div class="prog-fill" id="rp-prg" style="width:0%"></div></div>
+    <span class="prog-text" id="rp-lbl">—</span>
+  </div>
+  <div class="rp-scene">
+    <div class="rp-ctx" id="rp-ctx">—</div>
+    <div class="rp-setup" id="rp-setup">—</div>
+    <div class="rp-cue" id="rp-cue">—</div>
+  </div>
+  <textarea class="rp-ta" id="rp-ta" placeholder="Write what you would say — use the target phrases naturally…"></textarea>
+  <div class="nav-row" style="margin-bottom:12px">
+    <button class="btn btn-ghost" onclick="rpNav(-1)">← Prev</button>
+    <button class="btn btn-gold" id="rp-rev-btn" onclick="revealRP()">See Model Response</button>
+    <button class="btn btn-ghost" onclick="rpNav(1)">Next →</button>
+  </div>
+  <div class="rp-reveal" id="rp-reveal">
+    <div class="rp-rev-label">Model Response — target phrases in bold</div>
+    <div class="model-resp" id="rp-model">—</div>
+    <div class="rp-why" id="rp-why">—</div>
+    <div class="rate-row">
+      <button class="rate-btn rate-hard" onclick="rateRP('hard')">🔴 Very different</button>
+      <button class="rate-btn rate-ok" onclick="rateRP('ok')">🟡 Similar but less natural</button>
+      <button class="rate-btn rate-easy" onclick="rateRP('easy')">🟢 Close to model</button>
+    </div>
+  </div>
+</div>
+
+</main>
+<script>
+const DR=[
+  {sec:"int",phrase:"We are pacing ahead of our Q1 targets.",sit:"You're presenting at the monthly management committee. Revenue and pipeline are both tracking above plan for the quarter.",prompt:"Report your progress precisely — ahead of plan, at a tracked rate…",ex:"\"We are pacing ahead of our Q1 targets by approximately 8% — which means we may have the bandwidth to take on one more client this quarter.\"",tip:"'Pacing' signals systematic monitoring, not just optimism. Always add the implication — what being ahead of pace allows you to do."},
+  {sec:"int",phrase:"I'd like to double-click on that.",sit:"A junior has just reported that customer churn spiked in November. The number is on the slide but no explanation has been given.",prompt:"Signal that you want to go one level deeper into a specific data point before moving on…",ex:"\"I'd like to double-click on that churn spike — why did it happen in November specifically? Was it seasonal, a product issue, or something else?\"",tip:"'Double-click' = open the detail inside the headline number. Always pair it with a specific question about what is driving the number."},
+  {sec:"int",phrase:"I'm trying to get a pulse on the market sentiment.",sit:"Before finalising your CB launch timeline, you want to informally check how investors are feeling about the rate environment.",prompt:"Describe the informal market intelligence gathering you're doing before committing to a view…",ex:"\"I'm trying to get a pulse on the market sentiment regarding the latest rate decision before we finalise the timing.\"",tip:"'Get a pulse' = a quick, informal read. It implies you are actively checking, not waiting for information to come to you."},
+  {sec:"int",phrase:"The team is being spread too thin — we need to prioritise.",sit:"The junior team is currently running three live deals and two pitches simultaneously. Quality is starting to slip.",prompt:"Flag a resource overstretch problem to your MD and make the case for prioritisation…",ex:"\"I want to flag a capacity issue — the team is being spread too thin across five workstreams. We need to prioritise the two deals closest to execution and defer the rest.\"",tip:"Always follow 'spread too thin' with a specific proposal. Naming the problem without proposing the solution is venting, not managing."},
+  {sec:"int",phrase:"Does the committee have any reservations we should address?",sit:"You've just finished presenting a credit proposal to the internal risk committee. The room is quiet but you sense there may be unspoken concerns.",prompt:"Invite the committee to surface doubts before the vote — creating space for concerns rather than leaving them unspoken…",ex:"\"Before we move to a decision — does the committee have any reservations we should address? I'd rather hear them now than after execution.\"",tip:"'Reservations' is more precise than 'concerns' — it implies a considered, partially-formed doubt. Asking for them proactively shows political awareness."},
+  {sec:"int",phrase:"We believe this is the most prudent path — we're looking for your authorisation to execute.",sit:"You've presented two options to the investment committee. You've assessed both and are recommending Option A as the more careful, risk-aware choice.",prompt:"Make your recommendation clearly and formally request sign-off to proceed…",ex:"\"Having assessed both paths, we believe the phased approach is the most prudent given the current environment. We're looking for your authorisation to execute.\"",tip:"'Prudent' signals careful risk judgement, not timidity. 'Looking for authorisation' is the correct formal framing — it makes the ask explicit without being demanding."},
+  {sec:"int",phrase:"Our meeting offered a brief glimpse of the upcoming organisational pivot.",sit:"You've just come out of a one-on-one with the CEO who hinted at a major restructuring without giving details. Your team wants to know what was said.",prompt:"Share what you learned without overstating it — signal there is more coming without claiming to know the full picture…",ex:"\"The meeting offered a brief glimpse of the upcoming organisational pivot — it's significant, but the details aren't confirmed. I'd wait for the formal announcement before drawing conclusions.\"",tip:"'A brief glimpse' manages expectations — you're sharing what you saw without pretending to know more than you do. That's the credible, accurate framing."},
+  {sec:"int",phrase:"We need to clear the internal hurdle at the committee meeting.",sit:"A deal is structurally ready but requires credit committee approval before you can go to the client with terms. There is one week until the next committee.",prompt:"Frame the committee as the critical next gate — the internal obstacle that controls the deal's progress…",ex:"\"The deal is ready on our side. The next step is to clear the internal hurdle at Thursday's credit committee — if we get approval, we can go to the client with terms by end of next week.\"",tip:"'Clear the hurdle' frames the committee as a test to pass, not a bureaucratic formality. It signals that you've prepared and are confident — but that the gate is real."},
+  {sec:"int",phrase:"I'm looking to deepen the touchpoints within their Treasury team.",sit:"You have a strong CFO relationship at a key client but realise you don't know anyone else in the Treasury function. A mandate is coming and you want to be first call.",prompt:"Describe your account development plan — building a broader, deeper relationship at multiple levels…",ex:"\"My CFO relationship is strong, but I'm looking to deepen the touchpoints within the Treasury team more broadly. I want us to be their first call for the next mandate, not just a familiar face at the top.\"",tip:"'Deepen the touchpoints' = make existing contacts more meaningful AND build new relationships at different levels. The goal is breadth of relationship, not just depth at one point."},
+  // CROSS-TEAM
+  {sec:"cross",phrase:"What are the gating items?",sit:"A cross-team project kick-off meeting has just started. Multiple workstreams have been proposed but no one has identified what has to happen before anything else can move.",prompt:"Force the meeting to focus on blockers first — what must happen before anything else can proceed…",ex:"\"Before we build a timeline — what are the gating items? What absolutely has to be completed before the rest can move forward?\"",tip:"Asking for gating items at the start of any project immediately filters the important from the merely urgent. It's the most productive question you can ask in a planning meeting."},
+  {sec:"cross",phrase:"I think we're in the same ballpark.",sit:"You and a colleague from a co-lead bank have been comparing views on the conversion premium. The numbers are close but not identical.",prompt:"Signal approximate alignment — close enough to build on, without claiming full agreement…",ex:"\"I think we're in the same ballpark on the premium — you're at 30%, we're at 27.5%. The gap is small. Let's focus on closing it rather than defending our individual numbers.\"",tip:"'Same ballpark' is most effective when you immediately follow it with a proposal to close the remaining gap. It opens the door to resolution."},
+  {sec:"cross",phrase:"Thank you for flagging that.",sit:"A junior analyst on a different team has just spotted an error in a model that was about to go to the client.",prompt:"Acknowledge the flag immediately and warmly — reward the behaviour of speaking up…",ex:"\"Thank you for flagging that — I mean it. That would have been a problem if it had gone to the client. Let's fix it now and I'll make sure your MD knows you caught it.\"",tip:"Adding 'I mean it' makes the thanks genuine rather than reflexive. Mentioning their MD turns a private acknowledgement into a visible reward."},
+  {sec:"cross",phrase:"Let's delineate the responsibilities before we start.",sit:"A cross-functional project has been launched with four teams involved. No one has agreed on who owns what and there is already confusion about a key deliverable.",prompt:"Propose drawing clear ownership lines before execution begins — preventing the duplication and gaps that come from unclear roles…",ex:"\"Before we go any further — let's delineate the responsibilities. Right now two teams think they own the investor communication and neither does it well. I want clear lines before we start.\"",tip:"The word 'delineate' signals precision and seriousness. It implies boundaries will be drawn — not just discussed."},
+  {sec:"cross",phrase:"Let's socialise this across departments before the committee.",sit:"You have a new internal proposal that will affect Risk, Legal, and Operations. The committee meeting is in two weeks.",prompt:"Propose building internal support informally before the formal decision point…",ex:"\"I want to socialise this across Risk and Legal before we take it to the committee — I'd rather identify the friction points now and address them than walk in cold.\"",tip:"'Identify the friction points' is the key phrase to add — it explains why socialising early is strategic, not just political."},
+  {sec:"cross",phrase:"It looks a bit obscure — can we simplify this?",sit:"A junior has sent you a draft slide with a complex footnote structure and technical language that even you found hard to follow on first read.",prompt:"Flag that the material is unclear in a way that is constructive rather than critical…",ex:"\"The analysis is solid but this section looks a bit obscure to me — if I'm finding it hard to follow, the client definitely will. Let's simplify the language before this goes out.\"",tip:"'If I'm finding it hard to follow, the client definitely will' is the key framing — it makes the feedback about the audience, not a criticism of the junior's ability."},
+  {sec:"cross",phrase:"Don't dwell too much on the formatting.",sit:"A junior analyst is spending three hours perfecting the font alignment on a draft that needs to be reviewed for content errors first.",prompt:"Redirect their focus from presentation to substance — without dismissing their effort…",ex:"\"I appreciate the care, but don't dwell too much on the formatting at this stage — let's make sure the numbers are right first and we can polish the slides later.\"",tip:"'At this stage' softens the redirect — it's not that formatting doesn't matter, it's that content comes first in the sequence."},
+  {sec:"cross",phrase:"Please sanity-check the formulas before this goes out.",sit:"A model has been built under time pressure and is about to be sent to the client. You haven't had time to review it yourself.",prompt:"Delegate a critical last check — asking someone to verify the mechanics before external distribution…",ex:"\"Before this goes to the client — please sanity-check the formulas, especially the IRR on tab 3. If that number is wrong it's the first thing they'll ask about.\"",tip:"Always specify which part to check. 'Sanity-check everything' is too vague — 'sanity-check the IRR on tab 3' is actionable."},
+  {sec:"cross",phrase:"We need a bulletproof valuation before the committee.",sit:"A major acquisition target has been identified. The investment committee is known to be sceptical and will challenge every number.",prompt:"Set the standard for the work that needs to be done before the committee presentation…",ex:"\"The MD will challenge every assumption in that room. We need a bulletproof valuation — every comp sourced, every sensitivity explained, no gaps. If we go in with anything less, we lose the room.\"",tip:"'No gaps' is the critical addition — a bulletproof valuation doesn't just have strong numbers, it anticipates every question and has an answer ready."},
+  {sec:"cross",phrase:"We should be an early mover on this sector.",sit:"Internal strategy meeting. A new product type is gaining traction in the market but your bank doesn't yet have a dedicated coverage team.",prompt:"Make the case for acting before competitors — framing speed as a strategic advantage…",ex:"\"We should be an early mover on this — the banks that build relationships in this sector now will have a structural advantage in two years. If we wait until it's obvious, we've already missed it.\"",tip:"'If we wait until it's obvious, we've already missed it' is the punchline that gives the early mover argument its force. The opportunity is in the gap between 'too early for most' and 'obvious to everyone'."},
+  {sec:"cross",phrase:"Can we compress the timeline?",sit:"A client has asked whether a process that normally takes six weeks could be completed in four. You need to assess with your team whether it's possible.",prompt:"Ask whether the schedule can be shortened — and propose how it might be done…",ex:"\"The client wants to compress the timeline to before the earnings blackout. Can we make that work? If we run the legal review in parallel with the model build, I think we could shave ten days off.\"",tip:"Never ask 'can we compress the timeline?' without also proposing how. The question alone puts people on the defensive — the proposal gives them something to react to."},
+  {sec:"cross",phrase:"That's the backbone of our pitch.",sit:"Your team is reviewing the pitch deck. There are five arguments in the presentation and you want to identify which one is the most critical — the one everything else depends on.",prompt:"Identify the central structural argument that holds the entire pitch together…",ex:"\"The timing argument is the backbone of this pitch. If we can't make the window compelling, the rest doesn't matter. Everything else is supporting evidence for that one core claim.\"",tip:"Naming the backbone forces clarity about what the pitch is actually built on. If you can't identify the backbone, the pitch probably doesn't have one — which is itself a problem to fix."},
+  {sec:"cross",phrase:"I think we're in the same ballpark — let's close the gap.",sit:"Two departments are negotiating the budget split for a joint project. Both sides have submitted proposals that are 10% apart.",prompt:"Signal that you're close to agreement and propose moving directly to resolution…",ex:"\"We're in the same ballpark — the gap between us is £50k on a £500k budget. I think we can close that in one more conversation if we both move a bit.\"",tip:"Quantifying the gap ('£50k on a £500k budget') makes 'same ballpark' concrete — and makes the gap feel more closeable than an abstract disagreement."},
+  {sec:"cross",phrase:"Thank you for flagging that — let's address it now.",sit:"In a cross-team meeting, a Risk colleague has just raised a concern about the legal documentation that no one else had noticed.",prompt:"Acknowledge the flag publicly, validate the act of raising it, and signal immediate action…",ex:"\"Thank you for flagging that — genuinely. I want to address it now rather than carry it forward as an open item. Can you walk us through the specific issue so we can assess it together?\"",tip:"'Genuinely' makes the thanks feel real rather than reflexive. 'Address it now' signals that raising issues gets them resolved, not parked. That's the culture you want to build in every meeting."}
+];
+
+const RP=[
+  {sec:"Internal Reporting",ctx:"Management committee update — Q1 performance and capacity",setup:"You're presenting the quarterly update to the management committee. Performance is ahead of plan and you want to make a case for taking on an additional client mandate that has just come up.",cue:"MD: \"Walk us through where we are on Q1 and what you're proposing.\"",model:"Thank you. <b>We are pacing ahead of our Q1 targets</b> by approximately 9% on revenue and the pipeline is tracking well. That means <b>we have the bandwidth</b> to consider one additional mandate without stretching the team. I <b>got a pulse on the market sentiment</b> around the new client earlier this week — the appetite is there and the timing is right. I'd like to propose we take it on, but I want to make sure <b>the committee doesn't have any reservations</b> before I go back to them with terms. If we're aligned, <b>we'd be looking for authorisation to proceed</b> by end of this week.",why:"Four internal reporting phrases in a single coherent update: pacing ahead, bandwidth, pulse, reservations, authorisation. The structure — status → implication → proposal → request — is the professional formula for any management committee update."},
+  {sec:"Internal Reporting",ctx:"Post-CEO meeting debrief — sharing partial information carefully",setup:"You've just come out of a one-on-one with the CEO. He mentioned a significant restructuring but gave no details and asked for discretion. Your senior team is waiting for you.",cue:"Senior colleague: \"What happened in there? We've been hearing rumours all week.\"",model:"I want to be careful about what I share here because I was asked to be discreet. What I can tell you is that <b>the meeting offered a brief glimpse of an upcoming organisational pivot</b> — it sounds significant and it will affect our division. But the details are not confirmed and I would caution against drawing conclusions until there's a formal communication. What I'd suggest is that we <b>deepen our touchpoints</b> with the senior team over the next few weeks — and make sure <b>we are clearing the internal hurdles</b> on our current mandates cleanly. The best position to be in when a restructuring happens is to have a strong track record. Let's focus on that.",why:"'Brief glimpse of an upcoming pivot' shares something real without overstating knowledge. The pivot to action — deepen touchpoints, clear internal hurdles — is the move that turns information into something useful rather than just feeding speculation."},
+  {sec:"Cross-Team",ctx:"Cross-functional project kick-off — four teams, unclear ownership",setup:"You're chairing a kick-off meeting for a major new client onboarding project. Legal, Risk, Operations, and your deal team are all in the room. No one has agreed on who owns what.",cue:"[Everyone is looking at the agenda. Nobody has spoken yet.]",model:"Before we build a timeline — <b>let's start with the gating items</b>. What absolutely has to happen before anything else can move? In my experience the biggest risk in a project like this isn't speed, it's people thinking someone else is handling something that no one is actually handling. So: <b>let's delineate the responsibilities</b> clearly before we leave this room. I'll propose an initial split and I want each team to tell me where they see gaps or overlaps. And one more thing — <b>please sanity-check your own workstream</b> before the next meeting. I'd rather hear about a problem from you in a room like this than find out about it when it's already late.",why:"Three cross-team phrases — gating items, delineate responsibilities, sanity-check — in a natural opening that immediately sets a tone of rigour and clarity. The key insight ('people thinking someone else is handling it') explains why delineating matters, which makes the instruction feel like wisdom rather than bureaucracy."},
+  {sec:"Cross-Team",ctx:"Inter-team negotiation — closing a budget gap",setup:"You and the Head of Operations are negotiating the budget split for a joint project. Operations wants 60%, your team needs at least 55%. You're 5% apart.",cue:"Head of Operations: \"I don't see how we can go below 60% — the infrastructure costs are what they are.\"",model:"I understand the infrastructure cost argument and I'm not disputing it. But I think <b>we're in the same ballpark</b> here — we're 5% apart on a split that both of us can probably live with if we're slightly flexible. <b>Let's not dwell on the individual positions</b> and focus on what the project actually needs to succeed. What I'd propose is this: we <b>socialise a joint budget proposal</b> to the CFO rather than going in separately with competing numbers. If we go in aligned, we're more likely to get the full budget approved — and then the internal split matters less. Does that work for you?",why:"'Same ballpark' opens the door. 'Don't dwell on the individual positions' reframes the negotiation from zero-sum to shared interest. The proposal to go to the CFO together is the move that actually solves the problem — it makes cooperation more attractive than competition."},
+  {sec:"Cross-Team",ctx:"Coaching a junior — redirecting effort before a deadline",setup:"It's 6 PM. A pitch is due tomorrow morning. Your junior has been working on it all day and you've just reviewed the draft. The analysis is strong but the formatting is over-engineered and there are two formula errors she hasn't spotted.",cue:"Junior: \"I've been working on the slides all day — I think it's looking really clean. What do you think?\"",model:"The analysis is solid — genuinely. <b>Thank you for flagging</b> the sensitivity table in particular, that was the right thing to add. Two things before tomorrow. First — <b>please sanity-check the formulas on tab 2</b>, specifically the WACC calculation. I think there's an error in the discount rate input. Second, and I want to be constructive here — <b>don't dwell too much on the formatting</b> tonight. The slides look good enough. The priority right now is making sure the numbers are right. A beautiful slide with a wrong number is worse than a plain slide with a right one. Get the model right, then come back to formatting if there's time. <b>We need a bulletproof analysis</b> going into this meeting — that's the standard.",why:"Four phrases woven into genuinely useful feedback: thank you for flagging, sanity-check the formulas, don't dwell on formatting, bulletproof. The principle ('a beautiful slide with a wrong number is worse than a plain slide with a right one') is the insight that makes the feedback memorable — it teaches, not just instructs."}
+];
+
+function toggleCard(el){el.classList.toggle('open')}
+function switchTab(t,btn){['ref','drill','choice','roleplay'].forEach(id=>{const el=document.getElementById('m-'+id);if(el)el.style.display='none'});document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));document.getElementById('m-'+t).style.display='block';btn.classList.add('active');if(t==='choice')renderChoice();if(t==='roleplay')renderRP();if(t==='drill')renderDr()}
+
+let drIdx=0,drOrder=DR.map((_,i)=>i),chIdx=0,chOrder=DR.map((_,i)=>i),chScore=0,chAnswered=false,rpIdx=0,done=0,fluent=0;
+
+function renderDr(){const d=DR[drOrder[drIdx]];document.getElementById('dr-cnt').textContent=`${drIdx+1} / ${DR.length}`;document.getElementById('dr-prg').style.width=`${(drIdx/DR.length)*100}%`;document.getElementById('dr-lbl').textContent=d.phrase.substring(0,38)+'…';const tag=document.getElementById('dr-sec-tag');tag.textContent=d.sec==='int'?'📊 Internal Reporting':'🤝 Cross-Team';tag.className='sec-tag '+(d.sec==='int'?'sec-int':'sec-cross');document.getElementById('dr-sit').textContent=d.sit;document.getElementById('dr-prompt').textContent=d.prompt;document.getElementById('dr-phrase').textContent=d.phrase;document.getElementById('dr-ex').textContent=d.ex;document.getElementById('dr-tip').textContent=d.tip;document.getElementById('dr-reveal').classList.remove('show');document.getElementById('dr-rev-btn').style.display='inline-block'}
+function revealDr(){document.getElementById('dr-reveal').classList.add('show');document.getElementById('dr-rev-btn').style.display='none'}
+function rateDr(r){done++;if(r==='easy')fluent++;updateStats();drNav(1)}
+function drNav(d){drIdx=(drIdx+d+DR.length)%DR.length;renderDr()}
+function shuffleDr(){for(let i=drOrder.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[drOrder[i],drOrder[j]]=[drOrder[j],drOrder[i]]}drIdx=0;renderDr()}
+
+function renderChoice(){const d=DR[chOrder[chIdx]];document.getElementById('ch-cnt').textContent=`${chIdx+1} / ${DR.length}`;document.getElementById('ch-prg').style.width=`${(chIdx/DR.length)*100}%`;document.getElementById('ch-q').textContent=d.sit;chAnswered=false;document.getElementById('ch-fb').className='ch-fb';document.getElementById('ch-next').style.display='none';
+const wrongs=[DR[(chOrder[chIdx]+5)%DR.length].phrase,DR[(chOrder[chIdx]+11)%DR.length].phrase,DR[(chOrder[chIdx]+17)%DR.length].phrase];
+const opts=[d.phrase,...wrongs].sort(()=>Math.random()-.5);const cont=document.getElementById('ch-opts');cont.innerHTML='';opts.forEach(o=>{const btn=document.createElement('button');btn.className='ch-opt';const disp=o.length>130?o.substring(0,130)+'…':o;btn.textContent=disp;btn.onclick=()=>pickChoice(btn,o===d.phrase,d.phrase);cont.appendChild(btn)})}
+function pickChoice(btn,correct,ct){if(chAnswered)return;chAnswered=true;document.querySelectorAll('.ch-opt').forEach(b=>{b.disabled=true;const full=ct.length>130?ct.substring(0,130)+'…':ct;if(b.textContent===ct||b.textContent===full)b.classList.add('show-correct')});if(correct){btn.classList.add('correct');chScore++}else btn.classList.add('wrong');const fb=document.getElementById('ch-fb');fb.className='ch-fb show '+(correct?'ok':'no');fb.textContent=correct?'✓ Exactly right.':'✗ Not quite. The correct phrase is highlighted in green above.';document.getElementById('ch-score').textContent=`Score: ${chScore} / ${chIdx+1}`;document.getElementById('ch-next').style.display='inline-block'}
+function nextChoice(){chIdx=(chIdx+1)%DR.length;renderChoice()}
+
+function renderRP(){const r=RP[rpIdx];document.getElementById('rp-cnt').textContent=`${rpIdx+1} / ${RP.length}`;document.getElementById('rp-prg').style.width=`${(rpIdx/RP.length)*100}%`;document.getElementById('rp-lbl').textContent=r.sec;document.getElementById('rp-ctx').textContent=r.ctx;document.getElementById('rp-setup').textContent=r.setup;document.getElementById('rp-cue').textContent=r.cue;document.getElementById('rp-ta').value='';document.getElementById('rp-reveal').classList.remove('show');document.getElementById('rp-rev-btn').style.display='inline-block';document.getElementById('rp-model').innerHTML=r.model;document.getElementById('rp-why').textContent=r.why}
+function revealRP(){document.getElementById('rp-reveal').classList.add('show');document.getElementById('rp-rev-btn').style.display='none'}
+function rateRP(r){done++;if(r==='easy')fluent++;updateStats();rpNav(1)}
+function rpNav(d){rpIdx=(rpIdx+d+RP.length)%RP.length;renderRP()}
+function updateStats(){document.getElementById('s-done').textContent=done;document.getElementById('s-fluent').textContent=fluent}
+
+document.getElementById('m-drill').style.display='none';
+document.getElementById('m-choice').style.display='none';
+document.getElementById('m-roleplay').style.display='none';
+renderDr();
+</script>
+</body>
+</html>

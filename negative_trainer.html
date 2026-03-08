@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Mind & Thought — Trainer</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f5f5f5; --surface: #ffffff; --surface2: #ebebeb; --border: #dcdcdc;
+  --ink: #1c1c2e; --muted: #7a7f94; --gold: #b8892a; --gold-bg: #fdf6e3;
+  --green: #1a7a4a; --green-bg: #edf7f1; --red: #c0392b; --red-bg: #fdf0ee;
+  --blue: #2060a8; --blue-bg: #edf3fd; --accent: #7c4dbd;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; }
+header { background: var(--ink); color: #f4efe4; padding: 17px 32px; display: flex; align-items: center; justify-content: space-between; border-bottom: 3px solid var(--gold); }
+.header-title { font-family: 'Lora', serif; font-size: 1.35rem; }
+.header-title em { color: #d4aa50; }
+.header-meta { font-family: 'DM Mono', monospace; font-size: 0.68rem; opacity: 0.7; }
+.header-meta strong { color: #d4aa50; }
+.tabs { display: flex; background: var(--surface2); border-bottom: 2px solid var(--border); padding: 0 32px; }
+.tab { padding: 13px 22px; font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.07em; text-transform: uppercase; cursor: pointer; border: none; background: transparent; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -2px; white-space: nowrap; transition: all 0.18s; }
+.tab.active { color: var(--gold); border-bottom-color: var(--gold); font-weight: 600; }
+.tab:hover:not(.active) { color: var(--ink); }
+main { max-width: 760px; margin: 0 auto; padding: 28px 32px; }
+.prog-row { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; }
+.prog-text { font-family: 'DM Mono', monospace; font-size: 0.68rem; color: var(--muted); white-space: nowrap; }
+.prog-track { flex: 1; height: 3px; background: var(--border); border-radius: 2px; }
+.prog-fill { height: 100%; background: var(--gold); border-radius: 2px; transition: width 0.4s; }
+.situation-card { background: var(--surface); border: 1.5px solid var(--border); border-radius: 8px; padding: 28px 32px; margin-bottom: 16px; box-shadow: 0 1px 6px rgba(0,0,0,0.06); position: relative; overflow: hidden; }
+.situation-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--gold), #d4aa50); }
+.sc-label { font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; }
+.sc-situation { font-size: 0.97rem; line-height: 1.75; color: var(--muted); margin-bottom: 10px; }
+.sc-prompt { font-family: 'Lora', serif; font-style: italic; font-size: 1.18rem; color: var(--ink); line-height: 1.55; }
+.reveal-box { background: var(--surface); border: 1.5px solid var(--border); border-radius: 8px; padding: 24px 28px; margin-bottom: 16px; display: none; }
+.reveal-box.show { display: block; }
+.reveal-label { font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--green); margin-bottom: 12px; }
+.reveal-phrase { font-family: 'Lora', serif; font-size: 1.5rem; font-weight: 600; color: var(--ink); margin-bottom: 10px; line-height: 1.3; }
+.reveal-example { font-family: 'Lora', serif; font-style: italic; font-size: 0.9rem; color: var(--muted); border-left: 2px solid var(--gold); padding-left: 14px; line-height: 1.65; margin-bottom: 12px; }
+.reveal-tip { font-size: 0.82rem; color: var(--blue); background: var(--blue-bg); padding: 10px 14px; border-radius: 5px; line-height: 1.55; }
+.rate-row { display: flex; gap: 9px; margin-top: 14px; }
+.rate-btn { flex: 1; padding: 10px; border-radius: 5px; border: 1px solid; font-family: 'DM Mono', monospace; font-size: 0.66rem; letter-spacing: 0.04em; text-transform: uppercase; cursor: pointer; transition: all 0.15s; }
+.rate-hard { border-color: var(--red); color: var(--red); background: transparent; }
+.rate-hard:hover { background: var(--red-bg); }
+.rate-ok { border-color: var(--gold); color: var(--gold); background: transparent; }
+.rate-ok:hover { background: var(--gold-bg); }
+.rate-easy { border-color: var(--green); color: var(--green); background: transparent; }
+.rate-easy:hover { background: var(--green-bg); }
+.nav-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.btn { padding: 9px 22px; border-radius: 5px; border: 1px solid; font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 0.05em; text-transform: uppercase; cursor: pointer; transition: all 0.15s; }
+.btn-ghost { background: transparent; color: var(--muted); border-color: var(--border); }
+.btn-ghost:hover { color: var(--ink); border-color: var(--muted); }
+.btn-gold { background: var(--gold); color: white; border-color: var(--gold); }
+.btn-gold:hover { opacity: 0.88; }
+.btn-sm { padding: 6px 14px; font-size: 0.62rem; }
+#m-choice { display: none; }
+.choice-card { background: var(--surface); border: 1.5px solid var(--border); border-radius: 8px; padding: 24px 28px; margin-bottom: 16px; box-shadow: 0 1px 6px rgba(0,0,0,0.06); }
+.choice-label { font-family: 'DM Mono', monospace; font-size: 0.62rem; color: var(--gold); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+.choice-q { font-size: 0.97rem; line-height: 1.7; color: var(--ink); }
+.choice-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.choice-opt { padding: 13px 16px; border: 1.5px solid var(--border); border-radius: 6px; background: var(--surface); font-size: 0.85rem; line-height: 1.5; cursor: pointer; text-align: left; font-family: 'DM Sans', sans-serif; transition: all 0.15s; color: var(--ink); }
+.choice-opt:hover:not(:disabled) { border-color: var(--gold); background: var(--gold-bg); }
+.choice-opt.correct { border-color: var(--green); background: var(--green-bg); color: var(--green); font-weight: 600; }
+.choice-opt.wrong { border-color: var(--red); background: var(--red-bg); color: var(--red); }
+.choice-opt.reveal-correct { border-color: var(--green); background: var(--green-bg); }
+.choice-fb { padding: 11px 14px; border-radius: 5px; font-size: 0.84rem; line-height: 1.6; display: none; margin-bottom: 12px; }
+.choice-fb.show { display: block; }
+.choice-fb.ok { background: var(--green-bg); border-left: 3px solid var(--green); color: var(--green); }
+.choice-fb.no { background: var(--red-bg); border-left: 3px solid var(--red); color: var(--red); }
+.score-badge { font-family: 'DM Mono', monospace; font-size: 0.68rem; color: var(--muted); }
+#m-roleplay { display: none; }
+.rp-scene { background: var(--surface); border: 1.5px solid var(--border); border-radius: 8px; padding: 24px 28px; margin-bottom: 14px; box-shadow: 0 1px 6px rgba(0,0,0,0.06); }
+.rp-context { font-family: 'DM Mono', monospace; font-size: 0.62rem; color: var(--accent); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 7px; }
+.rp-setup { font-size: 0.88rem; color: var(--muted); line-height: 1.65; margin-bottom: 12px; font-style: italic; }
+.rp-cue { background: var(--surface2); border-left: 3px solid var(--accent); padding: 12px 16px; border-radius: 0 6px 6px 0; font-size: 0.95rem; line-height: 1.65; color: var(--ink); }
+.rp-textarea { width: 100%; min-height: 88px; padding: 13px 15px; background: var(--surface); border: 1.5px solid var(--border); border-radius: 6px; color: var(--ink); font-size: 0.93rem; line-height: 1.65; font-family: 'DM Sans', sans-serif; resize: vertical; outline: none; margin-bottom: 10px; transition: border 0.2s; }
+.rp-textarea:focus { border-color: var(--accent); }
+.rp-reveal { background: var(--surface); border: 1.5px solid var(--border); border-radius: 8px; padding: 20px 24px; display: none; margin-bottom: 14px; }
+.rp-reveal.show { display: block; }
+.rp-reveal-label { font-family: 'DM Mono', monospace; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--gold); margin-bottom: 10px; }
+.model-resp { font-family: 'Lora', serif; font-size: 1.05rem; line-height: 1.8; color: var(--ink); margin-bottom: 10px; }
+.rp-why { font-size: 0.8rem; color: var(--muted); line-height: 1.6; background: var(--blue-bg); padding: 9px 13px; border-radius: 5px; }
+#m-browse { display: none; }
+.br-search { width: 100%; padding: 11px 15px; font-size: 0.88rem; font-family: 'DM Sans', sans-serif; border: 1.5px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--ink); outline: none; margin-bottom: 14px; transition: border 0.2s; }
+.br-search:focus { border-color: var(--gold); }
+.br-count { font-family: 'DM Mono', monospace; font-size: 0.68rem; color: var(--muted); margin-bottom: 10px; }
+.br-table { border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+.br-item { padding: 14px 18px; background: var(--surface); border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.12s; }
+.br-item:last-child { border-bottom: none; }
+.br-item:hover { background: var(--surface2); }
+.bi-phrase { font-family: 'Lora', serif; font-weight: 600; font-size: 0.95rem; color: var(--ink); }
+.bi-ex { font-family: 'Lora', serif; font-style: italic; font-size: 0.8rem; color: var(--muted); margin-top: 3px; line-height: 1.5; }
+.bi-exp { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+.bi-exp.open { display: block; }
+.bi-def { font-size: 0.84rem; color: var(--ink); line-height: 1.6; margin-bottom: 8px; }
+.bi-tip { font-size: 0.78rem; color: var(--blue); background: var(--blue-bg); padding: 8px 12px; border-radius: 4px; line-height: 1.5; }
+@media(max-width:580px){ main { padding: 16px; } header, .tabs { padding-left: 16px; padding-right: 16px; } .choice-opts { grid-template-columns: 1fr; } .rate-row { flex-direction: column; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-title">Mind <em>&amp; Thought</em></div>
+  <div class="header-meta">Done: <strong id="s-done">0</strong> &nbsp;|&nbsp; Fluent: <strong id="s-fluent">0</strong></div>
+</header>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('speak',this)">① Speaking Drill</button>
+  <button class="tab" onclick="switchTab('choice',this)">② Right Phrase?</button>
+  <button class="tab" onclick="switchTab('roleplay',this)">③ Role-Play</button>
+  <button class="tab" onclick="switchTab('browse',this)">④ Browse All</button>
+</div>
+
+<main>
+
+<!-- ① SPEAKING DRILL -->
+<div id="m-speak">
+  <div class="prog-row">
+    <span class="prog-text" id="sp-cnt">1 / 16</span>
+    <div class="prog-track"><div class="prog-fill" id="sp-prg" style="width:0%"></div></div>
+    <span class="prog-text" id="sp-lbl">—</span>
+  </div>
+  <div class="situation-card">
+    <div class="sc-label">🎯 Situation — say a natural response out loud first</div>
+    <div class="sc-situation" id="sp-sit">—</div>
+    <div class="sc-prompt" id="sp-prompt">—</div>
+  </div>
+  <div class="reveal-box" id="sp-reveal">
+    <div class="reveal-label">✓ Model Phrase</div>
+    <div class="reveal-phrase" id="sp-phrase">—</div>
+    <div class="reveal-example" id="sp-ex">—</div>
+    <div class="reveal-tip" id="sp-tip">—</div>
+    <div class="rate-row">
+      <button class="rate-btn rate-hard" onclick="rateSp('hard')">🔴 Couldn't say it</button>
+      <button class="rate-btn rate-ok" onclick="rateSp('ok')">🟡 Said it, not fluently</button>
+      <button class="rate-btn rate-easy" onclick="rateSp('easy')">🟢 Said it naturally</button>
+    </div>
+  </div>
+  <div class="nav-row">
+    <button class="btn btn-ghost" onclick="spNav(-1)">← Prev</button>
+    <button class="btn btn-gold" id="sp-rev-btn" onclick="revealSp()">Reveal Phrase</button>
+    <button class="btn btn-ghost" onclick="spNav(1)">Next →</button>
+  </div>
+  <div style="text-align:center;margin-top:10px">
+    <button class="btn btn-ghost btn-sm" onclick="shuffleSp()">⇄ Shuffle order</button>
+  </div>
+</div>
+
+<!-- ② RIGHT PHRASE? -->
+<div id="m-choice">
+  <div class="prog-row">
+    <span class="prog-text" id="ch-cnt">1 / 16</span>
+    <div class="prog-track"><div class="prog-fill" id="ch-prg" style="width:0%"></div></div>
+    <span class="score-badge" id="ch-score">Score: 0 / 0</span>
+  </div>
+  <div class="choice-card">
+    <div class="choice-label">📍 Which phrase fits this moment?</div>
+    <div class="choice-q" id="ch-q">—</div>
+  </div>
+  <div class="choice-opts" id="ch-opts"></div>
+  <div class="choice-fb" id="ch-fb"></div>
+  <div class="nav-row">
+    <button class="btn btn-ghost" id="ch-next" style="display:none" onclick="nextChoice()">Next →</button>
+  </div>
+</div>
+
+<!-- ③ ROLE-PLAY -->
+<div id="m-roleplay">
+  <div class="prog-row">
+    <span class="prog-text" id="rp-cnt">1 / 16</span>
+    <div class="prog-track"><div class="prog-fill" id="rp-prg" style="width:0%"></div></div>
+    <span class="prog-text" id="rp-lbl">—</span>
+  </div>
+  <div class="rp-scene">
+    <div class="rp-context" id="rp-ctx">—</div>
+    <div class="rp-setup" id="rp-setup">—</div>
+    <div class="rp-cue" id="rp-cue">—</div>
+  </div>
+  <textarea class="rp-textarea" id="rp-ta" placeholder="Write what you would say in this situation…"></textarea>
+  <div class="nav-row" style="margin-bottom:12px">
+    <button class="btn btn-ghost" onclick="rpNav(-1)">← Prev</button>
+    <button class="btn btn-gold" id="rp-rev-btn" onclick="revealRP()">See Model Response</button>
+    <button class="btn btn-ghost" onclick="rpNav(1)">Next →</button>
+  </div>
+  <div class="rp-reveal" id="rp-reveal">
+    <div class="rp-reveal-label">Model Response — key phrases highlighted</div>
+    <div class="model-resp" id="rp-model">—</div>
+    <div class="rp-why" id="rp-why">—</div>
+    <div class="rate-row">
+      <button class="rate-btn rate-hard" onclick="rateRP('hard')">🔴 Very different</button>
+      <button class="rate-btn rate-ok" onclick="rateRP('ok')">🟡 Similar but less natural</button>
+      <button class="rate-btn rate-easy" onclick="rateRP('easy')">🟢 Close to model</button>
+    </div>
+  </div>
+</div>
+
+<!-- ④ BROWSE -->
+<div id="m-browse">
+  <input class="br-search" type="text" id="br-q" placeholder="Search phrases, meanings, examples…" oninput="renderBrowse(this.value)">
+  <div class="br-count" id="br-count"></div>
+  <div class="br-table" id="br-list"></div>
+</div>
+
+</main>
+
+<script>
+const P = [
+  {
+    phrase: "Cloud your judgement",
+    def: "To impair someone's ability to think clearly or decide wisely — usually because a strong emotion (fear, anger, excitement, personal attachment) is interfering with rational analysis.",
+    sit: "A colleague is about to make a major career decision while still angry after a difficult performance review.",
+    prompt: "Warn someone that strong emotions are preventing them from thinking about a decision clearly…",
+    ex: "\"Don't make the call today — when you're this frustrated, emotions can cloud your judgement on something this important.\"",
+    tip: "Very effective as a gentle, caring warning rather than a criticism. It doesn't say the person is wrong — it says their current emotional state isn't the right one to make this decision from. Also useful for self-reflection: 'I think my attachment to this deal is clouding my judgement.'",
+    cq: "A colleague wants to resign immediately after a difficult conversation with his MD. He's furious and ready to send the email. You say:",
+    cc: "Don't send it today. You're angry right now and that's going to cloud your judgement — give it 48 hours and see how it looks.",
+    cw: ["I think you should wait before making such a big decision while you're this upset.", "It's not a good idea to resign when you're feeling this emotional about what happened.", "You should calm down first before doing something that could have serious consequences."],
+    ctx: "Colleague about to resign impulsively after a bad performance review",
+    setup: "Your colleague had a very difficult performance review an hour ago. He's furious and drafting a resignation email.",
+    cue: "Colleague: \"I'm done. I'm sending the resignation now. I'm not spending another day working for him.\"",
+    model: "Put the laptop down for a second. I understand the anger — completely — but <b>this decision is too big to make while it's clouding your judgement.</b> What you're feeling right now is real, but it's not the same as what you'll feel in 48 hours. <b>The email will still be there on Thursday. Your options right now won't.</b> Give yourself two days before you do anything irreversible.",
+    why: "'The email will still be there on Thursday. Your options right now won't.' is a powerful asymmetry argument. It makes the case for waiting without dismissing the emotion — and it's the kind of thing a good friend says, not just a cautious colleague."
+  },
+  {
+    phrase: "Put the past behind you",
+    def: "To stop allowing a previous negative experience, mistake, or conflict to affect your present thinking and decisions — to consciously move forward rather than dwelling.",
+    sit: "A team member is still visibly affected by a failed project six months ago and it's holding back their confidence on the new one.",
+    prompt: "Encourage someone to stop being defined or limited by a past failure and move forward with fresh energy…",
+    ex: "\"The last deal didn't go the way we hoped — but we need to put that behind us and focus on what's in front of us now.\"",
+    tip: "Not dismissive — it acknowledges the past happened while arguing it shouldn't govern the present. Effective in team motivations, post-failure debriefs, and personal coaching conversations. Best paired with a forward-looking statement about what's possible next.",
+    cq: "Six months after a difficult failed pitch, a junior analyst is still visibly hesitant and second-guessing herself. You speak to her privately:",
+    cc: "It's time to put that pitch behind you — it didn't work, we learned from it, and the client in front of us now deserves your full confidence, not the shadow of something that's over.",
+    cw: ["You really need to stop thinking about what happened with that pitch and move on now.", "The failed pitch is in the past and you shouldn't let it affect how you approach this one.", "I think you need to forget about what went wrong before and concentrate on the new opportunity."],
+    ctx: "Private coaching conversation — helping a junior analyst regain confidence",
+    setup: "Six months ago, a junior analyst's pitch went badly. She's been hesitant and over-cautious ever since. A major new pitch is coming.",
+    cue: "Junior analyst: \"I keep thinking about what happened last time. What if I make the same mistakes?\"",
+    model: "I want you to <b>put that behind you</b> — genuinely, not just as something I'm saying to make you feel better. We reviewed what happened, we made changes, and you've grown significantly since then. <b>The person who walked into that pitch six months ago is not the same person standing in front of me now.</b> The new client deserves your full attention and your best work — not a performance that's being filtered through something that's already over.",
+    why: "'The person who walked into that pitch six months ago is not the same person standing in front of me now' is the most effective thing you can say here. It makes growth concrete and personal, which is far more convincing than generic reassurance."
+  },
+  {
+    phrase: "Bottle up your feelings",
+    def: "To suppress and conceal your emotions rather than expressing them — storing them internally in a way that creates pressure over time. Almost always used as a warning against doing this.",
+    sit: "A colleague has been under enormous pressure for months and has been visibly showing strain but insisting everything is fine.",
+    prompt: "Gently raise with someone that suppressing emotions instead of expressing them is unhealthy and unsustainable…",
+    ex: "\"You've been bottling this up for months — it's okay to say that the workload is too much. No one expects you to be fine with all of it.\"",
+    tip: "The phrase itself implies the danger — a bottle can only hold so much before it breaks. Use it warmly and carefully. It's an invitation to open up, not a criticism. Always follows with what the person can actually do or say instead.",
+    cq: "A colleague who has been under extreme work pressure keeps saying he's 'fine' while clearly struggling. You speak to him privately:",
+    cc: "I don't think you're fine — and I think you've been bottling all of this up for a long time. You don't have to be fine with everything that's been asked of you.",
+    cw: ["I'm worried you're not being honest about how much pressure you're actually under right now.", "You seem to be keeping everything inside rather than talking about how difficult things have been.", "I think you need to start being more open about how much you're struggling with the current workload."],
+    ctx: "Private welfare check-in with a colleague under sustained pressure",
+    setup: "A colleague has been working 14-hour days for three months. He consistently says he's 'fine' but is visibly worn down.",
+    cue: "Colleague: \"Honestly, I'm fine. It's just busy. It'll calm down.\"",
+    model: "I hear you — but I don't entirely believe you, and I say that as someone who cares about you. <b>I think you've been bottling this up</b> for a while and telling yourself it's manageable because you don't want to be the one who couldn't handle it. <b>But there's no version of three months of 14-hour days that's just 'busy'.</b> You're allowed to say it's too much. That's not weakness — that's honesty. What would actually help right now?",
+    why: "'You don't want to be the one who couldn't handle it' names the internal story the colleague is telling himself — which is almost always the real reason people bottle things up. Naming that story directly is what makes this conversation actually useful rather than superficially reassuring."
+  },
+  {
+    phrase: "Lurking in the back of my mind",
+    def: "A thought, concern, or question that hasn't been fully addressed — it's present but not at the forefront of your attention. It's there, persistent, just below the surface.",
+    sit: "After a seemingly successful client meeting, you realise there's an unresolved question about their balance sheet that you haven't fully examined.",
+    prompt: "Raise a concern or question that has been quietly present in your thinking but not yet fully addressed…",
+    ex: "\"There's something that's been lurking in the back of my mind since that call — their revenue recognition policy. I'd like to understand it better before we go further.\"",
+    tip: "Signals intellectual honesty and careful thinking. It's a sophisticated way to introduce a concern you haven't fully formed yet — it invites discussion rather than asserting a conclusion. Very effective in due diligence, risk reviews, and analytical conversations.",
+    cq: "After two weeks of deal work, you realise there's a question about the target company's pension liabilities that nobody has fully examined. You raise it in the team meeting:",
+    cc: "Something has been lurking in the back of my mind — the pension deficit. We haven't stress-tested what happens to it if rates fall further. I think we need to.",
+    cw: ["I've been thinking about the pension liabilities and I'm not sure we've looked at them carefully enough.", "There's a question I haven't fully addressed yet about what happens to the pension deficit under different rate scenarios.", "I'm a bit concerned about the pension liability and I think it deserves more attention before we proceed."],
+    ctx: "Deal team meeting — raising an unexamined risk",
+    setup: "Two weeks into due diligence on an acquisition. The pension deficit is on the data room, noted but not stress-tested.",
+    cue: "MD: \"Are we comfortable proceeding to the next phase?\"",
+    model: "Almost — but there's something that's been <b>lurking in the back of my mind</b> that I want to surface before we commit. The pension deficit is noted in the data room but we haven't stress-tested what it looks like if rates fall another 100bps. <b>Given the current rate environment, that's not a hypothetical scenario — it's a plausible one.</b> I'd like two days to model it before we proceed. If it's immaterial, we move. If it's not, we need to know now rather than in exclusivity.",
+    why: "'I'd like two days to model it before we proceed. If it's immaterial, we move. If it's not, we need to know now rather than in exclusivity.' This is exactly the right framing. It shows proportionality — not alarmism — and names what the cost of ignoring it would be."
+  },
+  {
+    phrase: "Have a sneaking suspicion",
+    def: "A quiet, persistent intuition about something that you can't yet fully prove — a feeling that has been growing slowly in the background of your mind.",
+    sit: "The CFO has been unusually vague in recent meetings and you sense something significant is being withheld.",
+    prompt: "Share an intuition or hunch about something you can't yet prove — a feeling that keeps growing despite the lack of hard evidence…",
+    ex: "\"I have a sneaking suspicion the timeline they've given us isn't realistic — something in how they responded to the question felt evasive.\"",
+    tip: "Crucially honest — it signals you're sharing a hunch, not a conclusion. This matters professionally: you're inviting others to test the intuition with you, not asserting it as fact. The word 'sneaking' captures the gradual, quiet nature of the feeling perfectly.",
+    cq: "After three client meetings where the CFO deflected questions about Q3 performance, you share your read with your MD:",
+    cc: "I have a sneaking suspicion Q3 numbers aren't going to be good — the CFO has deflected every direct question about performance for three weeks running.",
+    cw: ["I'm starting to think the Q3 results might be disappointing based on how the CFO has been responding.", "Something feels off about the way they're talking about Q3 — I think the numbers might be worse than expected.", "I'm not sure the Q3 performance is going to meet expectations — the CFO's evasiveness is making me uncomfortable."],
+    ctx: "Private briefing with MD before an earnings call",
+    setup: "Three client meetings in a row. The CFO has deflected every question about Q3 with vague references to 'evolving conditions'.",
+    cue: "MD: \"What's your read on the Q3 earnings call tomorrow?\"",
+    model: "I <b>have a sneaking suspicion</b> it won't be good. The CFO has deflected every direct question about Q3 performance for three weeks — not with bad numbers, but with non-answers. <b>People who are managing to good news don't deflect; they hint.</b> I'd prepare the client for a miss and make sure we have our response ready before the call drops.",
+    why: "'People who are managing to good news don't deflect; they hint.' is a sharp behavioural insight — a genuine analytical principle, not just a feeling. It elevates the hunch into something more substantive and shows the MD exactly why the intuition deserves attention."
+  },
+  {
+    phrase: "Take it with a grain of salt",
+    def: "To receive information with healthy scepticism — not dismissing it entirely, but not accepting it at face value either. Believing it might be true but remaining appropriately cautious.",
+    sit: "Management has just reassured investors that there will be no further write-downs, but the history of similar reassurances gives you pause.",
+    prompt: "Advise someone to be appropriately sceptical about a piece of information without dismissing it entirely…",
+    ex: "\"The CEO's growth projections are ambitious — I'd take them with a grain of salt given his history of over-promising.\"",
+    tip: "Polite but clear scepticism — it's not calling someone a liar, it's noting that caution is warranted. Essential in investment analysis, due diligence, and any situation where you're evaluating management credibility. Much more diplomatic than 'I don't believe them'.",
+    cq: "Management has just stated publicly that there will be no further impairments to their loan book. This is the second such assurance in four months. You advise a client:",
+    cc: "I'd take that assurance with a grain of salt — they said the same thing in April and a £200m write-down followed six weeks later.",
+    cw: ["I'm not sure I fully believe management's assurance given what happened earlier in the year.", "They've said this before and it didn't turn out to be true, so I'd be cautious about accepting it.", "Given their track record of similar statements, I wouldn't be too confident in this latest assurance."],
+    ctx: "Client advisory call — management reassurance after prior miss",
+    setup: "Management issued the same 'no further write-downs' assurance in April. Six weeks later, a £200m impairment was announced.",
+    cue: "Client: \"Management is saying the loan book is clean — should we be reassured?\"",
+    model: "I'd <b>take it with a grain of salt.</b> They made the same statement in April — verbatim, almost — and a £200m write-down followed six weeks later. <b>That doesn't mean they're lying now; it may mean they genuinely don't see it coming, which in some ways is worse.</b> I'd look at the actual provisioning ratios and the NPL trend rather than relying on the verbal assurance.",
+    why: "'That doesn't mean they're lying now; it may mean they genuinely don't see it coming, which in some ways is worse.' This is a brilliantly calibrated observation. It maintains analytical fairness while pointing to something even more concerning than dishonesty — management blindness."
+  },
+  {
+    phrase: "Drift off",
+    def: "To gradually lose focus during a conversation or meeting — your attention quietly slipping away without a sharp break. Also: to gently fall asleep. The transition is gradual, not sudden.",
+    sit: "A long internal meeting has entered its second hour and you realise you haven't tracked the last few minutes of discussion.",
+    prompt: "Admit, with good humour, that your attention wandered during a conversation or meeting — and bring yourself back…",
+    ex: "\"I'm sorry — I'm afraid I drifted off for a moment there. Could you repeat the last point?\"",
+    tip: "More polite and self-aware than 'I wasn't listening'. It implies the lapse was gentle and unintentional rather than rude disengagement. A light touch of humour often helps here. Useful in long meetings, late-evening calls, or after heavy meals.",
+    cq: "You're in a two-hour internal strategy meeting. Your attention has wandered during a detailed operational update. The chair asks for your view:",
+    cc: "I apologise — I'm afraid I drifted off for a moment. Could you give me a quick summary of the last point before I respond?",
+    cw: ["Sorry, I wasn't concentrating properly just then — could you say that again please?", "I'm sorry, I missed what you just said — I wasn't fully focused for a moment there.", "Apologies, my mind wandered briefly — could you repeat what you just said?"],
+    ctx: "Long internal strategy meeting — attention lapse during operational section",
+    setup: "A two-and-a-half-hour strategy meeting. You've been fully engaged all morning but drifted during a 20-minute operational update after lunch.",
+    cue: "Chair: \"So — what's your read on the distribution model proposal?\"",
+    model: "I owe you an honest answer — <b>I'm afraid I drifted off</b> slightly during the last section. Not the whole thing, but enough that I'd rather ask for a 30-second summary than give you a half-informed response. <b>That's fairer to the proposal than pretending I caught everything.</b>",
+    why: "'That's fairer to the proposal than pretending I caught everything' is an excellent reframe. It turns the admission of inattention into an act of professional integrity — showing that you'd rather acknowledge a gap than perform false comprehension."
+  },
+  {
+    phrase: "Zone out",
+    def: "To completely disconnect from what is happening around you — daydreaming or mentally unplugging. More total than drifting off; your brain has genuinely left the room for a moment.",
+    sit: "A colleague's extended monologue about an irrelevant topic in a client meeting has caused your mind to wander completely.",
+    prompt: "Describe the experience of mentally disconnecting from a conversation or situation entirely — and pulling yourself back…",
+    ex: "\"I'm sorry — I completely zoned out for a second. What were we just talking about?\"",
+    tip: "Slightly more informal than 'drift off' — it implies a more complete disconnection. Best used with colleagues you know well rather than in formal client settings. In private reflection, it's also useful: 'I realised I'd been zoning out during my own presentation.'",
+    cq: "A long conference panel discussion has entered a very tangential section. Your colleague leans over and asks what you thought of the last speaker's point. You missed it entirely:",
+    cc: "Honestly? I completely zoned out — I was thinking about the afternoon session. What did he actually say?",
+    cw: ["I have to admit I wasn't fully paying attention to that part of the discussion.", "I missed that point I'm afraid — my mind was elsewhere during that section.", "I wasn't really following that bit — could you tell me what the main point was?"],
+    ctx: "Conference — private aside to a colleague during a panel",
+    setup: "A long conference morning. The panel has gone off-topic for 20 minutes. Your colleague asks your view on the last point.",
+    cue: "Colleague (quietly): \"What did you make of what he just said about the regulatory timeline?\"",
+    model: "I'll be honest — <b>I completely zoned out.</b> He lost me about ten minutes ago when the panel stopped talking about anything on the agenda. <b>What was the actual point on regulatory timeline?</b> Because that I do want to know.",
+    why: "Being honest about zoning out while signalling genuine interest in the specific thing that matters ('that I do want to know') rescues the conversation. It shows you're engaged with substance even when you've disengaged from performance."
+  },
+  {
+    phrase: "Snap out of it",
+    def: "To abruptly stop a mental state — distraction, sadness, hesitation, or a funk — and return to focused, present engagement. Implies a sharp, deliberate shift.",
+    sit: "You've been in a low-energy, distracted state all morning after a difficult conversation and need to re-engage before an important client call.",
+    prompt: "Describe the deliberate decision to pull yourself out of a distracted or low-energy mental state and refocus…",
+    ex: "\"I gave myself a moment and then told myself to snap out of it — the client call was in ten minutes and they needed my full attention.\"",
+    tip: "Can be directed at yourself (motivating) or gently at others (encouraging). When directed at others, tone matters enormously — it should feel supportive, not dismissive of what they're feeling. Best for temporary states, not ongoing difficulties.",
+    cq: "After a deal falling apart this morning, you're visibly distracted before a 3 PM pitch to a new client. Your colleague checks in with you before you go in:",
+    cc: "I know. I need to snap out of it — what happened this morning can wait. This client has nothing to do with that deal and they deserve my full focus.",
+    cw: ["I need to concentrate now and stop thinking about the deal that fell apart this morning.", "You're right — I should put this morning out of my mind and focus on the pitch now.", "I know I'm distracted but I need to get myself together before we go in to see this client."],
+    ctx: "Pre-pitch hallway — refocusing after a bad morning",
+    setup: "A deal collapsed at 10 AM. The team is demoralised. A major new business pitch is at 3 PM with an unrelated client.",
+    cue: "Colleague: \"You okay? You look like you're still in this morning.\"",
+    model: "I am. But I need to <b>snap out of it</b> right now. <b>What happened this morning is real and we'll deal with it properly tomorrow — but that client in there has nothing to do with it, and they deserve the version of me that isn't carrying this morning into the room.</b> Give me two minutes.",
+    why: "'They deserve the version of me that isn't carrying this morning into the room' is a mature, professional reframe. It shifts the motivation from suppressing emotion (which feels false) to serving the client (which feels purposeful). A much more effective way to refocus."
+  },
+  {
+    phrase: "Get your head in the game",
+    def: "To start focusing seriously on what's in front of you — stop being distracted, half-present, or mentally elsewhere, and engage fully with the task or situation at hand.",
+    sit: "A team member has been going through something personal and it's visibly affecting their performance on an important live project.",
+    prompt: "Encourage someone — or yourself — to shift from distracted half-engagement to complete, serious focus on what matters right now…",
+    ex: "\"We've got the board presentation in two days — I really need everyone to get their heads in the game this week.\"",
+    tip: "More energising and direct than 'please focus'. It has a sports-team quality — it implies urgency, shared stakes, and the belief that the person is capable of performing at that level. Use it as motivation, not criticism.",
+    cq: "Your team is preparing for a major regulatory hearing in 48 hours. One analyst is visibly distracted and making careless errors. You pull him aside:",
+    cc: "I need you to get your head in the game — this hearing is in 48 hours and the work you submit this week has to be flawless. Whatever else is going on, we need you fully here.",
+    cw: ["You need to concentrate more carefully on what you're doing right now — the errors are becoming a problem.", "I need you to focus properly on this hearing preparation — it's too important for careless mistakes.", "Whatever is distracting you, you need to put it aside and give this your full attention this week."],
+    ctx: "Pre-hearing team preparation — addressing a distracted analyst",
+    setup: "48 hours before a major regulatory hearing. One analyst has been making uncharacteristic errors and seems distracted.",
+    cue: "You pull him aside after noticing a third error in the briefing document.",
+    model: "I need a straight conversation. <b>I need you to get your head in the game</b> — not tomorrow, right now. This hearing is in 48 hours and what goes in front of the regulator has to be flawless. I've seen three errors in the briefing document today and that's not like you. <b>If something is going on that's making it hard to focus, tell me and we'll figure it out together. But if you're just going through the motions, that's something we need to fix today.</b>",
+    why: "Offering two paths — 'tell me and we'll figure it out' vs 'fix it today' — is both fair and clear. It refuses to assume the cause while making clear that either way, the situation needs to change. That's good management."
+  },
+  {
+    phrase: "In retrospect",
+    def: "Looking back on a past event with the benefit of what you now know — understanding it differently or more clearly with hindsight than you did at the time.",
+    sit: "After a deal that performed poorly, the team is reviewing the decision-making process to understand where the analysis went wrong.",
+    prompt: "Reflect on a past decision or event with the honest perspective that only hindsight provides…",
+    ex: "\"In retrospect, we should have weighted the regulatory risk more heavily — the signals were there, we just didn't prioritise them.\"",
+    tip: "Signals intellectual honesty and a learning mindset. It's not self-flagellation — it's clear-eyed analysis of what happened and why. Very effective in post-mortems, annual reviews, and strategy pivots. Always follow it with what would be done differently.",
+    cq: "An investment that underperformed significantly had warning signs in the due diligence that were noted but not acted on. You lead the post-mortem:",
+    cc: "In retrospect, the leverage covenant structure was the key risk and we didn't stress-test it aggressively enough. We noted it, but we didn't model the downside scenario rigorously.",
+    cw: ["Looking back, I think we didn't pay enough attention to the leverage covenant risk in our analysis.", "We can see now that the covenant structure was the main problem and we should have examined it more carefully.", "If we were doing it again, I think we'd spend a lot more time on the leverage covenants than we did."],
+    ctx: "Deal post-mortem — investment that underperformed",
+    setup: "An LBO investment has underperformed significantly. The leverage covenants triggered during a cyclical downturn that the model didn't fully stress-test.",
+    cue: "MD: \"What did we miss?\"",
+    model: "<b>In retrospect,</b> the leverage covenant structure was the critical risk and we didn't stress-test it hard enough. We noted it in the IC memo — it's on page 14 — but we modelled a base case and a mild downside. <b>We didn't model a two-year cyclical trough, which is exactly what happened.</b> The note was there; the rigour wasn't. Going forward, any covenant-heavy structure gets a full cycle stress-test as a condition of the IC submission.",
+    why: "'The note was there; the rigour wasn't' is a devastatingly honest five-word diagnosis. It's the difference between a team that documents risks and one that truly analyses them — and naming that distinction directly is what makes post-mortems actually change behaviour."
+  },
+  {
+    phrase: "A bout of",
+    def: "A short, intense period of something — usually something difficult or unpleasant. A contained episode rather than a permanent state. Used for illness, difficult emotions, bad weather, or intense activity.",
+    sit: "You missed a key meeting because you were ill last week and are explaining your absence to a client.",
+    prompt: "Describe a short, contained period of difficulty — illness, stress, or challenging conditions — that has now passed…",
+    ex: "\"I apologise for missing our call last week — I had a bout of flu that kept me off for several days.\"",
+    tip: "The word 'bout' is important — it implies the difficulty was temporary and bounded, not ongoing. It's the right word when you want to acknowledge something difficult without suggesting it's still a problem. Very common for health, weather, and emotional states.",
+    cq: "You missed a client call last Thursday due to illness. You're reconnecting with the client and want to explain briefly and professionally:",
+    cc: "I apologise for last Thursday — I had a bout of flu that came on very suddenly. I'm back to full capacity now and I've reviewed everything I missed.",
+    cw: ["I'm sorry about missing our call — I was quite unwell last week with a flu.", "I apologise for Thursday — I got sick suddenly and wasn't able to be on the call.", "Sorry for the absence last week — I had a bad case of flu which kept me away for a few days."],
+    ctx: "Client reconnection call — explaining an absence due to illness",
+    setup: "You missed a client call on Thursday because of sudden illness. You're reconnecting Monday morning.",
+    cue: "Client: \"We missed you on Thursday — everything okay?\"",
+    model: "All good now, thank you for asking. <b>I had a bout of flu</b> that arrived on Wednesday evening and knocked me out for two days — not something I saw coming. I'm fully back and I've reviewed the notes from Thursday's call. <b>I actually have a few thoughts on the timeline question that came up</b> — should we pick that up now, or do you have a better moment this week?",
+    why: "Moving immediately from the explanation of absence to 'I have thoughts on the timeline question' demonstrates that the absence has been fully compensated for. The client immediately feels like nothing was lost — which is exactly the right impression to create."
+  },
+  {
+    phrase: "Keeping me up at night",
+    def: "The one risk, concern, or worry that dominates your thinking — the thing so significant that it prevents you from fully switching off, even at rest. A vivid way to identify your biggest concern.",
+    sit: "A senior banker is asked in a client meeting to name the single biggest execution risk on a complex convertible bond deal.",
+    prompt: "Name the one concern that is so significant it stays with you — the risk that dominates your thinking above all others…",
+    ex: "\"The execution risk on the delta placement is the one thing keeping me up at night — if the arbitrage funds don't engage, the pricing won't hold.\"",
+    tip: "A vivid, honest phrase that conveys genuine priority — not everything can keep you up at night, so using it signals real concern. Very effective in risk reviews, strategy discussions, and client honesty moments. It invites others to take the concern seriously.",
+    cq: "In a deal strategy meeting, the client asks what your single biggest concern is before they launch a convertible bond. You answer honestly:",
+    cc: "The stock borrow availability for the arb funds — that's the one thing keeping me up at night. Without clean borrow, we lose the CB buyer base and the pricing collapses.",
+    cw: ["My main concern right now is whether the arbitrage funds will be able to borrow the stock they need.", "The stock borrow situation is what worries me most — if it's not available the deal economics break down.", "I'm most concerned about the borrow availability for the arb community — that's the key risk I'm watching."],
+    ctx: "Deal strategy meeting — CB launch preparation",
+    setup: "A convertible bond deal is two weeks from launch. Stock borrow for the arb community is tighter than usual.",
+    cue: "CFO: \"If you had to name one thing you're most worried about, what would it be?\"",
+    model: "Honestly? Stock borrow. That's <b>the one thing keeping me up at night.</b> The CB arb community is our anchor buyer base and they need clean, available borrow to delta-hedge. Right now the borrow market is tighter than I'd like, and if it tightens further before launch, we lose that buyer set and the book economics change significantly. <b>We're monitoring it daily and I'll flag the moment it moves.</b>",
+    why: "Naming the concern with precision — 'stock borrow for the arb community to delta-hedge' — shows mastery. Then immediately explaining the monitoring process reassures the client that the worry is being actively managed, not just identified."
+  },
+  {
+    phrase: "On edge",
+    def: "Feeling tense, anxious, and unable to fully relax — in a state of nervous readiness because of something stressful that is pending or uncertain.",
+    sit: "The entire deal team is waiting for critical pricing data to be released, which will determine whether the deal is viable.",
+    prompt: "Describe a state of collective or personal tension and anxiety while waiting for something that will determine an important outcome…",
+    ex: "\"Everyone on the syndicate desk is on edge waiting for the inflation data — it'll determine whether we can price the deal this week.\"",
+    tip: "Captures shared tension effectively — 'everyone is on edge' is a vivid team description. Also works personally: 'I've been on edge all week waiting for their decision.' It implies the tension is understandable and proportionate — not irrational.",
+    cq: "Your team has a deal in the market and is waiting for tonight's CPI data, which will determine whether the window stays open. You describe the atmosphere to your MD:",
+    cc: "The whole desk is on edge — CPI drops in three hours and if it's hotter than expected, the window closes and we pull the deal. Nobody's gone to lunch.",
+    cw: ["Everyone is very anxious waiting for the inflation data to come out this afternoon.", "The team is quite stressed and tense waiting to see what the CPI numbers look like tonight.", "There's a lot of nervousness on the desk about the inflation data and what it will mean for the deal."],
+    ctx: "Live deal — waiting for CPI data that determines pricing window",
+    setup: "A bond deal is in the market. CPI data drops in three hours. A hotter-than-expected print will close the window.",
+    cue: "MD: \"What's the atmosphere on the desk?\"",
+    model: "Everyone is <b>on edge.</b> CPI drops in three hours and the entire deal hinges on the print. If it comes in at or below expectations, we price tonight and we're done. If it's hotter, the window closes and we pull — probably for two weeks minimum. <b>Nobody's gone to lunch. Nobody's talking about anything else.</b> It's one of those afternoons.",
+    why: "'Nobody's gone to lunch. Nobody's talking about anything else.' These two short sentences paint the atmosphere more vividly than any elaborate description. Great descriptive language is often about precision and restraint rather than elaboration."
+  },
+  {
+    phrase: "Stewing over",
+    def: "To spend a prolonged time thinking anxiously about something — turning it over repeatedly in your mind without resolution. Like food left too long on the heat, the worry intensifies with time.",
+    sit: "You've been replaying an ambiguous comment the client made at the end of a meeting and can't let it go.",
+    prompt: "Describe the experience of being unable to stop thinking about something worrying — turning it over repeatedly without finding resolution…",
+    ex: "\"I've been stewing over that comment the CFO made — I think there's a deeper problem we haven't found yet.\"",
+    tip: "Useful for naming and then releasing a preoccupation — once you say 'I've been stewing over this', you can invite someone else's perspective to break the loop. Also used to describe others' unproductive anxiety. The image of slow cooking captures the way worry intensifies over time.",
+    cq: "After a client meeting that ended abruptly, you've been replaying a comment the client made that felt significant. You raise it with your colleague:",
+    cc: "I've been stewing over what she said at the end — 'we'll need to reconsider the timing'. That's not a throwaway line. Something has shifted.",
+    cw: ["I keep thinking about the comment she made at the end of the meeting about the timing.", "That thing she said at the end has been bothering me — I think it might mean something important.", "I haven't been able to stop thinking about her comment on the timing — it feels significant."],
+    ctx: "Post-meeting debrief — replaying a client's ambiguous comment",
+    setup: "A client meeting ended with the client saying 'we'll need to reconsider the timing' before leaving quickly. Nothing was explained.",
+    cue: "Colleague: \"You seem distracted — what's on your mind?\"",
+    model: "I've been <b>stewing over</b> that line at the end — 'we'll need to reconsider the timing.' She said it on her way out and didn't elaborate. <b>That's not something you say by accident at the end of a deal meeting.</b> Either something has changed internally — budget, board approval, a competing priority — or we said something today that landed wrong. I want to send a short follow-up email this afternoon to open the door before we lose momentum.",
+    why: "'That's not something you say by accident at the end of a deal meeting' is a sharp analytical observation. It turns a vague anxiety into a specific hypothesis — which is exactly what you need to do to stop stewing and start acting."
+  },
+  {
+    phrase: "Market euphoria",
+    def: "An irrational state of collective excitement in financial markets where optimism has overtaken fundamental analysis — valuations are stretched, risks are ignored, and everyone is buying because everyone else is buying.",
+    sit: "AI stocks have surged dramatically and valuations have reached levels that look difficult to justify even on optimistic assumptions.",
+    prompt: "Name and warn against a collective market mood where enthusiasm has outrun analysis and valuations have become detached from fundamentals…",
+    ex: "\"The current market euphoria around AI is real — but euphoria has a habit of ending abruptly, and not everyone will get out in time.\"",
+    tip: "A precise and serious analytical term — not just 'the market is overvalued'. It identifies a psychological state driving prices rather than fundamentals. Using it signals analytical discipline and a willingness to say something unpopular when markets are rising.",
+    cq: "AI sector valuations are at historically stretched levels. A client asks whether they should be adding to their positions. You respond:",
+    cc: "I'd be cautious — there's a degree of market euphoria around AI right now that's making it hard to separate genuine value from sentiment-driven pricing.",
+    cw: ["I think the market is being quite irrational about AI valuations and I'd be careful about adding here.", "There's a lot of excitement around AI that's pushing prices to levels that are hard to justify fundamentally.", "The enthusiasm for AI stocks has become quite extreme and I think valuations have run well ahead of the fundamentals."],
+    ctx: "Client portfolio review — AI sector allocation decision",
+    setup: "AI sector valuations: average P/E of 85x. Earnings growth projections assume 40%+ annually for five years. The client wants to add.",
+    cue: "Client: \"Everyone seems to be making money on AI. Should we be adding to the position?\"",
+    model: "I'd urge caution. What we're seeing has the characteristics of <b>market euphoria</b> — valuations are pricing in five years of 40% earnings growth simultaneously across an entire sector, which has never happened before. <b>The underlying technology is real; the pricing assumes perfection.</b> We've seen this pattern before — in 1999, in 2007, in the SPAC boom. The question is never whether the music stops; it's whether you can hear it slowing before everyone else does.",
+    why: "'The question is never whether the music stops; it's whether you can hear it slowing before everyone else does.' This is a beautifully composed warning. It's honest about the inevitable end of the euphoria while framing the real investment challenge as timing and awareness — which is actionable."
+  },
+  {
+    phrase: "A close-knit circle",
+    def: "A small group of people — friends, colleagues, or family — who are deeply connected, loyal to each other, and share a high level of mutual trust. Their bonds are tight and durable.",
+    sit: "You're describing the dynamics of a founding team where the relationships are deep and the trust is unusually high.",
+    prompt: "Describe a small group of people who are unusually tightly bonded and deeply loyal to each other…",
+    ex: "\"Even as the company scaled to 500 people, the founding team remained a close-knit circle — they'd been through too much together to lose that.\"",
+    tip: "Warm and specific — it implies not just friendship but shared history and tested loyalty. Very effective when describing team dynamics, investor relationships, or personal networks. The word 'knit' implies the bonds have been woven together deliberately over time.",
+    cq: "A potential investor asks about the founding team's dynamics and whether there are any internal tensions you're aware of:",
+    cc: "It's a genuinely close-knit circle — three of the four founders have worked together since university. The trust level is unusually high and I haven't seen any of the tension that typically surfaces in founding teams under pressure.",
+    cw: ["The founding team know each other very well and have a strong relationship built over many years.", "They're a very tight group — they've worked together for a long time and trust each other a lot.", "The founders are very close and seem to have a strong bond which has held up well under pressure."],
+    ctx: "Investor due diligence — assessing founding team dynamics",
+    setup: "An early-stage company has four founders. Three went to university together. The fourth joined at inception. The investor is assessing team risk.",
+    cue: "Investor: \"What's your read on the founding team? Any fault lines?\"",
+    model: "None that I've seen — and I've looked. Three of the four have been a <b>close-knit circle</b> since university, which means they've already been through the kind of stress that breaks less established relationships. The fourth joined at day one and has clearly been absorbed into that dynamic. <b>What I look for in founding teams is how they disagree — and these four disagree productively.</b> That's the real test, and they pass it.",
+    why: "'What I look for in founding teams is how they disagree — and these four disagree productively.' This reframes the analysis from surface-level harmony to the deeper metric that actually predicts team resilience. It shows the investor a more sophisticated analytical lens."
+  }
+];
+
+// ─── STATE ───────────────────────────────────
+let spIdx = 0, spOrder = P.map((_,i)=>i);
+let chIdx = 0, chOrder = P.map((_,i)=>i), chScore = 0, chAnswered = false;
+let rpIdx = 0, rpOrder = P.map((_,i)=>i);
+let done = 0, fluent = 0;
+
+function switchTab(t, btn) {
+  ['speak','choice','roleplay','browse'].forEach(id => { document.getElementById('m-'+id).style.display = 'none'; });
+  document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('m-'+t).style.display = 'block';
+  btn.classList.add('active');
+  if (t==='choice') renderChoice();
+  if (t==='roleplay') renderRP();
+  if (t==='browse') renderBrowse('');
+}
+
+function renderSp() {
+  const p = P[spOrder[spIdx]];
+  document.getElementById('sp-cnt').textContent = `${spIdx+1} / ${P.length}`;
+  document.getElementById('sp-prg').style.width = `${(spIdx/P.length)*100}%`;
+  document.getElementById('sp-lbl').textContent = p.phrase;
+  document.getElementById('sp-sit').textContent = p.sit;
+  document.getElementById('sp-prompt').textContent = p.prompt;
+  document.getElementById('sp-phrase').textContent = p.phrase;
+  document.getElementById('sp-ex').textContent = p.ex;
+  document.getElementById('sp-tip').textContent = p.tip;
+  document.getElementById('sp-reveal').classList.remove('show');
+  document.getElementById('sp-rev-btn').style.display = 'inline-block';
+}
+function revealSp() { document.getElementById('sp-reveal').classList.add('show'); document.getElementById('sp-rev-btn').style.display = 'none'; }
+function rateSp(r) { done++; if(r==='easy') fluent++; updateStats(); spNav(1); }
+function spNav(d) { spIdx=(spIdx+d+P.length)%P.length; renderSp(); }
+function shuffleSp() {
+  for(let i=spOrder.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[spOrder[i],spOrder[j]]=[spOrder[j],spOrder[i]];}
+  spIdx=0; renderSp();
+}
+
+function renderChoice() {
+  const p = P[chOrder[chIdx]];
+  document.getElementById('ch-cnt').textContent = `${chIdx+1} / ${P.length}`;
+  document.getElementById('ch-prg').style.width = `${(chIdx/P.length)*100}%`;
+  document.getElementById('ch-q').textContent = p.cq;
+  document.getElementById('ch-fb').className = 'choice-fb';
+  document.getElementById('ch-next').style.display = 'none';
+  chAnswered = false;
+  const opts = [p.cc,...p.cw].sort(()=>Math.random()-0.5);
+  const cont = document.getElementById('ch-opts');
+  cont.innerHTML = '';
+  opts.forEach(o => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-opt';
+    btn.textContent = o;
+    btn.onclick = () => pickChoice(btn, o===p.cc, p.cc);
+    cont.appendChild(btn);
+  });
+}
+function pickChoice(btn, correct, correctText) {
+  if(chAnswered) return;
+  chAnswered = true;
+  document.querySelectorAll('.choice-opt').forEach(b => { b.disabled = true; if(b.textContent===correctText) b.classList.add('reveal-correct'); });
+  if(correct){btn.classList.add('correct');chScore++;}
+  else btn.classList.add('wrong');
+  const fb = document.getElementById('ch-fb');
+  fb.className = 'choice-fb show '+(correct?'ok':'no');
+  fb.textContent = correct ? '✓ Exactly right. This is the most natural way to say it in English.' : `✗ Not quite. The most natural phrase is: "${correctText}"`;
+  document.getElementById('ch-score').textContent = `Score: ${chScore} / ${chIdx+1}`;
+  document.getElementById('ch-next').style.display = 'inline-block';
+}
+function nextChoice() { chIdx=(chIdx+1)%P.length; renderChoice(); }
+
+function renderRP() {
+  const p = P[rpOrder[rpIdx]];
+  document.getElementById('rp-cnt').textContent = `${rpIdx+1} / ${P.length}`;
+  document.getElementById('rp-prg').style.width = `${(rpIdx/P.length)*100}%`;
+  document.getElementById('rp-lbl').textContent = p.phrase;
+  document.getElementById('rp-ctx').textContent = p.ctx;
+  document.getElementById('rp-setup').textContent = p.setup;
+  document.getElementById('rp-cue').textContent = p.cue;
+  document.getElementById('rp-ta').value = '';
+  document.getElementById('rp-reveal').classList.remove('show');
+  document.getElementById('rp-rev-btn').style.display = 'inline-block';
+  document.getElementById('rp-model').innerHTML = p.model;
+  document.getElementById('rp-why').textContent = p.why;
+}
+function revealRP() { document.getElementById('rp-reveal').classList.add('show'); document.getElementById('rp-rev-btn').style.display = 'none'; }
+function rateRP(r) { done++; if(r==='easy') fluent++; updateStats(); rpNav(1); }
+function rpNav(d) { rpIdx=(rpIdx+d+P.length)%P.length; renderRP(); }
+
+function renderBrowse(q) {
+  const lower = q.toLowerCase();
+  const filtered = P.filter(p => p.phrase.toLowerCase().includes(lower) || p.def.toLowerCase().includes(lower) || p.ex.toLowerCase().includes(lower) || p.tip.toLowerCase().includes(lower));
+  document.getElementById('br-count').textContent = `Showing ${filtered.length} of ${P.length} phrases`;
+  const list = document.getElementById('br-list');
+  list.innerHTML = '';
+  filtered.forEach((p,i) => {
+    const item = document.createElement('div');
+    item.className = 'br-item';
+    item.innerHTML = `<div class="bi-phrase">${p.phrase}</div><div class="bi-ex">${p.ex}</div><div class="bi-exp" id="bi-exp-${i}"><div class="bi-def">${p.def}</div><div class="bi-tip" style="margin-top:8px">💡 ${p.tip}</div></div>`;
+    item.onclick = () => document.getElementById(`bi-exp-${i}`).classList.toggle('open');
+    list.appendChild(item);
+  });
+}
+
+function updateStats() {
+  document.getElementById('s-done').textContent = done;
+  document.getElementById('s-fluent').textContent = fluent;
+}
+
+renderSp();
+</script>
+</body>
+</html>

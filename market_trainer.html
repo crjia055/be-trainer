@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Positive Phrases — Trainer</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f5f5f5;
+  --surface: #ffffff;
+  --surface2: #ebebeb;
+  --border: #dcdcdc;
+  --ink: #1c1c2e;
+  --muted: #7a7f94;
+  --gold: #b8892a;
+  --gold-bg: #fdf6e3;
+  --green: #1a7a4a;
+  --green-bg: #edf7f1;
+  --red: #c0392b;
+  --red-bg: #fdf0ee;
+  --blue: #2060a8;
+  --blue-bg: #edf3fd;
+  --accent: #7c4dbd;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; }
+
+header {
+  background: var(--ink); color: #f4efe4;
+  padding: 17px 32px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 3px solid var(--gold);
+}
+.header-title { font-family: 'Lora', serif; font-size: 1.35rem; }
+.header-title em { color: #d4aa50; }
+.header-meta { font-family: 'DM Mono', monospace; font-size: 0.68rem; opacity: 0.7; }
+.header-meta strong { color: #d4aa50; }
+
+.tabs {
+  display: flex; background: var(--surface2);
+  border-bottom: 2px solid var(--border);
+  padding: 0 32px;
+}
+.tab {
+  padding: 13px 22px;
+  font-family: 'DM Mono', monospace; font-size: 0.7rem;
+  letter-spacing: 0.07em; text-transform: uppercase;
+  cursor: pointer; border: none; background: transparent;
+  color: var(--muted); border-bottom: 2px solid transparent;
+  margin-bottom: -2px; white-space: nowrap; transition: all 0.18s;
+}
+.tab.active { color: var(--gold); border-bottom-color: var(--gold); font-weight: 600; }
+.tab:hover:not(.active) { color: var(--ink); }
+
+main { max-width: 760px; margin: 0 auto; padding: 28px 32px; }
+
+.prog-row { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; }
+.prog-text { font-family: 'DM Mono', monospace; font-size: 0.68rem; color: var(--muted); white-space: nowrap; }
+.prog-track { flex: 1; height: 3px; background: var(--border); border-radius: 2px; }
+.prog-fill { height: 100%; background: var(--gold); border-radius: 2px; transition: width 0.4s; }
+
+.situation-card {
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: 8px; padding: 28px 32px; margin-bottom: 16px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.06); position: relative; overflow: hidden;
+}
+.situation-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--gold), #d4aa50);
+}
+.sc-label { font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; }
+.sc-situation { font-size: 0.97rem; line-height: 1.75; color: var(--muted); margin-bottom: 10px; }
+.sc-prompt { font-family: 'Lora', serif; font-style: italic; font-size: 1.18rem; color: var(--ink); line-height: 1.55; }
+
+.reveal-box {
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: 8px; padding: 24px 28px; margin-bottom: 16px; display: none;
+}
+.reveal-box.show { display: block; }
+.reveal-label { font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--green); margin-bottom: 12px; }
+.reveal-phrase { font-family: 'Lora', serif; font-size: 1.5rem; font-weight: 600; color: var(--ink); margin-bottom: 10px; line-height: 1.3; }
+.reveal-example { font-family: 'Lora', serif; font-style: italic; font-size: 0.9rem; color: var(--muted); border-left: 2px solid var(--gold); padding-left: 14px; line-height: 1.65; margin-bottom: 12px; }
+.reveal-tip { font-size: 0.82rem; color: var(--blue); background: var(--blue-bg); padding: 10px 14px; border-radius: 5px; line-height: 1.55; }
+
+.rate-row { display: flex; gap: 9px; margin-top: 14px; }
+.rate-btn { flex: 1; padding: 10px; border-radius: 5px; border: 1px solid; font-family: 'DM Mono', monospace; font-size: 0.66rem; letter-spacing: 0.04em; text-transform: uppercase; cursor: pointer; transition: all 0.15s; }
+.rate-hard { border-color: var(--red); color: var(--red); background: transparent; }
+.rate-hard:hover { background: var(--red-bg); }
+.rate-ok { border-color: var(--gold); color: var(--gold); background: transparent; }
+.rate-ok:hover { background: var(--gold-bg); }
+.rate-easy { border-color: var(--green); color: var(--green); background: transparent; }
+.rate-easy:hover { background: var(--green-bg); }
+
+.nav-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.btn { padding: 9px 22px; border-radius: 5px; border: 1px solid; font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 0.05em; text-transform: uppercase; cursor: pointer; transition: all 0.15s; }
+.btn-ghost { background: transparent; color: var(--muted); border-color: var(--border); }
+.btn-ghost:hover { color: var(--ink); border-color: var(--muted); }
+.btn-gold { background: var(--gold); color: white; border-color: var(--gold); }
+.btn-gold:hover { opacity: 0.88; }
+.btn-sm { padding: 6px 14px; font-size: 0.62rem; }
+
+#m-choice { display: none; }
+.choice-card {
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: 8px; padding: 24px 28px; margin-bottom: 16px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+}
+.choice-label { font-family: 'DM Mono', monospace; font-size: 0.62rem; color: var(--gold); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+.choice-q { font-size: 0.97rem; line-height: 1.7; color: var(--ink); }
+.choice-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.choice-opt {
+  padding: 13px 16px; border: 1.5px solid var(--border); border-radius: 6px;
+  background: var(--surface); font-size: 0.85rem; line-height: 1.5;
+  cursor: pointer; text-align: left; font-family: 'DM Sans', sans-serif;
+  transition: all 0.15s; color: var(--ink);
+}
+.choice-opt:hover:not(:disabled) { border-color: var(--gold); background: var(--gold-bg); }
+.choice-opt.correct { border-color: var(--green); background: var(--green-bg); color: var(--green); font-weight: 600; }
+.choice-opt.wrong { border-color: var(--red); background: var(--red-bg); color: var(--red); }
+.choice-opt.reveal-correct { border-color: var(--green); background: var(--green-bg); }
+.choice-fb { padding: 11px 14px; border-radius: 5px; font-size: 0.84rem; line-height: 1.6; display: none; margin-bottom: 12px; }
+.choice-fb.show { display: block; }
+.choice-fb.ok { background: var(--green-bg); border-left: 3px solid var(--green); color: var(--green); }
+.choice-fb.no { background: var(--red-bg); border-left: 3px solid var(--red); color: var(--red); }
+.score-badge { font-family: 'DM Mono', monospace; font-size: 0.68rem; color: var(--muted); }
+
+#m-roleplay { display: none; }
+.rp-scene {
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: 8px; padding: 24px 28px; margin-bottom: 14px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+}
+.rp-context { font-family: 'DM Mono', monospace; font-size: 0.62rem; color: var(--accent); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 7px; }
+.rp-setup { font-size: 0.88rem; color: var(--muted); line-height: 1.65; margin-bottom: 12px; font-style: italic; }
+.rp-cue { background: var(--surface2); border-left: 3px solid var(--accent); padding: 12px 16px; border-radius: 0 6px 6px 0; font-size: 0.95rem; line-height: 1.65; color: var(--ink); }
+.rp-textarea {
+  width: 100%; min-height: 88px; padding: 13px 15px;
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: 6px; color: var(--ink); font-size: 0.93rem; line-height: 1.65;
+  font-family: 'DM Sans', sans-serif; resize: vertical; outline: none;
+  margin-bottom: 10px; transition: border 0.2s;
+}
+.rp-textarea:focus { border-color: var(--accent); }
+.rp-reveal { background: var(--surface); border: 1.5px solid var(--border); border-radius: 8px; padding: 20px 24px; display: none; margin-bottom: 14px; }
+.rp-reveal.show { display: block; }
+.rp-reveal-label { font-family: 'DM Mono', monospace; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--gold); margin-bottom: 10px; }
+.model-resp { font-family: 'Lora', serif; font-size: 1.05rem; line-height: 1.8; color: var(--ink); margin-bottom: 10px; }
+.rp-why { font-size: 0.8rem; color: var(--muted); line-height: 1.6; background: var(--blue-bg); padding: 9px 13px; border-radius: 5px; }
+
+#m-browse { display: none; }
+.br-search {
+  width: 100%; padding: 11px 15px; font-size: 0.88rem; font-family: 'DM Sans', sans-serif;
+  border: 1.5px solid var(--border); border-radius: 6px; background: var(--surface);
+  color: var(--ink); outline: none; margin-bottom: 14px; transition: border 0.2s;
+}
+.br-search:focus { border-color: var(--gold); }
+.br-count { font-family: 'DM Mono', monospace; font-size: 0.68rem; color: var(--muted); margin-bottom: 10px; }
+.br-table { border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+.br-item { padding: 14px 18px; background: var(--surface); border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.12s; }
+.br-item:last-child { border-bottom: none; }
+.br-item:hover { background: var(--surface2); }
+.bi-phrase { font-family: 'Lora', serif; font-weight: 600; font-size: 0.95rem; color: var(--ink); }
+.bi-ex { font-family: 'Lora', serif; font-style: italic; font-size: 0.8rem; color: var(--muted); margin-top: 3px; line-height: 1.5; }
+.bi-exp { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+.bi-exp.open { display: block; }
+.bi-def { font-size: 0.84rem; color: var(--ink); line-height: 1.6; margin-bottom: 8px; }
+.bi-tip { font-size: 0.78rem; color: var(--blue); background: var(--blue-bg); padding: 8px 12px; border-radius: 4px; line-height: 1.5; }
+
+@media(max-width:580px){
+  main { padding: 16px; }
+  header, .tabs { padding-left: 16px; padding-right: 16px; }
+  .choice-opts { grid-template-columns: 1fr; }
+  .rate-row { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-title">Positive <em>Phrases</em></div>
+  <div class="header-meta">Done: <strong id="s-done">0</strong> &nbsp;|&nbsp; Fluent: <strong id="s-fluent">0</strong></div>
+</header>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('speak',this)">① Speaking Drill</button>
+  <button class="tab" onclick="switchTab('choice',this)">② Right Phrase?</button>
+  <button class="tab" onclick="switchTab('roleplay',this)">③ Role-Play</button>
+  <button class="tab" onclick="switchTab('browse',this)">④ Browse All</button>
+</div>
+
+<main>
+
+<!-- ① SPEAKING DRILL -->
+<div id="m-speak">
+  <div class="prog-row">
+    <span class="prog-text" id="sp-cnt">1 / 19</span>
+    <div class="prog-track"><div class="prog-fill" id="sp-prg" style="width:0%"></div></div>
+    <span class="prog-text" id="sp-lbl">—</span>
+  </div>
+  <div class="situation-card">
+    <div class="sc-label">🎯 Situation — say a natural response out loud first</div>
+    <div class="sc-situation" id="sp-sit">—</div>
+    <div class="sc-prompt" id="sp-prompt">—</div>
+  </div>
+  <div class="reveal-box" id="sp-reveal">
+    <div class="reveal-label">✓ Model Phrase</div>
+    <div class="reveal-phrase" id="sp-phrase">—</div>
+    <div class="reveal-example" id="sp-ex">—</div>
+    <div class="reveal-tip" id="sp-tip">—</div>
+    <div class="rate-row">
+      <button class="rate-btn rate-hard" onclick="rateSp('hard')">🔴 Couldn't say it</button>
+      <button class="rate-btn rate-ok" onclick="rateSp('ok')">🟡 Said it, not fluently</button>
+      <button class="rate-btn rate-easy" onclick="rateSp('easy')">🟢 Said it naturally</button>
+    </div>
+  </div>
+  <div class="nav-row">
+    <button class="btn btn-ghost" onclick="spNav(-1)">← Prev</button>
+    <button class="btn btn-gold" id="sp-rev-btn" onclick="revealSp()">Reveal Phrase</button>
+    <button class="btn btn-ghost" onclick="spNav(1)">Next →</button>
+  </div>
+  <div style="text-align:center;margin-top:10px">
+    <button class="btn btn-ghost btn-sm" onclick="shuffleSp()">⇄ Shuffle order</button>
+  </div>
+</div>
+
+<!-- ② RIGHT PHRASE? -->
+<div id="m-choice">
+  <div class="prog-row">
+    <span class="prog-text" id="ch-cnt">1 / 19</span>
+    <div class="prog-track"><div class="prog-fill" id="ch-prg" style="width:0%"></div></div>
+    <span class="score-badge" id="ch-score">Score: 0 / 0</span>
+  </div>
+  <div class="choice-card">
+    <div class="choice-label">📍 Which phrase fits this moment?</div>
+    <div class="choice-q" id="ch-q">—</div>
+  </div>
+  <div class="choice-opts" id="ch-opts"></div>
+  <div class="choice-fb" id="ch-fb"></div>
+  <div class="nav-row">
+    <button class="btn btn-ghost" id="ch-next" style="display:none" onclick="nextChoice()">Next →</button>
+  </div>
+</div>
+
+<!-- ③ ROLE-PLAY -->
+<div id="m-roleplay">
+  <div class="prog-row">
+    <span class="prog-text" id="rp-cnt">1 / 19</span>
+    <div class="prog-track"><div class="prog-fill" id="rp-prg" style="width:0%"></div></div>
+    <span class="prog-text" id="rp-lbl">—</span>
+  </div>
+  <div class="rp-scene">
+    <div class="rp-context" id="rp-ctx">—</div>
+    <div class="rp-setup" id="rp-setup">—</div>
+    <div class="rp-cue" id="rp-cue">—</div>
+  </div>
+  <textarea class="rp-textarea" id="rp-ta" placeholder="Write what you would say in this situation…"></textarea>
+  <div class="nav-row" style="margin-bottom:12px">
+    <button class="btn btn-ghost" onclick="rpNav(-1)">← Prev</button>
+    <button class="btn btn-gold" id="rp-rev-btn" onclick="revealRP()">See Model Response</button>
+    <button class="btn btn-ghost" onclick="rpNav(1)">Next →</button>
+  </div>
+  <div class="rp-reveal" id="rp-reveal">
+    <div class="rp-reveal-label">Model Response — key phrases highlighted</div>
+    <div class="model-resp" id="rp-model">—</div>
+    <div class="rp-why" id="rp-why">—</div>
+    <div class="rate-row">
+      <button class="rate-btn rate-hard" onclick="rateRP('hard')">🔴 Very different</button>
+      <button class="rate-btn rate-ok" onclick="rateRP('ok')">🟡 Similar but less natural</button>
+      <button class="rate-btn rate-easy" onclick="rateRP('easy')">🟢 Close to model</button>
+    </div>
+  </div>
+</div>
+
+<!-- ④ BROWSE -->
+<div id="m-browse">
+  <input class="br-search" type="text" id="br-q" placeholder="Search phrases, meanings, examples…" oninput="renderBrowse(this.value)">
+  <div class="br-count" id="br-count"></div>
+  <div class="br-table" id="br-list"></div>
+</div>
+
+</main>
+
+<script>
+const P = [
+  {
+    phrase: "It was a blast",
+    def: "An incredibly fun, exciting, or enjoyable experience. More energetic and enthusiastic than 'it was great' or 'I really enjoyed it'.",
+    sit: "A colleague asks how your team dinner went last night after a successful deal closing.",
+    prompt: "Tell someone that a social or work event was genuinely great fun — with real energy and enthusiasm…",
+    ex: "\"Thanks for organising the dinner — it was an absolute blast. Exactly what the team needed after that deal.\"",
+    tip: "More vivid and personal than 'it was great'. It signals you were genuinely engaged, not just politely satisfied. Works equally well for professional events (team dinners, offsites, conferences) and personal ones.",
+    cq: "Your colleague organised a team offsite that was genuinely energising and fun. They ask how you found it:",
+    cc: "It was an absolute blast — I haven't laughed that much in months. And the strategy session actually produced some real ideas.",
+    cw: ["I had a really good time at the offsite and thought it was very well organised.", "It was a great event — I enjoyed myself and found the sessions useful.", "I thought the offsite was very successful and the team seemed to enjoy it."],
+    ctx: "Post-offsite conversation with the organiser",
+    setup: "Your team just returned from a two-day offsite. It was genuinely fun and productive — a rare combination.",
+    cue: "Colleague: \"So — honest opinion. Was it worth taking two days out of the office?\"",
+    model: "Genuinely — <b>it was a blast.</b> I was a bit sceptical going in, because these things can feel forced, but the format worked. The strategy session on day two actually produced three ideas worth pursuing, and I haven't laughed that much with the team in a long time. <b>That combination of useful and fun is hard to get right — you got it right.</b>",
+    why: "'That combination of useful and fun is hard to get right — you got it right' is the kind of specific, generous feedback that means something. It names exactly what made the event work, which is more valuable than a generic compliment."
+  },
+  {
+    phrase: "Soaking up the atmosphere",
+    def: "To immerse yourself fully in the feeling, energy, and vibe of a place — taking it all in slowly rather than rushing through it.",
+    sit: "You've just returned from a business trip to Tokyo and a colleague asks what you did in your free time.",
+    prompt: "Describe the pleasure of simply being present in a place and absorbing everything around you…",
+    ex: "\"We didn't follow a plan — we just wandered through the old city, soaking up the atmosphere.\"",
+    tip: "Implies a relaxed, present, and appreciative state. You're not ticking off tourist sites — you're genuinely experiencing a place. Slightly more poetic than 'enjoying the area' or 'looking around'.",
+    cq: "A client asks what you did on your last evening in Tokyo before flying home. You'd spent it wandering through Yanaka, one of the old neighbourhoods:",
+    cc: "I didn't have a plan — I just spent the evening in Yanaka, soaking up the atmosphere. Old temples, quiet streets, locals going about their evening. Perfect.",
+    cw: ["I walked around one of the old neighbourhoods and had a look at the area.", "I spent the evening exploring the older part of the city which was very interesting.", "I didn't do anything specific — just had a wander around a nice neighbourhood."],
+    ctx: "Casual conversation with a client — end of a business trip",
+    setup: "You had a free evening in Tokyo and spent it wandering through the Yanaka district — old temples, quiet alleys, local restaurants.",
+    cue: "Client: \"Did you get to see any of the city while you were here?\"",
+    model: "I did — I had one free evening and I spent it in Yanaka. I didn't have any plan; I just walked and <b>soaked up the atmosphere.</b> Old wooden shopfronts, temples tucked between houses, people picking up dinner on their way home. It was completely different from the business districts. <b>Those are the evenings you remember years later.</b>",
+    why: "'Those are the evenings you remember years later' is a warm, human observation that deepens the connection with the client. It says something true about the value of slowing down — and it's the kind of thing that makes a conversation memorable."
+  },
+  {
+    phrase: "A relaxing getaway",
+    def: "A short trip or holiday specifically intended to rest, recharge, and escape from the pressure of daily work. The emphasis is on rest rather than activities.",
+    sit: "A colleague mentions they're exhausted after a brutal quarter and asks if you have any plans coming up.",
+    prompt: "Describe a planned short holiday whose main purpose is rest and disconnection from work…",
+    ex: "\"We're planning a relaxing getaway to the coast next weekend — just what we need after this quarter.\"",
+    tip: "The word 'relaxing' is doing important work here — it signals the purpose is rest, not adventure or tourism. Very common in professional small talk. Often followed by 'to recharge' or 'to unplug'.",
+    cq: "You've just closed a gruelling six-month deal and your MD asks what you're doing next week. You have a trip planned:",
+    cc: "We've booked a relaxing getaway to the Lake District — four days, no agenda, completely off the grid. I genuinely need it.",
+    cw: ["I'm going on a short holiday to the countryside next week to rest and recover.", "We've planned a trip away somewhere quiet so I can get some proper rest.", "I'm taking a few days off and going somewhere peaceful to recharge my batteries."],
+    ctx: "Post-deal conversation with your MD",
+    setup: "You've just closed a six-month deal. You're exhausted. You have four days in the Lake District booked.",
+    cue: "MD: \"What are you doing with the time off — have you got anything planned?\"",
+    model: "A <b>relaxing getaway</b> — Lake District, four days, no agenda whatsoever. No deal news, no emails, completely <b>off the grid.</b> My wife and I have been planning it since January but kept postponing it every time something came up. <b>This time we're actually going.</b>",
+    why: "'We kept postponing it every time something came up — this time we're actually going' is a very human and relatable detail. It signals both the sacrifice the job requires and a healthy intention to protect personal time. MDs respect that."
+  },
+  {
+    phrase: "Off the grid",
+    def: "Completely disconnected from digital communication — no emails, no phone, no social media. In modern usage, it means deliberately making yourself unreachable for a period.",
+    sit: "You're about to go on holiday and setting expectations with your team about your availability.",
+    prompt: "Signal clearly that you will be completely unreachable during your upcoming time off…",
+    ex: "\"I'll be completely off the grid for ten days — my out-of-office will direct everything to James.\"",
+    tip: "More expressive and deliberate than 'I won't be checking emails'. It signals a full disconnection — and it's increasingly admired in professional culture as a sign of healthy boundaries. Always pair it with who will cover you.",
+    cq: "You're leaving for two weeks in Japan and want to set clear expectations with your team before you go:",
+    cc: "I'm going to be completely off the grid for two weeks — no email, no phone. James has full authority to make decisions in my absence.",
+    cw: ["I won't be contactable during my holiday so please direct anything urgent to James.", "I'll be unavailable for the next two weeks and James will cover for me.", "I'm taking a proper break and won't be checking in — James is the contact while I'm away."],
+    ctx: "Pre-holiday team briefing",
+    setup: "You're leaving for a two-week trip to Japan. You want to genuinely disconnect and have briefed James fully to cover.",
+    cue: "Team member: \"What's the best way to reach you if something urgent comes up while you're away?\"",
+    model: "The honest answer is — don't. I'm going <b>completely off the grid</b> for two weeks. No email, no phone. <b>James has full authority to make any decision that would normally come to me</b>, and I've briefed him on everything in flight. If something truly catastrophic happens that James can't handle, he has my emergency number — but I'd ask you to reserve that for genuine emergencies. <b>Part of the reason I'm doing this is to trust the team to run without me for a fortnight.</b>",
+    why: "'Part of the reason I'm doing this is to trust the team to run without me for a fortnight' is a sophisticated leadership statement. It reframes the disconnection as an act of trust in the team — which is motivating, not abandoning."
+  },
+  {
+    phrase: "Hit the ground running",
+    def: "To start something — a new role, project, or return from a break — with immediate energy, speed, and effectiveness. No warm-up period needed; results from day one.",
+    sit: "You've just been promoted to lead a new team and want to signal your readiness and commitment in your first communication to them.",
+    prompt: "Signal that you are ready to start immediately and with full energy — no slow start, no settling-in period…",
+    ex: "\"I'll be back from leave on Monday and I plan to hit the ground running on the Q3 pipeline.\"",
+    tip: "Signals confidence, preparation, and urgency. Use it when you want to reassure people that there will be no delay. Very effective in new role introductions, post-holiday returns, and project kick-offs.",
+    cq: "You've been appointed to lead a stalled project that needs urgent momentum. You address the team for the first time:",
+    cc: "I'm here to hit the ground running — I've reviewed everything over the past week and I'm ready to make some decisions today.",
+    cw: ["I'm ready to get started immediately and have already been reviewing the project materials.", "I want to start making progress quickly and have prepared thoroughly in advance.", "I've done my preparation and I'm ready to begin work on this right away."],
+    ctx: "First address to a team on a stalled project",
+    setup: "You've been appointed to rescue a project that has been losing momentum for three months. The team is demoralised.",
+    cue: "Team (expectant silence after introductions):",
+    model: "I'm going to <b>hit the ground running</b> — I've spent the past week reviewing the timeline, the blockers, and the team's own assessment of what went wrong. <b>I'm not here to audit the past; I'm here to move forward.</b> We're going to have three decisions made by end of today that have been sitting unresolved for weeks. If you've been waiting for someone to clear the path — the wait is over.",
+    why: "'I'm not here to audit the past; I'm here to move forward' is a powerful reset statement. It gives the team permission to stop defending previous decisions and focus on what comes next — exactly what a demoralised team needs to hear."
+  },
+  {
+    phrase: "Back in the swing of things",
+    def: "Returning comfortably to your normal routine and rhythm after a break, illness, or disruption. Implies finding your natural pace again — not forcing it.",
+    sit: "You've been back at the office for two days after two weeks of holiday and a colleague asks how it's going.",
+    prompt: "Describe re-settling into your normal working rhythm after time away — finding your pace again…",
+    ex: "\"It took a day to clear the inbox, but I'm finally back in the swing of things.\"",
+    tip: "More relaxed and human than 'back to full productivity'. It implies a natural, gradual re-entry rather than an instant switch. Very common in professional small talk after holidays or sick leave.",
+    cq: "You returned from two weeks in Japan three days ago. A client calls and asks how the re-entry to work has been:",
+    cc: "It took a couple of days to clear the backlog, but I'm properly back in the swing of things now — fully caught up and ready to focus on your mandate.",
+    cw: ["I'm back at work now and have managed to catch up on most of what I missed.", "Things are getting back to normal after my holiday — I've gone through all my emails.", "I'm back up to speed now after taking some time to work through everything that came in."],
+    ctx: "Client check-in call — first week back from holiday",
+    setup: "You're three days back from two weeks in Japan. The client calls to discuss their deal timeline.",
+    cue: "Client: \"Welcome back — how's the re-entry going?\"",
+    model: "Slower than I'd like to admit — Japan does something to your sense of time. But I'm <b>back in the swing of things</b> properly now. I've cleared the backlog and I actually used the flight home to review your deal timeline, so I'm up to speed. <b>In fact, I have a thought on the pricing structure I'd like to run by you while I have you on the line.</b>",
+    why: "Transitioning immediately from 'I'm back' to 'I have a thought on your deal' is a masterclass in professional re-entry. It shows the client that even the recovery time was spent thinking about them."
+  },
+  {
+    phrase: "Hit the jackpot",
+    def: "To suddenly achieve a massive, unexpected success — often beyond what you hoped for. More emphatic and colourful than 'got very lucky' or 'succeeded beyond expectations'.",
+    sit: "Your firm has just landed a mandate from the largest sovereign wealth fund in the region — a client you've been pursuing for three years.",
+    prompt: "Express that something has exceeded all expectations and delivered an extraordinary outcome…",
+    ex: "\"Landing the government contract was like hitting the jackpot — it secures our revenue pipeline for years.\"",
+    tip: "Implies both luck and scale — the outcome is bigger than expected and has transformational implications. More casual and energetic than 'an exceptional result'. Best used internally or with clients you know well.",
+    cq: "After three years of pitching, your firm has just been awarded a $2bn mandate from a sovereign wealth fund. You call your MD:",
+    cc: "We hit the jackpot — the SWF just confirmed we got the mandate. Three years of work just paid off in one phone call.",
+    cw: ["We got the mandate from the sovereign wealth fund — three years of effort has finally paid off.", "The sovereign wealth fund has chosen us — it's a fantastic result after a very long process.", "We've won the SWF business — this is a huge outcome for the firm after everything we've invested."],
+    ctx: "Internal call to MD — major mandate win announcement",
+    setup: "After three years of relationship-building and four rounds of pitching, a $2bn sovereign wealth fund mandate has just been awarded to your firm.",
+    cue: "MD (picking up): \"Tell me something good.\"",
+    model: "We <b>hit the jackpot.</b> The SWF just confirmed — we got the full $2bn mandate. Three years, four pitches, and more dinners than I can count. <b>It all just paid off in a two-minute phone call.</b> I'll send the formal confirmation when it arrives, but I wanted you to hear it from me first.",
+    why: "'Three years, four pitches, and more dinners than I can count — it all just paid off in a two-minute phone call' is a beautifully compressed summary of what a long client pursuit actually feels like. It's the kind of line that gets remembered."
+  },
+  {
+    phrase: "A stroke of luck",
+    def: "A sudden, unexpected piece of good fortune — something positive that happened by chance rather than by design.",
+    sit: "A key witness whose testimony you needed happened to be available at the exact moment you needed them, turning a difficult situation around.",
+    prompt: "Acknowledge that a positive outcome was partly due to good fortune rather than taking full credit for it…",
+    ex: "\"Finding that the data room had already been organised was a real stroke of luck — it saved us two days.\"",
+    tip: "Signals honesty and self-awareness — you're acknowledging that not everything was within your control. In professional settings, admitting a stroke of luck alongside skill actually builds credibility rather than undermining it.",
+    cq: "Your team completed a due diligence process in record time partly because the target's finance director happened to be exceptionally well-prepared. You explain to the client:",
+    cc: "We moved quickly, but I'll be honest — it was partly a stroke of luck that their FD had everything pre-organised. It saved us at least a week.",
+    cw: ["We were fortunate that the finance director had prepared everything in advance which helped a lot.", "Part of why we moved so fast was that the target company was unusually well-prepared.", "We benefited from the fact that their FD had done a lot of the organisation work already."],
+    ctx: "Client debrief after an unusually fast due diligence process",
+    setup: "Due diligence was completed in three weeks instead of the usual six, partly because the target's FD had pre-organised the entire data room.",
+    cue: "Client: \"How did you complete due diligence so fast? That was impressive.\"",
+    model: "The team worked hard — but I'll be honest, there was also <b>a stroke of luck</b> involved. Their finance director had pre-organised the data room to a standard I've rarely seen. We walked in expecting three weeks of chasing documents and found everything indexed and cross-referenced. <b>That kind of preparation on their side is unusual and it made our job genuinely faster.</b> Credit where it's due.",
+    why: "Giving credit to the other party's finance director — 'credit where it's due' — is generous and perceptive. It also signals that you know the difference between skill and circumstance, which is a mark of analytical honesty."
+  },
+  {
+    phrase: "A runaway success",
+    def: "Something that becomes successful much faster and to a much greater degree than anyone expected — like a runaway train that has gathered unstoppable momentum.",
+    sit: "A new product your company launched three months ago has far exceeded every sales projection.",
+    prompt: "Describe something that has exceeded all expectations and achieved extraordinary success at speed…",
+    ex: "\"The IPO proved to be a runaway success — shares doubled by the end of the first day of trading.\"",
+    tip: "More dramatic and vivid than 'very successful' or 'exceeded expectations'. The 'runaway' element is key — it implies speed, momentum, and an outcome that couldn't be stopped. Use it when both the scale and the speed of success are noteworthy.",
+    cq: "Your firm's new digital platform launched three months ago and has already acquired 400,000 users against a 12-month target of 100,000. You update the board:",
+    cc: "The platform has been a runaway success — 400,000 users in three months against a 12-month target of 100,000. We're revising the projections upward significantly.",
+    cw: ["The platform has performed much better than expected with far more users than we projected.", "We've significantly exceeded our user acquisition targets for the platform launch.", "The numbers are well above what we forecast — the platform is doing extremely well."],
+    ctx: "Board update — new digital platform performance",
+    setup: "A new digital platform launched three months ago. The 12-month user target was 100,000. Current users: 400,000 and growing.",
+    cue: "Board chair: \"How is the platform launch tracking against plan?\"",
+    model: "It's been a <b>runaway success</b> — and I use that phrase carefully. We set a 12-month target of 100,000 users, expecting to hit it by Q4. We're at 400,000 in month three. <b>The growth curve hasn't flattened — it's still accelerating.</b> We're revising the full-year projection to 1.2 million and we need to discuss infrastructure scaling today, because the original architecture wasn't built for this volume.",
+    why: "'The growth curve hasn't flattened — it's still accelerating' adds analytical precision to the excitement. It tells the board this isn't a one-time spike but a sustained trend. Then pivoting immediately to 'we need to discuss infrastructure' shows the speaker is managing success, not just celebrating it."
+  },
+  {
+    phrase: "A slam dunk",
+    def: "A decision, deal, or task that is virtually guaranteed to succeed — so clear and compelling that it almost can't go wrong. Borrowed from basketball. More high-energy than 'a no-brainer'.",
+    sit: "Your firm is the only serious candidate for a mandate and the client has signalled their strong preference clearly.",
+    prompt: "Describe a situation where success is almost certain — the outcome feels inevitable given how strongly everything is aligned…",
+    ex: "\"If we can get this client signed before the quarter ends, hitting our target will be a slam dunk.\"",
+    tip: "'No-brainer' emphasises obvious logic; 'slam dunk' emphasises near-certain success. Use 'slam dunk' when you're talking about a specific outcome that is overwhelmingly likely — not just a decision that's clearly correct.",
+    cq: "You've pitched exclusively, the client has verbally confirmed their preference, and legal is already drafting the mandate letter. You brief your team:",
+    cc: "This is a slam dunk — they've confirmed their preference verbally and legal is already drafting. We just need to get it signed before month-end.",
+    cw: ["We're in a very strong position and it looks very likely we'll win this mandate.", "The client has indicated they want to work with us so it should be confirmed soon.", "It's looking good — they've told us informally they prefer our proposal and legal is engaged."],
+    ctx: "Internal team briefing — mandate almost confirmed",
+    setup: "You pitched exclusively. The client verbally confirmed their preference. The mandate letter is being drafted.",
+    cue: "Team member: \"How confident are we on this one?\"",
+    model: "Very. <b>This is a slam dunk</b> — they told us yesterday they're moving forward with us and legal has already had the first call on the mandate letter. <b>Don't celebrate yet — get it signed.</b> Things can still move sideways until ink is on paper. I want everyone focused on making the execution phase feel as seamless as possible from day one so the relationship starts perfectly.",
+    why: "'Don't celebrate yet — get it signed' is excellent practical leadership. Confidence is warranted, but complacency is dangerous. Keeping the team focused on the next step rather than the celebration is exactly right."
+  },
+  {
+    phrase: "Head-snapping / Head-spinning",
+    def: "Head-snapping: something so sudden, fast, or dramatic it would physically make you turn your head. Head-spinning: something so complex or overwhelming it makes your mind reel.",
+    sit: "The pace of change in AI technology has been so fast that even experts are struggling to keep up.",
+    prompt: "Describe something that is either happening at breathtaking speed or is overwhelmingly complex…",
+    ex: "\"Technology is evolving at a head-snapping speed.\" / \"The head-spinning complexity of the new regulations left even the lawyers confused.\"",
+    tip: "Both phrases use physical sensation to convey mental or emotional overload. Head-snapping = speed/surprise. Head-spinning = complexity/overwhelm. They're vivid alternatives to 'very fast' or 'very complex' that make the listener feel the intensity.",
+    cq: "You're speaking to a client about the pace of change in their industry and the difficulty of keeping up with regulatory and technological developments simultaneously:",
+    cc: "The rate of change is genuinely head-snapping — technology and regulation are moving simultaneously and in opposite directions. It's head-spinning for everyone, including the regulators.",
+    cw: ["Things are changing very rapidly in both the technology and regulatory space right now.", "The pace of change in the industry is extremely fast and difficult to keep up with.", "Both technology and regulation are evolving very quickly and it's a lot to manage at once."],
+    ctx: "Client strategy discussion — managing simultaneous disruption",
+    setup: "Your client operates in a sector facing both rapid technological disruption and a major regulatory overhaul simultaneously.",
+    cue: "Client: \"Honestly — how do other firms manage to stay on top of all of this?\"",
+    model: "With difficulty. The honest answer is that the rate of change right now is genuinely <b>head-snapping</b> — we're seeing technology cycles compress from five years to eighteen months while regulation is simultaneously expanding in scope and complexity. The combination is <b>head-spinning</b> even for people who do nothing else. <b>The firms that manage it best don't try to track everything — they decide what they must lead on and what they can follow on.</b> That's the strategic choice worth making.",
+    why: "'Decide what you must lead on and what you can follow on' is a concrete, actionable strategic principle. It cuts through the overwhelm and gives the client something they can actually do — which is exactly what advisory conversations should produce."
+  },
+  {
+    phrase: "Mind-blowing / Blows my mind / Mind-bending",
+    def: "Something so incredible, surprising, or profound that your brain struggles to fully process it. Mind-blowing = incredible in scale or impact. Mind-bending = overwhelmingly complex or reality-altering.",
+    sit: "You've just seen a live demonstration of a new AI model that can do things you genuinely didn't think were possible yet.",
+    prompt: "Express that something has genuinely astonished you — it's beyond what you thought was possible…",
+    ex: "\"The capabilities of the new model are absolutely mind-blowing — six months ago this wasn't possible.\" / \"It blows my mind that we can now do in seconds what used to take weeks.\"",
+    tip: "High-energy and informal — best used with clients you know well, in internal conversations, or in enthusiastic public commentary. 'Mind-bending' tends toward complexity; 'mind-blowing' toward sheer scale of achievement.",
+    cq: "You've just attended a live demo of a new AI tool that automated a process your team currently spends three weeks doing manually. You share it with your MD:",
+    cc: "I have to be honest — it blew my mind. What our team spends three weeks on, this tool did in four minutes. I think we need to have a serious conversation about our workflow.",
+    cw: ["The tool was very impressive and could potentially change how we do a lot of our work.", "I was genuinely surprised by what the AI was able to do in the demo — it was very advanced.", "The demonstration was impressive and I think it has real implications for our processes."],
+    ctx: "Post-demo conversation with MD about AI tool implications",
+    setup: "You attended a demo of an AI tool that automated a complex three-week analytical process in under five minutes.",
+    cue: "MD: \"How was the demo? Worth the morning?\"",
+    model: "Absolutely — and I'll be direct: <b>it blew my mind.</b> They demonstrated a workflow that our team currently spends three weeks on. The tool completed it in four minutes. I'm not exaggerating. <b>The mind-bending part isn't just the speed — it's that the output quality was comparable to what we produce.</b> I think we need to talk about this seriously, because if we don't get ahead of it, someone else will use this against us.",
+    why: "'If we don't get ahead of it, someone else will use this against us' transforms an impressive demo into a competitive urgency. It gives the MD a reason to act now rather than admire the technology from a distance."
+  },
+  {
+    phrase: "On the ball",
+    def: "Alert, sharp, prepared, and quick to understand or react. Someone who is on the ball notices things before being told and is always ready to act.",
+    sit: "A new junior analyst spotted an error in a client contract before anyone else — including people with years more experience.",
+    prompt: "Compliment someone for being sharp, alert, and ahead of what's needed — noticing things before being asked…",
+    ex: "\"Our new analyst is really on the ball — she caught the discrepancy in the model before I'd even opened the file.\"",
+    tip: "A warm, genuine compliment that carries real weight. It's not just 'good at their job' — it implies proactive alertness and readiness. Use it to praise someone who impressed you with their sharpness, not just their hard work.",
+    cq: "Your new associate caught a material error in a pitch deck two hours before the client meeting — an error that would have been embarrassing. You mention it to your MD:",
+    cc: "She is genuinely on the ball — she spotted a number in the deck that didn't reconcile with the model and flagged it two hours before the meeting. We fixed it in time.",
+    cw: ["The new associate caught an error in the pitch deck before the client meeting which was very helpful.", "She noticed a problem with one of the numbers in our presentation and pointed it out in time.", "The associate was very alert and spotted a discrepancy in the deck before we went to the client."],
+    ctx: "Praise conversation with MD about a new team member",
+    setup: "A new associate, two months in, caught a material reconciliation error in a pitch deck two hours before a major client meeting.",
+    cue: "MD: \"How is the new associate settling in?\"",
+    model: "Really well — and I'll give you a specific example. Yesterday, two hours before the client meeting, she flagged that a number on slide 14 didn't reconcile with the model. She was right. <b>She is genuinely on the ball</b> — she wasn't asked to review the deck; she did it on her own initiative. <b>That's the kind of instinct you can't train — either someone has it or they don't. She has it.</b>",
+    why: "'Either someone has it or they don't — she has it' is a memorable, confident endorsement. It tells the MD this isn't just diligence, it's talent. The specific example ('slide 14, two hours before') makes the praise concrete and credible."
+  },
+  {
+    phrase: "A versatile skill set",
+    def: "The ability to perform effectively across a wide range of tasks, contexts, or disciplines — not narrowly specialised but adaptable and multi-capable.",
+    sit: "You're writing a performance review for a team member who has seamlessly moved between technical analysis and client-facing roles.",
+    prompt: "Describe someone's ability to move effectively between very different types of work without losing quality…",
+    ex: "\"Her versatile skill set allows her to pivot from technical data analysis to client presentations without losing a beat.\"",
+    tip: "More sophisticated than 'good at many things'. It implies the skills are deliberately developed and strategically deployable. In finance, versatility is highly valued — someone who can both model and present is rare and valuable.",
+    cq: "You're recommending a team member for a promotion. The committee asks what makes them stand out from other candidates:",
+    cc: "What sets her apart is her versatile skill set — she can run the model in the morning and present the conclusions to the CEO in the afternoon. That combination is genuinely rare.",
+    cw: ["She is good at both the technical analytical work and the client-facing presentation side.", "She can do the quantitative work and also communicate it very clearly to non-technical audiences.", "Her ability to work across both the technical and client-facing aspects of the job is impressive."],
+    ctx: "Promotion committee — making the case for a team member",
+    setup: "You're advocating for a team member's promotion. The committee wants to understand what distinguishes them from equally hard-working peers.",
+    cue: "Committee member: \"What specifically makes her a stronger candidate than the others at this level?\"",
+    model: "Her <b>versatile skill set.</b> Most analysts at this level are strong on either the technical side or the communication side — rarely both. She built a complex leveraged buyout model last week and presented the conclusions to the CFO the following morning. <b>The CFO didn't know she'd built the model — he assumed she was the relationship manager.</b> That tells you everything. She's indispensable precisely because she can operate at both ends of the value chain.",
+    why: "'The CFO didn't know she'd built the model — he assumed she was the relationship manager' is a brilliant anecdote. It demonstrates versatility through a real moment rather than asserting it abstractly. Show, don't tell."
+  },
+  {
+    phrase: "Indispensable",
+    def: "So essential and valuable that it would be impossible or extremely difficult to function without them. Not just useful — irreplaceable.",
+    sit: "A senior team member is considering leaving and you want to make clear to leadership how significant that loss would be.",
+    prompt: "Make the case that someone or something is so essential that losing them would be genuinely damaging…",
+    ex: "\"Her versatility across technical and client-facing work has made her absolutely indispensable to this team.\"",
+    tip: "A strong word — don't use it for people who are merely very good. Reserve it for people whose absence would create a genuine capability gap that couldn't easily be filled. In a performance review or retention conversation, it carries real weight.",
+    cq: "Your best analyst has received an offer from a competitor and leadership is deciding whether to counter. You make the case:",
+    cc: "She is genuinely indispensable — not just good. If she leaves, we lose someone who knows three client relationships, the model architecture, and the team's internal processes. That takes two years to rebuild.",
+    cw: ["She's an extremely valuable member of the team and it would be very difficult to replace her.", "Losing her would create a significant gap — she has knowledge and relationships that are hard to replace.", "She's one of our best people and her departure would have a serious impact on the team's capability."],
+    ctx: "Retention discussion — making the case to counter a competing offer",
+    setup: "Your best analyst has received an external offer. Leadership is deciding how aggressively to counter. You have three minutes to make the case.",
+    cue: "Managing Director: \"How replaceable is she, realistically?\"",
+    model: "She's not. She is <b>indispensable</b> — and I want to be precise about why. Three of our most important client relationships trust her personally, not just the firm. She built the valuation architecture that the whole team now uses. And she's the institutional memory for two deals that are still in execution. <b>If she walks out tomorrow, we lose all three of those things simultaneously.</b> You can hire someone smart, but you can't hire someone with her specific knowledge. Counter the offer.",
+    why: "Breaking the argument into three specific, concrete losses — 'client relationships, valuation architecture, institutional memory' — is far more persuasive than a general statement about value. It answers the MD's question ('how replaceable?') with three specific answers: not replaceable in any of these three ways."
+  },
+  {
+    phrase: "Without losing a beat",
+    def: "To continue something immediately, smoothly, and perfectly — even after a sudden interruption, surprise, or challenge. No pause, no stumble, no visible effort.",
+    sit: "During a major client pitch, the presenting partner's laptop died and she continued the entire presentation from memory without any sign of panic.",
+    prompt: "Describe someone handling an unexpected disruption with complete composure and no loss of quality or momentum…",
+    ex: "\"When the projector failed mid-pitch, she continued the presentation without losing a beat — pure composure.\"",
+    tip: "The highest praise for resilience and adaptability in high-pressure situations. It implies not just that the person recovered, but that there was nothing visible to recover from — the transition was seamless. Use it to describe excellence under pressure.",
+    cq: "During an important regulatory hearing, your colleague was confronted with an unexpected hostile question and answered it perfectly without any hesitation. You tell someone about it afterwards:",
+    cc: "The regulator hit her with a question nobody had prepared for, and she answered it without losing a beat — calmly, accurately, and better than anything we'd have scripted.",
+    cw: ["She handled an unexpected question very well and gave a very good answer despite being unprepared.", "She was asked something we hadn't anticipated and responded calmly and accurately.", "The unexpected question didn't seem to faze her and she dealt with it extremely well."],
+    ctx: "Post-hearing debrief — praising a colleague's composure",
+    setup: "During a regulatory hearing, the lead regulator asked an entirely unexpected question on a sensitive topic. Your colleague answered immediately and accurately.",
+    cue: "Partner: \"How did the hearing go — any difficult moments?\"",
+    model: "One. The lead regulator went completely off-script with a question about the 2019 compliance audit — something nobody had prepared for. <b>She answered it without losing a beat.</b> No pause, no 'let me check that', just a clear, accurate, well-framed answer. <b>The room relaxed the moment she finished.</b> I've been in a lot of hearings and that kind of composure under genuine surprise is rare.",
+    why: "'The room relaxed the moment she finished' is an evocative detail that shows the impact of her composure on others — not just on herself. The best praise describes not just what someone did, but the effect it had."
+  },
+  {
+    phrase: "In a league of their own",
+    def: "So much better than everyone else that comparison is almost meaningless — they operate at a fundamentally different level from the competition.",
+    sit: "One fund manager has delivered returns that are so consistently superior to peers that the comparison feels almost unfair.",
+    prompt: "Describe someone or something that is so far ahead of the competition that they exist in a completely different category…",
+    ex: "\"Their profit margins are in a league of their own — the closest competitor is 12 percentage points behind.\"",
+    tip: "Stronger than 'the best' or 'market-leading'. It implies the gap is so large that normal competitive comparisons don't apply. Reserve it for cases where the superiority is genuinely exceptional — otherwise it loses impact.",
+    cq: "A client asks you to compare the top three asset managers in a category. One has delivered 22% annualised returns over ten years against a peer average of 11%:",
+    cc: "The first two are excellent managers — but honestly, the third is in a league of their own. Twenty-two percent annualised over ten years against a peer average of eleven is not a better result; it's a different result.",
+    cw: ["The third manager has performed significantly better than the others over the long term.", "There's a big gap between the first two and the third one in terms of ten-year returns.", "The third manager's performance is far superior to the peer group average over the decade."],
+    ctx: "Client advisory meeting — comparing fund manager performance",
+    setup: "You're comparing three asset managers. Manager A: 11% annualised. Manager B: 12%. Manager C: 22% — all over ten years.",
+    cue: "Client: \"How do the three compare? Just give me your honest read.\"",
+    model: "A and B are excellent — genuinely strong managers with consistent processes. But C is <b>in a league of their own.</b> Twenty-two percent annualised over ten years against a peer average of eleven isn't a better result — it's a categorically different one. <b>The question isn't whether to include C; the question is how much of your portfolio you want run by someone at that level versus the rest of the market.</b>",
+    why: "Reframing the question — from 'which is best?' to 'how much do you allocate to exceptional vs good?' — is a sophisticated advisory move. It shifts the client's thinking from comparison to allocation strategy, which is the more valuable conversation."
+  },
+  {
+    phrase: "Highly productive / Constructive dialogue / Gained significant traction",
+    def: "Three phrases for describing successful professional interactions: Highly productive = achieved a lot in the time available. Constructive dialogue = both sides engaged genuinely and moved things forward. Gained significant traction = made meaningful progress, particularly in convincing or advancing with someone.",
+    sit: "You've just come out of a meeting with a client's investment committee where real progress was made on a complex deal structure.",
+    prompt: "Summarise a meeting or conversation that genuinely moved things forward — not just pleasant, but actually productive…",
+    ex: "\"We had a highly productive session with the CFO.\" / \"It was a very constructive dialogue — we found a way through the snags.\" / \"The pitch gained significant traction with the committee.\"",
+    tip: "These three phrases sit at different points on the intensity scale. 'Highly productive' = practical outcomes. 'Constructive dialogue' = relationship and alignment. 'Gained significant traction' = advancement toward a decision. Choose based on what actually happened.",
+    cq: "You've just finished a two-hour working session with a client's CFO where you resolved three outstanding deal issues. You update your team:",
+    cc: "Very productive session — we had a constructive dialogue on all three open points and I think we've gained significant traction on the pricing structure specifically.",
+    cw: ["The meeting with the CFO went well and we made progress on several of the outstanding issues.", "We discussed the three remaining points and I think things moved forward on the pricing question.", "It was a good meeting — the CFO engaged well and I'm optimistic about the pricing structure."],
+    ctx: "Post-meeting team update — deal progress",
+    setup: "A two-hour working session with the client's CFO covered three outstanding deal issues: pricing, timeline, and governance structure.",
+    cue: "Team member: \"How did it go with the CFO?\"",
+    model: "<b>Highly productive.</b> We had a genuinely <b>constructive dialogue</b> on all three points — the CFO engaged seriously rather than just pushing back. On governance, we're aligned. On timeline, we have a working compromise. On pricing, <b>we gained significant traction</b> — I won't say it's agreed, but she moved considerably from her opening position and I think one more conversation closes it. <b>This is the most progress we've made in three months.</b>",
+    why: "Using all three phrases in sequence — each describing a different dimension of the meeting's success — is efficient and precise. 'I won't say it's agreed, but she moved considerably' is exactly the right calibration — neither overclaiming nor underclaiming, which is what good deal reporting sounds like."
+  }
+];
+
+// ─── STATE ───────────────────────────────────
+let spIdx = 0, spOrder = P.map((_,i)=>i);
+let chIdx = 0, chOrder = P.map((_,i)=>i), chScore = 0, chAnswered = false;
+let rpIdx = 0, rpOrder = P.map((_,i)=>i);
+let done = 0, fluent = 0;
+
+// ─── TABS ────────────────────────────────────
+function switchTab(t, btn) {
+  ['speak','choice','roleplay','browse'].forEach(id => {
+    document.getElementById('m-'+id).style.display = 'none';
+  });
+  document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('m-'+t).style.display = 'block';
+  btn.classList.add('active');
+  if (t==='choice') renderChoice();
+  if (t==='roleplay') renderRP();
+  if (t==='browse') renderBrowse('');
+}
+
+// ─── SPEAKING DRILL ──────────────────────────
+function renderSp() {
+  const p = P[spOrder[spIdx]];
+  document.getElementById('sp-cnt').textContent = `${spIdx+1} / ${P.length}`;
+  document.getElementById('sp-prg').style.width = `${(spIdx/P.length)*100}%`;
+  document.getElementById('sp-lbl').textContent = p.phrase;
+  document.getElementById('sp-sit').textContent = p.sit;
+  document.getElementById('sp-prompt').textContent = p.prompt;
+  document.getElementById('sp-phrase').textContent = p.phrase;
+  document.getElementById('sp-ex').textContent = p.ex;
+  document.getElementById('sp-tip').textContent = p.tip;
+  document.getElementById('sp-reveal').classList.remove('show');
+  document.getElementById('sp-rev-btn').style.display = 'inline-block';
+}
+function revealSp() {
+  document.getElementById('sp-reveal').classList.add('show');
+  document.getElementById('sp-rev-btn').style.display = 'none';
+}
+function rateSp(r) { done++; if(r==='easy') fluent++; updateStats(); spNav(1); }
+function spNav(d) { spIdx=(spIdx+d+P.length)%P.length; renderSp(); }
+function shuffleSp() {
+  for(let i=spOrder.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[spOrder[i],spOrder[j]]=[spOrder[j],spOrder[i]];}
+  spIdx=0; renderSp();
+}
+
+// ─── CHOICE ──────────────────────────────────
+function renderChoice() {
+  const p = P[chOrder[chIdx]];
+  document.getElementById('ch-cnt').textContent = `${chIdx+1} / ${P.length}`;
+  document.getElementById('ch-prg').style.width = `${(chIdx/P.length)*100}%`;
+  document.getElementById('ch-q').textContent = p.cq;
+  document.getElementById('ch-fb').className = 'choice-fb';
+  document.getElementById('ch-next').style.display = 'none';
+  chAnswered = false;
+  const opts = [p.cc,...p.cw].sort(()=>Math.random()-0.5);
+  const cont = document.getElementById('ch-opts');
+  cont.innerHTML = '';
+  opts.forEach(o => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-opt';
+    btn.textContent = o;
+    btn.onclick = () => pickChoice(btn, o===p.cc, p.cc);
+    cont.appendChild(btn);
+  });
+}
+function pickChoice(btn, correct, correctText) {
+  if(chAnswered) return;
+  chAnswered = true;
+  document.querySelectorAll('.choice-opt').forEach(b => {
+    b.disabled = true;
+    if(b.textContent===correctText) b.classList.add('reveal-correct');
+  });
+  if(correct){btn.classList.add('correct');chScore++;}
+  else btn.classList.add('wrong');
+  const fb = document.getElementById('ch-fb');
+  fb.className = 'choice-fb show '+(correct?'ok':'no');
+  fb.textContent = correct
+    ? '✓ Exactly right. This is the most natural way to say it in English.'
+    : `✗ Not quite. The most natural phrase is: "${correctText}"`;
+  document.getElementById('ch-score').textContent = `Score: ${chScore} / ${chIdx+1}`;
+  document.getElementById('ch-next').style.display = 'inline-block';
+}
+function nextChoice() { chIdx=(chIdx+1)%P.length; renderChoice(); }
+
+// ─── ROLE-PLAY ───────────────────────────────
+function renderRP() {
+  const p = P[rpOrder[rpIdx]];
+  document.getElementById('rp-cnt').textContent = `${rpIdx+1} / ${P.length}`;
+  document.getElementById('rp-prg').style.width = `${(rpIdx/P.length)*100}%`;
+  document.getElementById('rp-lbl').textContent = p.phrase;
+  document.getElementById('rp-ctx').textContent = p.ctx;
+  document.getElementById('rp-setup').textContent = p.setup;
+  document.getElementById('rp-cue').textContent = p.cue;
+  document.getElementById('rp-ta').value = '';
+  document.getElementById('rp-reveal').classList.remove('show');
+  document.getElementById('rp-rev-btn').style.display = 'inline-block';
+  document.getElementById('rp-model').innerHTML = p.model;
+  document.getElementById('rp-why').textContent = p.why;
+}
+function revealRP() {
+  document.getElementById('rp-reveal').classList.add('show');
+  document.getElementById('rp-rev-btn').style.display = 'none';
+}
+function rateRP(r) { done++; if(r==='easy') fluent++; updateStats(); rpNav(1); }
+function rpNav(d) { rpIdx=(rpIdx+d+P.length)%P.length; renderRP(); }
+
+// ─── BROWSE ──────────────────────────────────
+function renderBrowse(q) {
+  const lower = q.toLowerCase();
+  const filtered = P.filter(p =>
+    p.phrase.toLowerCase().includes(lower) ||
+    p.def.toLowerCase().includes(lower) ||
+    p.ex.toLowerCase().includes(lower) ||
+    p.tip.toLowerCase().includes(lower)
+  );
+  document.getElementById('br-count').textContent = `Showing ${filtered.length} of ${P.length} phrases`;
+  const list = document.getElementById('br-list');
+  list.innerHTML = '';
+  filtered.forEach((p,i) => {
+    const item = document.createElement('div');
+    item.className = 'br-item';
+    item.innerHTML = `
+      <div class="bi-phrase">${p.phrase}</div>
+      <div class="bi-ex">${p.ex}</div>
+      <div class="bi-exp" id="bi-exp-${i}">
+        <div class="bi-def">${p.def}</div>
+        <div class="bi-tip" style="margin-top:8px">💡 ${p.tip}</div>
+      </div>`;
+    item.onclick = () => document.getElementById(`bi-exp-${i}`).classList.toggle('open');
+    list.appendChild(item);
+  });
+}
+
+// ─── STATS ───────────────────────────────────
+function updateStats() {
+  document.getElementById('s-done').textContent = done;
+  document.getElementById('s-fluent').textContent = fluent;
+}
+
+// ─── INIT ────────────────────────────────────
+renderSp();
+</script>
+</body>
+</html>

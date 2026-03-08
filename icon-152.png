@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="110" fill="#1c1c2e"/>
+  <rect x="0" y="488" width="512" height="24" rx="0" fill="#b8892a"/>
+  <text x="256" y="300" font-family="Georgia,serif" font-size="220" font-weight="bold"
+    fill="#d4aa50" text-anchor="middle" dominant-baseline="middle">BE</text>
+  <text x="256" y="400" font-family="'Arial Narrow',Arial,sans-serif" font-size="52"
+    fill="rgba(244,239,228,0.55)" text-anchor="middle" letter-spacing="8">BUSINESS ENGLISH</text>
+</svg>

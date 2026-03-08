@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="BizEnglish">
+<meta name="theme-color" content="#1c1c2e">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="apple-touch-icon" sizes="167x167" href="icon-167.png">
+<link rel="apple-touch-icon" sizes="152x152" href="icon-152.png">
+<title>Business English Trainer</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f5f5f5;
+  --surface: #fff;
+  --border: #dcdcdc;
+  --ink: #1c1c2e;
+  --muted: #7a7f94;
+  --gold: #b8892a;
+  --gold-bg: #fdf6e3;
+  --gold-light: #d4aa50;
+  --accent: #5b3fa0;
+  --teal: #1a6b5a;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--ink);
+  color: #f4efe4;
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
+}
+
+/* ── HEADER ── */
+.app-header {
+  background: var(--ink);
+  padding: calc(var(--safe-top) + 18px) 24px 18px;
+  border-bottom: 3px solid var(--gold);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.app-title {
+  font-family: 'Lora', serif;
+  font-size: 1.35rem;
+  color: #f4efe4;
+  letter-spacing: -.01em;
+}
+.app-title em { color: var(--gold-light); font-style: normal; }
+.app-sub {
+  font-family: 'DM Mono', monospace;
+  font-size: .6rem;
+  color: rgba(244,239,228,.45);
+  margin-top: 4px;
+  letter-spacing: .06em;
+}
+.progress-summary {
+  font-family: 'DM Mono', monospace;
+  font-size: .62rem;
+  color: var(--gold-light);
+  margin-top: 6px;
+}
+
+/* ── MAIN SCROLL ── */
+.scroll-body {
+  padding: 20px 16px calc(var(--safe-bottom) + 24px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ── SECTION HEADERS ── */
+.section-head {
+  font-family: 'DM Mono', monospace;
+  font-size: .6rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: rgba(244,239,228,.35);
+  padding: 20px 4px 8px;
+}
+.section-head:first-child { padding-top: 4px; }
+
+/* ── TRAINER CARDS ── */
+.trainer-card {
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 12px;
+  padding: 16px 18px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background .15s, transform .1s;
+  -webkit-user-select: none;
+  position: relative;
+  overflow: hidden;
+}
+.trainer-card:active { background: rgba(255,255,255,.12); transform: scale(.98); }
+.trainer-card::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  border-radius: 3px 0 0 3px;
+}
+.card-phrases::before { background: var(--gold); }
+.card-word::before { background: var(--accent); }
+.card-shadow::before { background: var(--teal); }
+
+.card-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+.icon-gold { background: rgba(184,137,42,.2); }
+.icon-purple { background: rgba(91,63,160,.2); }
+.icon-teal { background: rgba(26,107,90,.2); }
+.icon-blue { background: rgba(32,96,168,.2); }
+.icon-red { background: rgba(192,57,43,.2); }
+.icon-green { background: rgba(26,122,74,.2); }
+.icon-orange { background: rgba(200,100,30,.2); }
+
+.card-body { flex: 1; min-width: 0; }
+.card-title {
+  font-family: 'DM Sans', sans-serif;
+  font-size: .93rem;
+  font-weight: 600;
+  color: #f4efe4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.card-meta {
+  font-family: 'DM Mono', monospace;
+  font-size: .58rem;
+  color: rgba(244,239,228,.4);
+  margin-top: 3px;
+  letter-spacing: .04em;
+}
+.card-tag {
+  display: inline-block;
+  font-family: 'DM Mono', monospace;
+  font-size: .52rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 3px;
+  margin-top: 5px;
+}
+.tag-phrases { background: rgba(184,137,42,.25); color: var(--gold-light); }
+.tag-vocab { background: rgba(91,63,160,.25); color: #a98cdf; }
+.tag-shadow { background: rgba(26,107,90,.25); color: #4dbfa0; }
+.tag-new { background: rgba(192,57,43,.25); color: #e88; }
+
+.card-arrow {
+  font-size: .85rem;
+  color: rgba(244,239,228,.25);
+  flex-shrink: 0;
+}
+
+/* ── STREAK / INSTALL BANNER ── */
+.install-banner {
+  background: linear-gradient(135deg, rgba(184,137,42,.15), rgba(91,63,160,.15));
+  border: 1px solid rgba(184,137,42,.3);
+  border-radius: 12px;
+  padding: 16px 18px;
+  margin-bottom: 20px;
+  display: none;
+}
+.install-banner.show { display: block; }
+.install-title {
+  font-family: 'DM Sans', sans-serif;
+  font-size: .9rem;
+  font-weight: 600;
+  color: var(--gold-light);
+  margin-bottom: 6px;
+}
+.install-steps {
+  font-family: 'DM Mono', monospace;
+  font-size: .65rem;
+  color: rgba(244,239,228,.6);
+  line-height: 1.9;
+}
+.install-steps strong { color: #f4efe4; }
+.dismiss-btn {
+  margin-top: 10px;
+  background: transparent;
+  border: 1px solid rgba(244,239,228,.2);
+  border-radius: 5px;
+  padding: 6px 14px;
+  font-family: 'DM Mono', monospace;
+  font-size: .6rem;
+  color: rgba(244,239,228,.5);
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+/* ── BACK BUTTON (inside iframes) ── */
+#viewer {
+  position: fixed;
+  inset: 0;
+  background: var(--ink);
+  z-index: 200;
+  display: none;
+  flex-direction: column;
+}
+#viewer.open { display: flex; }
+.back-bar {
+  background: var(--ink);
+  padding: calc(var(--safe-top) + 10px) 16px 10px;
+  border-bottom: 2px solid var(--gold);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+.back-btn {
+  background: transparent;
+  border: none;
+  color: var(--gold-light);
+  font-family: 'DM Mono', monospace;
+  font-size: .8rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 0;
+  letter-spacing: .04em;
+}
+.back-title {
+  font-family: 'Lora', serif;
+  font-size: .95rem;
+  color: #f4efe4;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#trainerFrame {
+  flex: 1;
+  border: none;
+  background: #f5f5f5;
+}
+</style>
+</head>
+<body>
+
+<!-- ── TRAINER VIEWER ── -->
+<div id="viewer">
+  <div class="back-bar">
+    <button class="back-btn" onclick="closeTrainer()">‹ Back</button>
+    <div class="back-title" id="viewerTitle">—</div>
+  </div>
+  <iframe id="trainerFrame" src="" allow="microphone"></iframe>
+</div>
+
+<!-- ── MAIN HOME ── -->
+<div class="app-header">
+  <div class="app-title"><em>Business English</em> Trainer</div>
+  <div class="app-sub">PHRASE DRILLS · SHADOWING · WORD POWER</div>
+  <div class="progress-summary" id="progSummary">Tap a trainer to begin</div>
+</div>
+
+<div class="scroll-body">
+
+  <!-- INSTALL BANNER (shown first time on iOS Safari) -->
+  <div class="install-banner" id="installBanner">
+    <div class="install-title">📲 Add to your Home Screen</div>
+    <div class="install-steps">
+      <strong>1.</strong> Tap the <strong>Share</strong> button (the box with the arrow) in Safari<br>
+      <strong>2.</strong> Scroll down and tap <strong>"Add to Home Screen"</strong><br>
+      <strong>3.</strong> Tap <strong>Add</strong> — the app will appear on your Home Screen<br>
+      <strong>4.</strong> Open it from there for full-screen, offline access
+    </div>
+    <button class="dismiss-btn" onclick="dismissBanner()">Got it</button>
+  </div>
+
+  <!-- PHRASES -->
+  <div class="section-head">📞 Client Calls & Pitching</div>
+
+  <a class="trainer-card card-phrases" onclick="openTrainer('trainers/client_calls_trainer.html','Client Calls — Zoom, Opening, Closing, Pricing, Timeline')">
+    <div class="card-icon icon-gold">📞</div>
+    <div class="card-body">
+      <div class="card-title">Client Calls</div>
+      <div class="card-meta">Zoom · Opening · Bridge · Closing · Pricing · Timeline</div>
+      <div class="card-tag tag-phrases">34 phrases</div>
+    </div>
+    <div class="card-arrow">›</div>
+  </a>
+
+  <a class="trainer-card card-phrases" onclick="openTrainer('trainers/pitch_banks_trainer.html','Pitch & Banks — 15 phrases')">
+    <div class="card-icon icon-gold">🏦</div>
+    <div class="card-body">
+      <div class="card-title">Pitch & Banks</div>
+      <div class="card-meta">Reading the tape · Skin in the game · Triangulate · Lockstep</div>
+      <div class="card-tag tag-phrases">15 phrases</div>
+    </div>
+    <div class="card-arrow">›</div>
+  </a>
+
+  <a class="trainer-card card-phrases" onclick="openTrainer('trainers/pitch_meeting_trainer.html','Pitch & Meeting — 11 phrases')">
+    <div class="card-icon icon-gold">🤝</div>
+    <div class="card-body">
+      <div class="card-title">Pitch & Meeting</div>
+      <div class="card-meta">Common ground · Iron out · Sweeten the deal · Weigh in</div>
+      <div class="card-tag tag-phrases">11 phrases</div>
+    </div>
+    <div class="card-arrow">›</div>
+  </a>
+
+  <div class="section-head">🏢 Office & Internal</div>
+
+  <a class="trainer-card card-phrases" onclick="openTrainer('trainers/internal_crossteam_trainer.html','Internal Reporting & Cross-Team — 23 phrases')">
+    <div class="card-icon icon-blue">📊</div>
+    <div class="card-body">
+      <div class="card-title">Internal & Cross-Team</div>
+      <div class="card-meta">Pacing ahead · Double-click · Gating items · Bulletproof</div>
+      <div class="card-tag tag-phrases">23 phrases</div>
+    </div>
+    <div class="card-arrow">›</div>
+  </a>
+
+  <a class="trainer-card card-phrases" onclick="openTrainer('trainers/office_phrases_trainer.html','Office Phrases — 18 phrases')">
+    <div class="card-icon icon-blue">💼</div>
+    <div class="card-body">
+      <div class="card-title">Office Phrases</div>
+      <div class="card-meta">Top of mind · Non-starter · No-brainer · Dry powder</div>
+      <div class="card-tag tag-phrases">18 phrases</div>
+    </div>
+    <div class="card-arrow">›</div>
+  </a>
+
+  <div class="section-head">📈 Strategy & Problem Solving</div>
+
+  <a class="trainer-card card-phrases" onclick="openTrainer('trainers/problem_solving_trainer.html','Problem Solving — 15 phrases')">
+    <div class="card-icon icon-teal">🔧</div>
+    <div class="card-body">
+      <div class="card-title">Problem Solving</div>
+      <div class="card-meta">Move the needle · Square away · Boils down to · Drill down</div>
+      <div class="card-tag tag-phrases">15 phrases</div>
+    </div>
+    <div class="card-arrow">›</div>
+  </a>
+
+  <a class="trainer-card card-phrases" onclick="openTrainer('trainers/market_trainer.html','Market Language — 18 phrases')">
+    <div class="card-icon icon-green">📉</div>
+    <div class="card-body">
+      <div class="card-title">Market Language</div>
+      <div class="card-meta">Rip higher · Dead cat bounce · Militate against · Pivot</div>
+      <div class="card-tag tag-phrases">18 phrases</div>
+    </div>
+    <div class="card-arrow">›</div>
+  </a>
+
+  <div class="section-head">💬 Tone & Register</div>
+
+  <a class="trainer-card card-phrases" onclick="openTrainer('trainers/positive_trainer.html','Positive Expressions — 19 phrases')">
+    <div class="card-icon icon-green">🌟</div>
+    <div class="card-body">
+      <div class="card-title">Positive Expressions</div>
+      <div class="card-meta">Runaway success · Slam dunk · In a league of their own</div>
+      <div class="card-tag tag-phrases">19 phrases</div>
+    </div>
+    <div class="card-arrow">›</div>
+  </a>
+
+  <a class="trainer-card card-phrases" onclick="openTrainer('trainers/negative_trainer.html','Negative Expressions — 20 phrases')">
+    <div class="card-icon icon-red">⚡</div>
+    <div class="card-body">
+      <div class="card-title">Negative Expressions</div>
+      <div class="card-meta">Pull the plug · Lash out · At odds · Hit rock bottom</div>
+      <div class="card-tag tag-phrases">20 phrases</div>
+    </div>
+    <div class="card-arrow">›</div>
+  </a>
+
+  <a class="trainer-card card-phrases" onclick="openTrainer('trainers/mind_thought_trainer.html','Mind & Thought — 16 phrases')">
+    <div class="card-icon icon-purple">🧠</div>
+    <div class="card-body">
+      <div class="card-title">Mind & Thought</div>
+      <div class="card-meta">Cloud your judgement · Sneaking suspicion · Stewing over</div>
+      <div class="card-tag tag-phrases">16 phrases</div>
+    </div>
+    <div class="card-arrow">›</div>
+  </a>
+
+  <a class="trainer-card card-phrases" onclick="openTrainer('trainers/busy_trainer.html','Busy Phrases — 10 phrases')">
+    <div class="card-icon icon-orange">⏱</div>
+    <div class="card-body">
+      <div class="card-title">Busy & Capacity</div>
+      <div class="card-meta">Snowed under · Bandwidth · Up to my neck · Gruelling</div>
+      <div class="card-tag tag-phrases">10 phrases</div>
+    </div>
+    <div class="card-arrow">›</div>
+  </a>
+
+  <div class="section-head">📚 Word Power</div>
+
+  <a class="trainer-card card-word" onclick="openTrainer('trainers/power_words_trainer.html','Power Words — 7 words')">
+    <div class="card-icon icon-purple">⚡</div>
+    <div class="card-body">
+      <div class="card-title">Power Words</div>
+      <div class="card-meta">Pivot · Manifest · Ubiquitous · Commensurate · Trajectory</div>
+      <div class="card-tag tag-vocab">7 words</div>
+    </div>
+    <div class="card-arrow">›</div>
+  </a>
+
+  <a class="trainer-card card-word" onclick="openTrainer('trainers/wordpower_1_personality.html','Word Power: Personality Roots')">
+    <div class="card-icon icon-purple">🌱</div>
+    <div class="card-body">
+      <div class="card-title">Word Power: Personality</div>
+      <div class="card-meta">Ego · Alter · Gauche · Adroit · Philanthropist · Misanthrope</div>
+      <div class="card-tag tag-vocab">Roots & families</div>
+    </div>
+    <div class="card-arrow">›</div>
+  </a>
+
+  <div class="section-head">🎙 Shadowing Mode</div>
+
+  <a class="trainer-card card-shadow" onclick="openTrainer('trainers/shadowing_demo.html','Shadowing — Listen · Record · Compare')">
+    <div class="card-icon icon-teal">🎙</div>
+    <div class="card-body">
+      <div class="card-title">Shadowing Practice</div>
+      <div class="card-meta">Listen · Shadow · Record · Compare by ear</div>
+      <div class="card-tag tag-shadow">Demo phrase</div>
+      <div class="card-tag tag-new" style="margin-left:4px">New</div>
+    </div>
+    <div class="card-arrow">›</div>
+  </a>
+
+  <div style="height:8px"></div>
+  <div style="font-family:'DM Mono',monospace;font-size:.58rem;color:rgba(244,239,228,.2);text-align:center;padding-bottom:8px">
+    14 trainers · 200+ phrases · Works offline
+  </div>
+
+</div><!-- end scroll-body -->
+
+<script>
+// ── Register service worker ──
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js')
+      .then(r => console.log('SW registered'))
+      .catch(e => console.log('SW failed:', e));
+  });
+}
+
+// ── Install banner: show on iOS Safari if not standalone ──
+function isIOS() {
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+}
+function isStandalone() {
+  return window.navigator.standalone === true;
+}
+window.addEventListener('load', () => {
+  const dismissed = localStorage.getItem('installDismissed');
+  if (isIOS() && !isStandalone() && !dismissed) {
+    document.getElementById('installBanner').classList.add('show');
+  }
+});
+function dismissBanner() {
+  localStorage.setItem('installDismissed', '1');
+  document.getElementById('installBanner').classList.remove('show');
+}
+
+// ── Open trainer in overlay ──
+function openTrainer(src, title) {
+  const viewer = document.getElementById('viewer');
+  const frame = document.getElementById('trainerFrame');
+  const titleEl = document.getElementById('viewerTitle');
+  titleEl.textContent = title.split('—')[0].trim();
+  frame.src = src;
+  viewer.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  // track last opened
+  try { localStorage.setItem('lastOpened', title); } catch(e){}
+}
+function closeTrainer() {
+  const viewer = document.getElementById('viewer');
+  const frame = document.getElementById('trainerFrame');
+  viewer.classList.remove('open');
+  document.body.style.overflow = '';
+  setTimeout(() => { frame.src = ''; }, 300);
+}
+
+// ── Handle back gesture / button ──
+window.addEventListener('popstate', () => {
+  const viewer = document.getElementById('viewer');
+  if (viewer.classList.contains('open')) closeTrainer();
+});
+document.getElementById('viewer').addEventListener('click', function(e) {
+  // push state so back button works
+});
+
+// ── Progress summary ──
+try {
+  const last = localStorage.getItem('lastOpened');
+  if (last) {
+    document.getElementById('progSummary').textContent = `Last: ${last.split('—')[0].trim()}`;
+  }
+} catch(e) {}
+</script>
+</body>
+</html>

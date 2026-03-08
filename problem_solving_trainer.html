@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Negative Phrases — Trainer</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f5f5f5;
+  --surface: #ffffff;
+  --surface2: #ebebeb;
+  --border: #dcdcdc;
+  --ink: #1c1c2e;
+  --muted: #7a7f94;
+  --gold: #b8892a;
+  --gold-bg: #fdf6e3;
+  --green: #1a7a4a;
+  --green-bg: #edf7f1;
+  --red: #c0392b;
+  --red-bg: #fdf0ee;
+  --blue: #2060a8;
+  --blue-bg: #edf3fd;
+  --accent: #7c4dbd;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; }
+
+header {
+  background: var(--ink); color: #f4efe4;
+  padding: 17px 32px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 3px solid var(--gold);
+}
+.header-title { font-family: 'Lora', serif; font-size: 1.35rem; }
+.header-title em { color: #d4aa50; }
+.header-meta { font-family: 'DM Mono', monospace; font-size: 0.68rem; opacity: 0.7; }
+.header-meta strong { color: #d4aa50; }
+
+.tabs {
+  display: flex; background: var(--surface2);
+  border-bottom: 2px solid var(--border);
+  padding: 0 32px;
+}
+.tab {
+  padding: 13px 22px;
+  font-family: 'DM Mono', monospace; font-size: 0.7rem;
+  letter-spacing: 0.07em; text-transform: uppercase;
+  cursor: pointer; border: none; background: transparent;
+  color: var(--muted); border-bottom: 2px solid transparent;
+  margin-bottom: -2px; white-space: nowrap; transition: all 0.18s;
+}
+.tab.active { color: var(--gold); border-bottom-color: var(--gold); font-weight: 600; }
+.tab:hover:not(.active) { color: var(--ink); }
+
+main { max-width: 760px; margin: 0 auto; padding: 28px 32px; }
+
+.prog-row { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; }
+.prog-text { font-family: 'DM Mono', monospace; font-size: 0.68rem; color: var(--muted); white-space: nowrap; }
+.prog-track { flex: 1; height: 3px; background: var(--border); border-radius: 2px; }
+.prog-fill { height: 100%; background: var(--gold); border-radius: 2px; transition: width 0.4s; }
+
+.situation-card {
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: 8px; padding: 28px 32px; margin-bottom: 16px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.06); position: relative; overflow: hidden;
+}
+.situation-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--gold), #d4aa50);
+}
+.sc-label { font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; }
+.sc-situation { font-size: 0.97rem; line-height: 1.75; color: var(--muted); margin-bottom: 10px; }
+.sc-prompt { font-family: 'Lora', serif; font-style: italic; font-size: 1.18rem; color: var(--ink); line-height: 1.55; }
+
+.reveal-box {
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: 8px; padding: 24px 28px; margin-bottom: 16px; display: none;
+}
+.reveal-box.show { display: block; }
+.reveal-label { font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--green); margin-bottom: 12px; }
+.reveal-phrase { font-family: 'Lora', serif; font-size: 1.5rem; font-weight: 600; color: var(--ink); margin-bottom: 10px; line-height: 1.3; }
+.reveal-example { font-family: 'Lora', serif; font-style: italic; font-size: 0.9rem; color: var(--muted); border-left: 2px solid var(--gold); padding-left: 14px; line-height: 1.65; margin-bottom: 12px; }
+.reveal-tip { font-size: 0.82rem; color: var(--blue); background: var(--blue-bg); padding: 10px 14px; border-radius: 5px; line-height: 1.55; }
+
+.rate-row { display: flex; gap: 9px; margin-top: 14px; }
+.rate-btn { flex: 1; padding: 10px; border-radius: 5px; border: 1px solid; font-family: 'DM Mono', monospace; font-size: 0.66rem; letter-spacing: 0.04em; text-transform: uppercase; cursor: pointer; transition: all 0.15s; }
+.rate-hard { border-color: var(--red); color: var(--red); background: transparent; }
+.rate-hard:hover { background: var(--red-bg); }
+.rate-ok { border-color: var(--gold); color: var(--gold); background: transparent; }
+.rate-ok:hover { background: var(--gold-bg); }
+.rate-easy { border-color: var(--green); color: var(--green); background: transparent; }
+.rate-easy:hover { background: var(--green-bg); }
+
+.nav-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.btn { padding: 9px 22px; border-radius: 5px; border: 1px solid; font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 0.05em; text-transform: uppercase; cursor: pointer; transition: all 0.15s; }
+.btn-ghost { background: transparent; color: var(--muted); border-color: var(--border); }
+.btn-ghost:hover { color: var(--ink); border-color: var(--muted); }
+.btn-gold { background: var(--gold); color: white; border-color: var(--gold); }
+.btn-gold:hover { opacity: 0.88; }
+.btn-sm { padding: 6px 14px; font-size: 0.62rem; }
+
+#m-choice { display: none; }
+.choice-card {
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: 8px; padding: 24px 28px; margin-bottom: 16px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+}
+.choice-label { font-family: 'DM Mono', monospace; font-size: 0.62rem; color: var(--gold); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+.choice-q { font-size: 0.97rem; line-height: 1.7; color: var(--ink); }
+.choice-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.choice-opt {
+  padding: 13px 16px; border: 1.5px solid var(--border); border-radius: 6px;
+  background: var(--surface); font-size: 0.85rem; line-height: 1.5;
+  cursor: pointer; text-align: left; font-family: 'DM Sans', sans-serif;
+  transition: all 0.15s; color: var(--ink);
+}
+.choice-opt:hover:not(:disabled) { border-color: var(--gold); background: var(--gold-bg); }
+.choice-opt.correct { border-color: var(--green); background: var(--green-bg); color: var(--green); font-weight: 600; }
+.choice-opt.wrong { border-color: var(--red); background: var(--red-bg); color: var(--red); }
+.choice-opt.reveal-correct { border-color: var(--green); background: var(--green-bg); }
+.choice-fb { padding: 11px 14px; border-radius: 5px; font-size: 0.84rem; line-height: 1.6; display: none; margin-bottom: 12px; }
+.choice-fb.show { display: block; }
+.choice-fb.ok { background: var(--green-bg); border-left: 3px solid var(--green); color: var(--green); }
+.choice-fb.no { background: var(--red-bg); border-left: 3px solid var(--red); color: var(--red); }
+.score-badge { font-family: 'DM Mono', monospace; font-size: 0.68rem; color: var(--muted); }
+
+#m-roleplay { display: none; }
+.rp-scene {
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: 8px; padding: 24px 28px; margin-bottom: 14px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+}
+.rp-context { font-family: 'DM Mono', monospace; font-size: 0.62rem; color: var(--accent); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 7px; }
+.rp-setup { font-size: 0.88rem; color: var(--muted); line-height: 1.65; margin-bottom: 12px; font-style: italic; }
+.rp-cue { background: var(--surface2); border-left: 3px solid var(--accent); padding: 12px 16px; border-radius: 0 6px 6px 0; font-size: 0.95rem; line-height: 1.65; color: var(--ink); }
+.rp-textarea {
+  width: 100%; min-height: 88px; padding: 13px 15px;
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: 6px; color: var(--ink); font-size: 0.93rem; line-height: 1.65;
+  font-family: 'DM Sans', sans-serif; resize: vertical; outline: none;
+  margin-bottom: 10px; transition: border 0.2s;
+}
+.rp-textarea:focus { border-color: var(--accent); }
+.rp-reveal { background: var(--surface); border: 1.5px solid var(--border); border-radius: 8px; padding: 20px 24px; display: none; margin-bottom: 14px; }
+.rp-reveal.show { display: block; }
+.rp-reveal-label { font-family: 'DM Mono', monospace; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--gold); margin-bottom: 10px; }
+.model-resp { font-family: 'Lora', serif; font-size: 1.05rem; line-height: 1.8; color: var(--ink); margin-bottom: 10px; }
+.rp-why { font-size: 0.8rem; color: var(--muted); line-height: 1.6; background: var(--blue-bg); padding: 9px 13px; border-radius: 5px; }
+
+#m-browse { display: none; }
+.br-search {
+  width: 100%; padding: 11px 15px; font-size: 0.88rem; font-family: 'DM Sans', sans-serif;
+  border: 1.5px solid var(--border); border-radius: 6px; background: var(--surface);
+  color: var(--ink); outline: none; margin-bottom: 14px; transition: border 0.2s;
+}
+.br-search:focus { border-color: var(--gold); }
+.br-count { font-family: 'DM Mono', monospace; font-size: 0.68rem; color: var(--muted); margin-bottom: 10px; }
+.br-table { border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+.br-item { padding: 14px 18px; background: var(--surface); border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.12s; }
+.br-item:last-child { border-bottom: none; }
+.br-item:hover { background: var(--surface2); }
+.bi-phrase { font-family: 'Lora', serif; font-weight: 600; font-size: 0.95rem; color: var(--ink); }
+.bi-ex { font-family: 'Lora', serif; font-style: italic; font-size: 0.8rem; color: var(--muted); margin-top: 3px; line-height: 1.5; }
+.bi-exp { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+.bi-exp.open { display: block; }
+.bi-def { font-size: 0.84rem; color: var(--ink); line-height: 1.6; margin-bottom: 8px; }
+.bi-tip { font-size: 0.78rem; color: var(--blue); background: var(--blue-bg); padding: 8px 12px; border-radius: 4px; line-height: 1.5; }
+
+@media(max-width:580px){
+  main { padding: 16px; }
+  header, .tabs { padding-left: 16px; padding-right: 16px; }
+  .choice-opts { grid-template-columns: 1fr; }
+  .rate-row { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-title">Negative <em>Phrases</em></div>
+  <div class="header-meta">Done: <strong id="s-done">0</strong> &nbsp;|&nbsp; Fluent: <strong id="s-fluent">0</strong></div>
+</header>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('speak',this)">① Speaking Drill</button>
+  <button class="tab" onclick="switchTab('choice',this)">② Right Phrase?</button>
+  <button class="tab" onclick="switchTab('roleplay',this)">③ Role-Play</button>
+  <button class="tab" onclick="switchTab('browse',this)">④ Browse All</button>
+</div>
+
+<main>
+
+<!-- ① SPEAKING DRILL -->
+<div id="m-speak">
+  <div class="prog-row">
+    <span class="prog-text" id="sp-cnt">1 / 20</span>
+    <div class="prog-track"><div class="prog-fill" id="sp-prg" style="width:0%"></div></div>
+    <span class="prog-text" id="sp-lbl">—</span>
+  </div>
+  <div class="situation-card">
+    <div class="sc-label">🎯 Situation — say a natural response out loud first</div>
+    <div class="sc-situation" id="sp-sit">—</div>
+    <div class="sc-prompt" id="sp-prompt">—</div>
+  </div>
+  <div class="reveal-box" id="sp-reveal">
+    <div class="reveal-label">✓ Model Phrase</div>
+    <div class="reveal-phrase" id="sp-phrase">—</div>
+    <div class="reveal-example" id="sp-ex">—</div>
+    <div class="reveal-tip" id="sp-tip">—</div>
+    <div class="rate-row">
+      <button class="rate-btn rate-hard" onclick="rateSp('hard')">🔴 Couldn't say it</button>
+      <button class="rate-btn rate-ok" onclick="rateSp('ok')">🟡 Said it, not fluently</button>
+      <button class="rate-btn rate-easy" onclick="rateSp('easy')">🟢 Said it naturally</button>
+    </div>
+  </div>
+  <div class="nav-row">
+    <button class="btn btn-ghost" onclick="spNav(-1)">← Prev</button>
+    <button class="btn btn-gold" id="sp-rev-btn" onclick="revealSp()">Reveal Phrase</button>
+    <button class="btn btn-ghost" onclick="spNav(1)">Next →</button>
+  </div>
+  <div style="text-align:center;margin-top:10px">
+    <button class="btn btn-ghost btn-sm" onclick="shuffleSp()">⇄ Shuffle order</button>
+  </div>
+</div>
+
+<!-- ② RIGHT PHRASE? -->
+<div id="m-choice">
+  <div class="prog-row">
+    <span class="prog-text" id="ch-cnt">1 / 20</span>
+    <div class="prog-track"><div class="prog-fill" id="ch-prg" style="width:0%"></div></div>
+    <span class="score-badge" id="ch-score">Score: 0 / 0</span>
+  </div>
+  <div class="choice-card">
+    <div class="choice-label">📍 Which phrase fits this moment?</div>
+    <div class="choice-q" id="ch-q">—</div>
+  </div>
+  <div class="choice-opts" id="ch-opts"></div>
+  <div class="choice-fb" id="ch-fb"></div>
+  <div class="nav-row">
+    <button class="btn btn-ghost" id="ch-next" style="display:none" onclick="nextChoice()">Next →</button>
+  </div>
+</div>
+
+<!-- ③ ROLE-PLAY -->
+<div id="m-roleplay">
+  <div class="prog-row">
+    <span class="prog-text" id="rp-cnt">1 / 20</span>
+    <div class="prog-track"><div class="prog-fill" id="rp-prg" style="width:0%"></div></div>
+    <span class="prog-text" id="rp-lbl">—</span>
+  </div>
+  <div class="rp-scene">
+    <div class="rp-context" id="rp-ctx">—</div>
+    <div class="rp-setup" id="rp-setup">—</div>
+    <div class="rp-cue" id="rp-cue">—</div>
+  </div>
+  <textarea class="rp-textarea" id="rp-ta" placeholder="Write what you would say in this situation…"></textarea>
+  <div class="nav-row" style="margin-bottom:12px">
+    <button class="btn btn-ghost" onclick="rpNav(-1)">← Prev</button>
+    <button class="btn btn-gold" id="rp-rev-btn" onclick="revealRP()">See Model Response</button>
+    <button class="btn btn-ghost" onclick="rpNav(1)">Next →</button>
+  </div>
+  <div class="rp-reveal" id="rp-reveal">
+    <div class="rp-reveal-label">Model Response — key phrases highlighted</div>
+    <div class="model-resp" id="rp-model">—</div>
+    <div class="rp-why" id="rp-why">—</div>
+    <div class="rate-row">
+      <button class="rate-btn rate-hard" onclick="rateRP('hard')">🔴 Very different</button>
+      <button class="rate-btn rate-ok" onclick="rateRP('ok')">🟡 Similar but less natural</button>
+      <button class="rate-btn rate-easy" onclick="rateRP('easy')">🟢 Close to model</button>
+    </div>
+  </div>
+</div>
+
+<!-- ④ BROWSE -->
+<div id="m-browse">
+  <input class="br-search" type="text" id="br-q" placeholder="Search phrases, meanings, examples…" oninput="renderBrowse(this.value)">
+  <div class="br-count" id="br-count"></div>
+  <div class="br-table" id="br-list"></div>
+</div>
+
+</main>
+
+<script>
+const P = [
+  {
+    phrase: "Flatly contradict",
+    def: "When two things are in absolute, direct conflict with each other — leaving zero room for compromise, nuance, or misunderstanding. The disagreement is total.",
+    sit: "A witness's account is completely incompatible with the documentary evidence in front of you.",
+    prompt: "State that two things are in complete, irreconcilable conflict with each other…",
+    ex: "\"His story flatly contradicts the evidence — one of them cannot be true.\"",
+    tip: "The word 'flatly' is the key — it removes all ambiguity. Use it when you want to say there is no middle ground, no interpretation, no grey area. Very effective in due diligence, legal, and compliance contexts.",
+    cq: "The CFO's public statements about cash reserves flatly contradict the internal management accounts you've just reviewed. You raise it:",
+    cc: "What the CFO said publicly flatly contradicts what's in the management accounts — we need an explanation before we go any further.",
+    cw: ["There's a big difference between what the CFO said and what the accounts show.", "The CFO's statements don't really match up with the internal financial data.", "There seems to be an inconsistency between the public comments and the actual numbers."],
+    ctx: "Due diligence — discrepancy between public statements and internal accounts",
+    setup: "The CFO publicly stated cash reserves were 'comfortably above £50m'. The management accounts show £31m. You're in the data room.",
+    cue: "Colleague: \"The cash position looks fine based on the public statements.\"",
+    model: "Actually, I'd stop there. What the CFO said publicly <b>flatly contradicts</b> the management accounts we're looking at right now. He stated reserves were comfortably above £50m — the accounts show £31m. <b>Those two numbers cannot both be true at the same date.</b> Before we go any further in this process, we need a clear explanation. This is either a timing difference, a definition issue, or a serious red flag.",
+    why: "'Those two numbers cannot both be true at the same date' is a precise, logical statement that forces the issue without being accusatory. It makes clear the problem isn't interpretation — it's arithmetic."
+  },
+  {
+    phrase: "Cook up an excuse",
+    def: "To invent or concoct an excuse, story, or plan — usually under pressure and often transparently false. Implies the person is being dishonest rather than genuinely explaining.",
+    sit: "A colleague arrived an hour late to an important client meeting and is now visibly inventing an explanation.",
+    prompt: "Describe someone hastily inventing an excuse that is clearly not entirely truthful…",
+    ex: "\"When he realised he was an hour late, he tried to cook up a believable excuse about a sudden power outage.\"",
+    tip: "Always implies some degree of dishonesty or desperation. Use it to describe someone else's behaviour — not your own. In a business context, it signals a lack of accountability.",
+    cq: "A junior analyst missed a key deadline and is now giving an implausible technical explanation. You say to a colleague afterwards:",
+    cc: "Did you hear that explanation? He completely cooked up that excuse — the system was working fine all morning.",
+    cw: ["I don't think his explanation for missing the deadline was truthful at all.", "He clearly invented that story about the system crashing to cover himself.", "That reason he gave for missing the deadline didn't sound credible to me."],
+    ctx: "Post-meeting conversation with a colleague",
+    setup: "A junior analyst missed a deadline that delayed a client deliverable. His explanation involved an implausible series of technical failures.",
+    cue: "Colleague (quietly): \"Do you believe that story about the server going down?\"",
+    model: "Not for a second. He <b>cooked that excuse up</b> on the spot — IT confirmed the systems were running normally all morning. <b>The issue isn't the missed deadline; it's that he didn't just own it.</b> A simple 'I ran out of time' would have been fine. Inventing a story makes it considerably worse.",
+    why: "'A simple \"I ran out of time\" would have been fine. Inventing a story makes it considerably worse.' This is excellent managerial wisdom — it's not the mistake that kills credibility, it's the cover-up."
+  },
+  {
+    phrase: "Pull the plug",
+    def: "To suddenly and decisively stop providing funds, support, or resources to a project — usually because it has failed or is failing. Implies a definitive end, not a pause.",
+    sit: "A startup has missed its third consecutive revenue milestone and the board must decide whether to continue funding.",
+    prompt: "Describe the decision to definitively stop supporting a failing project or initiative…",
+    ex: "\"The VC firm decided to pull the plug after the startup missed its third revenue target.\"",
+    tip: "More decisive and final than 'stop funding' or 'discontinue'. It implies someone has actively made the call to end something. Often used when the decision is painful but necessary.",
+    cq: "An internal innovation project has missed every milestone for 18 months and is consuming significant resource. In the board meeting you say:",
+    cc: "At some point we have to be honest with ourselves — it's time to pull the plug on this project and redeploy the resource.",
+    cw: ["We should stop funding this project and use the money elsewhere instead.", "This initiative has failed to deliver and we should end it now.", "The project isn't working and we need to make a decision to stop it."],
+    ctx: "Board meeting — underperforming internal project review",
+    setup: "An innovation lab project has consumed £2m over 18 months with no commercial output. Every milestone has been missed.",
+    cue: "Chair: \"We've been patient. What's the recommendation?\"",
+    model: "My recommendation is to <b>pull the plug.</b> We've given this 18 months and £2m, and we haven't seen a single commercial milestone met. The team has done their best, but the concept hasn't proven viable. <b>The most expensive thing we can do now is continue funding something that the evidence says won't work.</b> I'd rather redeploy that resource into three smaller bets than continue with one large one that has stalled.",
+    why: "'The most expensive thing we can do now is continue funding something the evidence says won't work' reframes inaction as a cost. It makes stopping feel like a rational decision rather than a failure."
+  },
+  {
+    phrase: "Go on an economic drive",
+    def: "To launch a deliberate, organised effort to reduce spending and cut costs — a period of enforced frugality where luxuries are eliminated and every expense is scrutinised.",
+    sit: "A company's costs have risen significantly and leadership has decided to implement a firm-wide cost reduction programme.",
+    prompt: "Describe a structured, deliberate effort to reduce spending across an organisation…",
+    ex: "\"After seeing our credit card bill, we decided to go on an economic drive and stop eating out for three months.\"",
+    tip: "More colourful and intentional than 'cut costs' or 'reduce spending'. It implies a campaign — organised, deliberate, and time-limited. Works well in both personal and corporate contexts.",
+    cq: "Margins have compressed significantly and the CFO has announced a firm-wide cost review. You brief your team:",
+    cc: "The firm is going on an economic drive — all discretionary spend is frozen until further notice and we'll need to justify any exception.",
+    cw: ["We're cutting costs across the firm right now so we need to spend less.", "The CFO has asked us to reduce our expenses until things improve.", "There's a cost-cutting programme underway and we all need to be more careful about spending."],
+    ctx: "Team briefing — firm-wide cost reduction programme",
+    setup: "Margins have fallen 4 percentage points. The CFO has announced a 12-month cost review covering all business lines.",
+    cue: "Team member: \"I've got a conference I was planning to attend next month — is that still okay?\"",
+    model: "For now, I'd hold off. <b>The firm is on an economic drive</b> — all discretionary travel and events are under review, and I don't want to submit anything that needs justifying until we have clearer guidance from the CFO's office. <b>If the conference is genuinely valuable, make the case in writing and I'll support it</b> — but this isn't the moment to assume things are approved as normal.",
+    why: "'Make the case in writing and I'll support it' is a fair and practical response. It doesn't slam the door but sets the right expectation — spend needs justification now, not assumption."
+  },
+  {
+    phrase: "A nasty piece of work",
+    def: "A person who is deeply unpleasant, dishonest, manipulative, or mean — someone to be avoided or treated with caution. A British idiom with real bite.",
+    sit: "A counterparty in a deal has been behaving in an underhand and aggressive way throughout the process.",
+    prompt: "Warn a colleague about a person who is untrustworthy and unpleasant to deal with…",
+    ex: "\"I would avoid dealing with that contractor directly if I were you — he's a real nasty piece of work.\"",
+    tip: "Informal but vivid — much more expressive than 'difficult person' or 'not easy to work with'. It carries a moral dimension: not just difficult, but actively unpleasant or dishonest. Use it in trusted, informal conversations.",
+    cq: "You've dealt with a counterparty lawyer before and know he operates in bad faith. A colleague is about to meet him for the first time. You warn them:",
+    cc: "Just so you know — he's a nasty piece of work. He'll seem reasonable in the first meeting and then move the goalposts once you've committed.",
+    cw: ["He's quite a difficult person to deal with so be careful in your interactions.", "I wouldn't trust him too much — he can be quite manipulative when it suits him.", "He has a reputation for being unpleasant and not entirely straightforward."],
+    ctx: "Pre-meeting briefing — known difficult counterparty",
+    setup: "Your colleague is about to negotiate with a counterparty lawyer who has a history of operating in bad faith.",
+    cue: "Colleague: \"I've heard mixed things about him — what's he actually like?\"",
+    model: "I'll be straight with you — <b>he's a nasty piece of work.</b> He'll be charming in the room and then send a completely different term sheet the next morning. <b>Don't agree to anything verbally without getting it confirmed in writing on the same day.</b> And don't let him make you feel unreasonable for wanting specifics — that's his technique.",
+    why: "'Don't let him make you feel unreasonable for wanting specifics — that's his technique' is genuinely useful intelligence. It names the manipulation tactic so the colleague can recognise it when it happens."
+  },
+  {
+    phrase: "A dirty trick to play",
+    def: "A dishonest, unfair, or mean action taken against someone — usually to gain an advantage or cause harm. Implies a deliberate and calculated act of bad faith.",
+    sit: "A competitor has leaked confidential pitch information to undermine your team's proposal at the last minute.",
+    prompt: "Call out a deliberately underhand or unfair action taken by someone to gain an advantage…",
+    ex: "\"Hiding his competitor's notes right before the presentation was a really dirty trick to play.\"",
+    tip: "More expressive than 'unfair' or 'underhand'. It carries genuine moral indignation. Use it when the action was calculated rather than accidental — someone chose to do this.",
+    cq: "A rival bank appears to have shared details of your pitch with the client to undermine your proposal. You say to your MD:",
+    cc: "If they leaked our pricing to the client, that's a dirty trick to play — and it tells you exactly what kind of counterparty they are.",
+    cw: ["That would be very unfair and dishonest behaviour from a competitor.", "Sharing our confidential information is completely unacceptable and unethical.", "If they did that it's a very underhanded thing to do in a competitive process."],
+    ctx: "Post-pitch debrief — suspected leak by a rival bank",
+    setup: "The client seemed to know the specifics of your pricing before your presentation. A rival bank was also pitching.",
+    cue: "MD: \"How did the client know our coupon range before we even started?\"",
+    model: "There are only two explanations — either we have a leak on our side, which I don't believe, or someone shared it with them. <b>If it was the rival bank, that's a genuinely dirty trick to play</b> — and frankly, it should concern the client too. <b>A bank that operates like that in a pitch will operate like that in an execution.</b> I'd flag it to the client directly and let them draw their own conclusions.",
+    why: "'A bank that operates like that in a pitch will operate like that in an execution' turns the competitive slight into a client advisory point. It reframes the situation to your advantage without sounding petty."
+  },
+  {
+    phrase: "That's a total rip-off",
+    def: "Something is significantly overpriced, or a dishonest imitation of something else — leaving the buyer feeling cheated or scammed. Strong sense of indignation.",
+    sit: "An advisor has charged an enormous fee for what turned out to be minimal, templated work.",
+    prompt: "Express that something is outrageously overpriced relative to its actual value…",
+    ex: "\"$20 for a bottled water at the airport? That is a total rip-off!\"",
+    tip: "Highly informal and emotionally charged — best used in trusted internal conversations or casual settings. In professional contexts, channel the same feeling into more measured language: 'the fee is not commensurate with the work delivered'.",
+    cq: "An external consultant billed £80k for a report that turned out to be largely recycled from a previous engagement. You say to a colleague:",
+    cc: "Eighty thousand for a recycled report is a complete rip-off — I'm not signing that invoice without a serious conversation.",
+    cw: ["That fee is very high for work that doesn't seem to be original or particularly thorough.", "I think we've been overcharged significantly given the quality of what was delivered.", "That's a lot of money for what appears to be reused material from a previous project."],
+    ctx: "Internal conversation about a consultant's invoice",
+    setup: "An external consultant has invoiced £80k for a strategy report. On review, it's 60% recycled from a previous client engagement.",
+    cue: "Colleague: \"The invoice just came in — what do you think?\"",
+    model: "I think it's <b>a complete rip-off</b> and I'm not approving it as-is. Sixty percent of this report is lifted from a previous engagement — I can tell because the sector references haven't even been updated. <b>I'll speak to the partner directly and ask for a revised invoice that reflects the original work actually done for us.</b> If they push back, we have grounds for a formal dispute.",
+    why: "'I can tell because the sector references haven't been updated' is a devastating specific detail. Vague complaints are easy to dismiss. A concrete, verifiable example is not."
+  },
+  {
+    phrase: "Talking nonsense",
+    def: "Saying things that are untrue, illogical, or make no sense — either through ignorance or deliberate exaggeration. Direct and dismissive.",
+    sit: "A presenter is making claims about market size that are clearly unsupported by any credible data.",
+    prompt: "Challenge a claim that is clearly unfounded, exaggerated, or simply untrue…",
+    ex: "\"Stop talking nonsense — there's no way that figure is accurate given what we know about the sector.\"",
+    tip: "Direct and slightly combative — use it carefully in professional settings. Best deployed with a specific counter-example rather than as a standalone dismissal. Softened versions: 'that doesn't hold up', 'that's not supported by the data', 'I'd push back on that'.",
+    cq: "A junior analyst is claiming the addressable market for a niche product is $500bn with no supporting data. You intervene:",
+    cc: "I have to be direct — that number is nonsense. The entire global market for this category is under $20bn. Where does $500bn come from?",
+    cw: ["I don't think that market size figure is accurate based on what I know about the sector.", "That addressable market number seems very high and I'd like to see where it comes from.", "I would question whether the $500bn figure is realistic for this particular product category."],
+    ctx: "Pitch preparation review — market sizing slide",
+    setup: "A junior analyst has put a $500bn TAM on the market sizing slide with no source. The actual market is well-documented at under $20bn.",
+    cue: "Analyst: \"I've sized the addressable market at $500bn — it's a huge opportunity.\"",
+    model: "I need to stop you there — <b>that number is nonsense</b> and it will destroy our credibility the moment the client checks it. The documented global market for this category is under $20bn. <b>I don't know where $500bn comes from, but it cannot go in front of a client.</b> Let's find the actual industry source, use the real number, and frame the opportunity properly. A well-supported $20bn is more compelling than a made-up $500bn.",
+    why: "'A well-supported $20bn is more compelling than a made-up $500bn' is a brilliant principle. It teaches the analyst that credibility matters more than impressive-sounding numbers — a lesson they won't forget."
+  },
+  {
+    phrase: "Circumlocutory",
+    def: "Using far more words than necessary — often to avoid being direct, to obscure a weak argument, or to hide the fact that you don't have a real answer. The opposite of laconic.",
+    sit: "An executive has just spent five minutes answering a yes/no question without actually saying yes or no.",
+    prompt: "Describe or call out speech that is deliberately evasive, wordy, and avoids the actual point…",
+    ex: "\"The CFO's circumlocutory answers during the earnings call made investors very nervous about the company's debt levels.\"",
+    tip: "A sophisticated vocabulary word that signals you've noticed and named the evasion. Use it analytically rather than as an insult. Its antonym — 'laconic' — is equally useful to know.",
+    cq: "The CEO has just given a five-minute non-answer to an analyst's direct question about earnings guidance. You comment afterwards:",
+    cc: "Did you notice how circumlocutory his answer was? He used five minutes to avoid saying anything concrete about guidance.",
+    cw: ["He gave a very long and indirect answer that didn't really address the actual question.", "The CEO talked a lot without actually saying anything useful about the earnings outlook.", "His response was very vague and evasive — he clearly didn't want to give a real answer."],
+    ctx: "Post-earnings call debrief with the analyst team",
+    setup: "The CEO was asked directly about FY guidance on the earnings call. His answer was five minutes of qualified statements with no number.",
+    cue: "Colleague: \"What did you make of the guidance answer?\"",
+    model: "It was almost impressively <b>circumlocutory</b> — five minutes of conditional clauses and macro caveats with no actual number at the end. <b>The market will read that as confirmation that guidance is coming down.</b> When a management team that's hitting its numbers answers directly, and one that's missing it answers like that — the style of the answer is itself the signal.",
+    why: "'The style of the answer is itself the signal' is a sophisticated analytical observation. It teaches the team to read what isn't said, which is one of the most valuable skills in financial analysis."
+  },
+  {
+    phrase: "Shoulder the blame",
+    def: "To accept total responsibility for something that went wrong — even when others were also involved. To carry the weight of accountability publicly and fully.",
+    sit: "A team has missed a major deadline and the manager must face the client and take responsibility, even though multiple people contributed to the failure.",
+    prompt: "Take full, public responsibility for a failure — even when others share the fault…",
+    ex: "\"As the manager, he shouldered the blame for the team's failure to meet the deadline.\"",
+    tip: "More vivid and weighty than 'take responsibility'. The image of carrying a burden on your shoulders implies real personal cost. It signals leadership and integrity — someone who doesn't throw their team under the bus.",
+    cq: "Your team missed a client deadline due to a combination of errors across three people. The client calls you. You respond:",
+    cc: "I'm going to shoulder the blame on this one — the failure happened on my watch and I take full responsibility for the delay.",
+    cw: ["I accept responsibility for what happened and I'm sorry for the problems it caused.", "As the team leader I take overall responsibility for the missed deadline.", "I want to apologise — this was our failure and I'm accountable for it."],
+    ctx: "Client call after a missed deadline",
+    setup: "A deliverable was late by three days. Multiple team members contributed to the failure. The client is unhappy.",
+    cue: "Client: \"This delay has put us in a very difficult position. Who is responsible for this?\"",
+    model: "I am. <b>I'm shouldering the blame</b> on this — it happened under my leadership and I'm not going to attribute it to individual errors within the team. <b>What I can tell you is what went wrong, what we've already changed to make sure it doesn't happen again, and what we're doing right now to recover the timeline.</b> Can I walk you through that?",
+    why: "Moving immediately from 'I am responsible' to 'here's what we've changed and what we're doing now' is the correct sequence. Accountability without a recovery plan is just self-flagellation. The client needs both."
+  },
+  {
+    phrase: "Grounds for complaint",
+    def: "A valid reason or legitimate basis for making a formal complaint or taking action. Implies the grievance is justified — not just an opinion or preference.",
+    sit: "A client has been consistently misled about fees and now wants to understand whether they have a legitimate case.",
+    prompt: "Explain that someone has a valid, justified basis for making a formal complaint…",
+    ex: "\"If the company continues to ignore safety protocols, employees will have serious grounds for complaint.\"",
+    tip: "More formal and precise than 'a reason to complain'. It implies the complaint has legal or procedural standing — not just emotional validity. Use it in compliance, HR, legal, and client relations contexts.",
+    cq: "A client was charged fees that weren't disclosed in the original mandate letter. They're asking if they can push back formally. You advise:",
+    cc: "If the fees weren't disclosed in the mandate letter, you have legitimate grounds for complaint — and I'd recommend putting it in writing.",
+    cw: ["You have every right to complain about fees that weren't clearly explained to you.", "It sounds like you have a valid reason to push back on this charge formally.", "If the fees weren't disclosed properly, you should definitely raise this as an issue."],
+    ctx: "Client advisory call — undisclosed fee dispute",
+    setup: "A client was charged a 'structuring fee' not mentioned in the original mandate letter. They want to know their options.",
+    cue: "Client: \"Can we actually do something about this, or do we just have to pay it?\"",
+    model: "You have <b>legitimate grounds for complaint</b> — and I'd encourage you to use them. If the structuring fee isn't referenced in the mandate letter or any subsequent written communication, <b>you are not contractually obligated to pay it.</b> I'd put your objection in writing today, reference the mandate letter specifically, and request a written explanation of the basis for the charge. That creates a paper trail and signals that you're taking this seriously.",
+    why: "'That creates a paper trail and signals you're taking this seriously' is practical, actionable advice. It tells the client exactly what to do and why — which is what advisory relationships are for."
+  },
+  {
+    phrase: "Mounting concern",
+    def: "A feeling of worry or anxiety that is steadily increasing — not yet at crisis level, but growing in intensity and urgency over time.",
+    sit: "Data over several months has been pointing in a worrying direction and the team is increasingly anxious.",
+    prompt: "Describe a worry that has been growing steadily over time and is becoming harder to ignore…",
+    ex: "\"There is mounting concern among investors about the company's ability to service its debt.\"",
+    tip: "More sophisticated than 'increasing worry'. The word 'mounting' implies accumulation — like a pile growing taller. Use it in risk commentary, investor communications, and internal escalations.",
+    cq: "Three consecutive months of declining order intake has the team increasingly worried. You raise it in the risk meeting:",
+    cc: "There's mounting concern about the order intake trend — three months of consecutive decline is not something we can attribute to seasonality anymore.",
+    cw: ["We're becoming increasingly worried about the decline in orders over recent months.", "The order intake numbers have been falling and this is causing significant concern.", "Three months of declining orders is worrying and we need to take it more seriously."],
+    ctx: "Monthly risk committee — declining order intake",
+    setup: "Order intake has fallen 8%, 11%, and 14% in consecutive months. The trend is accelerating.",
+    cue: "Risk chair: \"Any escalations from the commercial team?\"",
+    model: "Yes — there's <b>mounting concern</b> about the order intake trend. Three consecutive months of decline, with the rate of decline accelerating — 8%, 11%, 14% — is beyond what seasonality explains. <b>The concern is that this is a leading indicator of a revenue shortfall in Q3.</b> I'd recommend we bring the commercial director in to present their view at the next meeting rather than waiting for the quarterly review.",
+    why: "Presenting the three numbers in sequence — '8%, 11%, 14%' — makes the trend visceral and undeniable. Anyone who might have dismissed a single bad month cannot dismiss a clearly accelerating pattern."
+  },
+  {
+    phrase: "Hit rock bottom",
+    def: "To reach the absolute lowest possible point — a situation so bad it cannot get worse. After rock bottom, the only direction is up.",
+    sit: "A company's share price, reputation, or financial position has reached its worst possible point after a prolonged crisis.",
+    prompt: "Describe a situation that has reached its absolute lowest point after a long decline…",
+    ex: "\"After the accounting scandal and the CEO resignation, the company's reputation hit rock bottom.\"",
+    tip: "Often used as a turning point — hitting rock bottom implies things can only improve from here. In business contexts, it can be used analytically (to call a floor) or descriptively (to characterise how bad things got).",
+    cq: "A stock has fallen 75% over two years following a series of profit warnings and a CEO departure. You assess where things stand:",
+    cc: "The stock has hit rock bottom — at 75% off the peak, the bad news is more than priced in and the risk-reward is starting to look interesting.",
+    cw: ["The stock has fallen so much that it can't really get much worse from here.", "After declining 75%, the company's valuation is at its lowest point in years.", "Things have been very bad for a long time and the stock is now at historically low levels."],
+    ctx: "Investment case review — deeply distressed stock",
+    setup: "A stock is down 75% over two years. The CEO has left. Two profit warnings have been issued. Sentiment is universally negative.",
+    cue: "Portfolio manager: \"Is there any case for looking at this contrariantly?\"",
+    model: "There might be. <b>The stock has hit rock bottom</b> by most measures — 75% off peak, trading at 0.4x book, and sentiment is as negative as I've seen for this sector. <b>At this point, the question is whether the business has a future, not whether the news is bad</b> — we know it's bad. The new CEO appointment next month is the catalyst to watch. If she comes in with a credible restructuring plan, this could be a very interesting entry point.",
+    why: "'The question is whether the business has a future, not whether the news is bad — we know it's bad' is a sophisticated reframe. It moves the analytical conversation from diagnosis (done) to prognosis (the actual investment question)."
+  },
+  {
+    phrase: "Blow up",
+    def: "Three distinct uses: (1) A fund or trader losing all their capital catastrophically; (2) a deal failing spectacularly; (3) someone losing their temper explosively. Context determines which meaning applies.",
+    sit: "A highly leveraged hedge fund has just suffered catastrophic losses after a market move went against their position.",
+    prompt: "Describe a catastrophic, total failure — of a fund, a deal, or a person's composure…",
+    ex: "\"The hedge fund blew up after the market moved against their leveraged position.\" / \"My boss completely blew up at me when I missed the deadline.\"",
+    tip: "One of the most versatile and vivid phrases in financial English. Always context-dependent — make sure the meaning is clear. In a market context, 'blow up' means total capital loss, not just a bad day.",
+    cq: "A macro hedge fund that was heavily long rates has just suffered a 60% drawdown in a single week after an unexpected central bank move. You explain what happened:",
+    cc: "They blew up — they were running 15x leverage long rates and the central bank surprised everyone. That kind of move at that leverage doesn't give you time to exit.",
+    cw: ["The fund suffered very large losses because they had too much leverage in the wrong direction.", "They had a catastrophic week after the central bank moved against their main position.", "The fund lost most of its capital because they were highly leveraged and the market went the wrong way."],
+    ctx: "Post-mortem discussion — hedge fund collapse",
+    setup: "A macro fund was running 15x leverage, long duration. The central bank raised rates unexpectedly by 75bps. The fund is down 60% in a week.",
+    cue: "Client: \"What exactly happened to the Macro Alpha fund?\"",
+    model: "They <b>blew up.</b> They were running 15 times leverage long duration — a bet that rates would fall. When the central bank surprised the market with 75bps, the position moved against them faster than they could exit. <b>At that level of leverage, a 4% adverse move in the underlying wipes you out.</b> By the time they could liquidate, they'd lost 60% of the fund. There was no time to manage it — it was over in three sessions.",
+    why: "'At that level of leverage, a 4% adverse move in the underlying wipes you out' makes the mathematics concrete and comprehensible. It answers the implicit question of 'how is that even possible' in one sentence."
+  },
+  {
+    phrase: "Stir up trouble",
+    def: "To deliberately provoke conflict, unrest, or problems — usually by spreading information, gossip, or controversy that disturbs what was previously calm.",
+    sit: "A colleague is deliberately sharing private conversations between managers to create tension and division.",
+    prompt: "Describe someone who is deliberately provoking conflict or discord within a team or organisation…",
+    ex: "\"He's always stirring up trouble between the managers by repeating things said in private.\"",
+    tip: "Implies deliberate provocation rather than accidental conflict. The metaphor — stirring sediment at the bottom of a pot — captures how someone can disturb hidden tensions that were otherwise settled. Use it to name a pattern of behaviour, not a single incident.",
+    cq: "You've noticed a colleague repeatedly feeding selective information to different team members to create misunderstandings. You raise it with your MD:",
+    cc: "I want to flag a pattern I've been seeing — he's been stirring up trouble between the team leads by sharing things out of context.",
+    cw: ["He's been causing problems by repeating private conversations to people who weren't in them.", "I've noticed he tends to create conflict by sharing information in a selective and damaging way.", "There's a pattern of him creating division between colleagues by misrepresenting what people have said."],
+    ctx: "Private conversation with MD — team dynamics concern",
+    setup: "A team member has been sharing fragments of private conversations with different colleagues, creating mistrust and conflict.",
+    cue: "MD: \"I'm sensing some tension in the team — any idea what's driving it?\"",
+    model: "I think I do. <b>There's a pattern of one person stirring up trouble</b> — sharing fragments of private conversations with different people in ways that create misunderstanding. It's subtle enough that each individual incident looks innocent, but the cumulative effect is real division. <b>I'd rather name it now than let it run.</b> Can we discuss how you'd like to handle it?",
+    why: "'It's subtle enough that each individual incident looks innocent, but the cumulative effect is real division' is a precise description of a common but hard-to-prove form of workplace manipulation. Naming it well is the first step to addressing it."
+  },
+  {
+    phrase: "Castigate",
+    def: "To criticise or reprimand someone severely and formally — a dressing-down from a position of authority. More deliberate and formal than 'lash out at'.",
+    sit: "The board has publicly and formally criticised the CEO for a governance failure at the annual general meeting.",
+    prompt: "Describe a severe, formal public criticism from a position of authority…",
+    ex: "\"The board castigated the CEO for the company's poor governance during the annual meeting.\"",
+    tip: "A high-register word that implies authority and deliberateness. The person doing the castigating has the standing to do so. Use it in formal, institutional, or regulatory contexts. More measured than 'lash out' — this is controlled criticism, not emotional outburst.",
+    cq: "Regulators have just issued a formal censure of a bank for failing to disclose material information to investors. You describe it:",
+    cc: "The regulator essentially castigated the bank publicly — the censure letter was unusually direct about the seriousness of the disclosure failure.",
+    cw: ["The regulator criticised the bank very severely in a formal public statement.", "The bank was formally reprimanded by the regulator for its failure to disclose properly.", "The regulatory censure was very strongly worded and clearly targeted the bank's management."],
+    ctx: "Regulatory affairs discussion — formal censure issued",
+    setup: "A regulator has issued a formal public censure of a bank for disclosure failures. The language in the censure letter is unusually direct.",
+    cue: "Colleague: \"How serious is this censure letter?\"",
+    model: "Very serious. The regulator has <b>castigated</b> the bank in unusually explicit terms — naming the specific failures, the individuals responsible, and calling the conduct 'a deliberate withholding of material information'. <b>That language is chosen carefully.</b> It's a warning to the rest of the market as much as it is a punishment for this bank. Anyone in a similar position should be reviewing their disclosure practices today.",
+    why: "'That language is chosen carefully' signals to the colleague that regulatory communications are not boilerplate — every word is deliberate. It teaches them to read formal documents with the attention they deserve."
+  },
+  {
+    phrase: "Lash out at",
+    def: "A sudden, uncontrolled verbal attack — usually driven by stress, frustration, or feeling cornered. More emotional and less deliberate than 'castigate'.",
+    sit: "A senior manager, overwhelmed by pressure during a difficult deal, has snapped aggressively at a junior team member in a meeting.",
+    prompt: "Describe a sudden, emotionally-driven verbal attack that was disproportionate and stress-fuelled…",
+    ex: "\"If you're feeling burned out, be careful not to lash out at your colleagues — it's the stress talking, not the situation.\"",
+    tip: "Implies a loss of control — the person didn't plan to attack, they were pushed to it. Can be used sympathetically (to explain behaviour) or critically (to name it as unacceptable). Important to distinguish from 'castigate' — this is emotional, that is deliberate.",
+    cq: "A senior colleague snapped at a junior analyst in front of the whole team during a stressful moment. You check in with the analyst afterwards:",
+    cc: "I wanted to check in — what happened in there wasn't okay. He lashed out at you and that's not something you should have to absorb.",
+    cw: ["I saw what happened in the meeting and I don't think he should have spoken to you that way.", "He was very harsh with you in that room and I want you to know that wasn't acceptable.", "What he said to you in front of everyone was not appropriate and I'm sorry you experienced that."],
+    ctx: "Post-meeting check-in with a junior colleague",
+    setup: "A senior director, under extreme pressure on a deal, snapped harshly at a junior analyst in front of the team for a minor error.",
+    cue: "Junior analyst (quietly, later): \"Was that normal? Did I do something wrong?\"",
+    model: "No — you didn't do anything wrong. <b>He lashed out</b>, and that's on him, not you. The error you made was minor and didn't warrant that reaction. <b>Stress explains behaviour; it doesn't excuse it.</b> I'll speak to him separately. And I want you to know — what happened in that room is not the standard we hold ourselves to.",
+    why: "'Stress explains behaviour; it doesn't excuse it' is a memorable principle that validates the analyst's reaction while holding the right standard. It's exactly what a good manager says in this situation."
+  },
+  {
+    phrase: "Snap at someone",
+    def: "A quick, sharp, irritable remark directed at someone — usually because the speaker is tired, stressed, or annoyed. Sharper than being curt but less severe than lashing out.",
+    sit: "You've been working 14-hour days and realise you've been speaking to colleagues more abruptly than is fair.",
+    prompt: "Acknowledge that you've been speaking to people more sharply than is appropriate due to stress or exhaustion…",
+    ex: "\"I'm sorry I snapped at you earlier — I've been up to my neck in work all week and that's no excuse.\"",
+    tip: "Often followed by an apology — snapping is usually recognised as an overreaction fairly quickly. Use it to own a moment of impatience. More relatable and human than 'lash out' — everyone snaps occasionally; not everyone lashes out.",
+    cq: "You cut off a colleague mid-sentence in a meeting because you were stressed and realise afterwards it was unfair. You message them:",
+    cc: "I wanted to apologise — I snapped at you earlier when you were raising a valid point. That was unfair and I'm sorry.",
+    cw: ["Sorry for how I spoke to you in the meeting — I was a bit short with you which wasn't right.", "I realise I interrupted you in a way that wasn't very kind and I want to apologise for that.", "I was quite abrupt with you earlier and I regret it — you didn't deserve that reaction from me."],
+    ctx: "Post-meeting message to a colleague",
+    setup: "You interrupted a colleague dismissively during a meeting while under pressure. You regret it immediately afterwards.",
+    cue: "You're composing a message to your colleague to address what happened.",
+    model: "Hey — I wanted to say sorry. <b>I snapped at you</b> in the meeting when you were making a completely reasonable point, and that wasn't fair. I've been running on empty this week and it came out in the wrong direction. <b>Your point about the timing was actually worth discussing properly</b> — can we grab five minutes tomorrow so I can hear it properly?",
+    why: "Offering to hear the colleague's point properly — 'can we grab five minutes tomorrow' — turns the apology into a genuine repair rather than a performative one. It shows the person's input actually mattered."
+  },
+  {
+    phrase: "At odds with",
+    def: "In disagreement or conflict — two things or people that clash with each other. Can describe people, departments, data, or ideas that are inconsistent or opposed.",
+    sit: "The sales team's revenue forecast is completely inconsistent with what the finance team's model is projecting.",
+    prompt: "Describe two things or people that are in clear conflict or disagreement with each other…",
+    ex: "\"The marketing department and the sales team are completely at odds regarding the new campaign strategy.\"",
+    tip: "Works equally for people ('they are at odds') and for data ('these numbers are at odds with each other'). Slightly more formal than 'disagreeing' — implies a structural or persistent conflict, not just a momentary difference.",
+    cq: "The sales team is forecasting £80m revenue for Q4 while finance is modelling £55m. You raise it in the planning meeting:",
+    cc: "We have a problem — sales and finance are completely at odds on the Q4 revenue number. A £25m gap can't go unresolved into budget season.",
+    cw: ["Sales and finance have very different views on what revenue is going to be in Q4.", "There's a big disagreement between the two teams on the Q4 forecast that needs to be resolved.", "The £25m difference between the sales and finance forecasts is a significant issue we need to address."],
+    ctx: "Budget planning meeting — conflicting forecasts",
+    setup: "Sales has submitted an £80m Q4 forecast. Finance has modelled £55m using pipeline data. Both teams are confident in their numbers.",
+    cue: "CFO: \"We need to finalise the budget. Where do we land on Q4 revenue?\"",
+    model: "We have a problem to resolve first. Sales and finance are <b>completely at odds</b> — £80m versus £55m, a £25m gap. <b>That's not a rounding difference; it's a fundamentally different view of the pipeline.</b> Before we set a budget number, I'd like both teams in a room together for two hours with the pipeline data on the table. One of those forecasts has a flawed assumption, and we need to find it before we commit to a number.",
+    why: "'That's not a rounding difference; it's a fundamentally different view of the pipeline' makes the stakes clear. It prevents the CFO from splitting the difference arithmetically — which would be the wrong approach to a methodological disagreement."
+  },
+  {
+    phrase: "It's nuts / Going nuts",
+    def: "'It's nuts' = something is crazy, unbelievable, or chaotic. 'Going nuts' = becoming very excited, angry, or frenzied. Both are highly informal and energetic. 'Going nuts' can also mean working intensely on something.",
+    sit: "Markets have reacted to a central bank decision with extraordinary, chaotic volatility that nobody anticipated.",
+    prompt: "Describe a situation that is completely chaotic or unbelievable — use vivid, informal energy…",
+    ex: "\"I tried to get a table at that new restaurant but the waitlist is six months long — it's absolutely nuts!\" / \"People are going nuts over the new AI features.\"",
+    tip: "Highly informal — best used internally, with trusted colleagues or clients you know well. Not for formal reports or presentations. The energy of the phrase is part of its value — it communicates emotion and surprise quickly.",
+    cq: "Markets have swung 3% in each direction within a single hour after an unexpected Fed statement. You message a colleague:",
+    cc: "Are you watching this? Markets are absolutely going nuts — we're up 3%, down 3%, back up 2% all in the same hour. Nobody knows what to do.",
+    cw: ["The market volatility today is extremely high and very difficult to interpret or trade around.", "There's been extraordinary price movement in both directions today following the Fed statement.", "It's been a very chaotic and unpredictable day in the markets after the central bank announcement."],
+    ctx: "Internal team chat — extreme intraday market volatility",
+    setup: "The Fed released an ambiguous statement. Markets have swung violently in both directions within an hour.",
+    cue: "Colleague (on chat): \"What's happening out there??\"",
+    model: "<b>It's absolutely nuts.</b> The Fed statement was ambiguous enough that nobody knows whether to read it as hawkish or dovish — so the market keeps changing its mind. We've been up 3%, down 3%, up 2% in the space of an hour. <b>The algo traders are going nuts</b> on every headline keyword. I'd sit on your hands until we get a clearer signal — trading in this is just paying spread for no reason.",
+    why: "'Sit on your hands until we get a clearer signal — trading in this is just paying spread for no reason' is crisp, experienced advice. It tells a junior colleague exactly what to do (nothing) and why (the noise isn't worth the cost)."
+  }
+];
+
+// ─── STATE ───────────────────────────────────
+let spIdx = 0, spOrder = P.map((_,i)=>i);
+let chIdx = 0, chOrder = P.map((_,i)=>i), chScore = 0, chAnswered = false;
+let rpIdx = 0, rpOrder = P.map((_,i)=>i);
+let done = 0, fluent = 0;
+
+// ─── TABS ────────────────────────────────────
+function switchTab(t, btn) {
+  ['speak','choice','roleplay','browse'].forEach(id => {
+    document.getElementById('m-'+id).style.display = 'none';
+  });
+  document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('m-'+t).style.display = 'block';
+  btn.classList.add('active');
+  if (t==='choice') renderChoice();
+  if (t==='roleplay') renderRP();
+  if (t==='browse') renderBrowse('');
+}
+
+// ─── SPEAKING DRILL ──────────────────────────
+function renderSp() {
+  const p = P[spOrder[spIdx]];
+  document.getElementById('sp-cnt').textContent = `${spIdx+1} / ${P.length}`;
+  document.getElementById('sp-prg').style.width = `${(spIdx/P.length)*100}%`;
+  document.getElementById('sp-lbl').textContent = p.phrase;
+  document.getElementById('sp-sit').textContent = p.sit;
+  document.getElementById('sp-prompt').textContent = p.prompt;
+  document.getElementById('sp-phrase').textContent = p.phrase;
+  document.getElementById('sp-ex').textContent = p.ex;
+  document.getElementById('sp-tip').textContent = p.tip;
+  document.getElementById('sp-reveal').classList.remove('show');
+  document.getElementById('sp-rev-btn').style.display = 'inline-block';
+}
+function revealSp() {
+  document.getElementById('sp-reveal').classList.add('show');
+  document.getElementById('sp-rev-btn').style.display = 'none';
+}
+function rateSp(r) { done++; if(r==='easy') fluent++; updateStats(); spNav(1); }
+function spNav(d) { spIdx=(spIdx+d+P.length)%P.length; renderSp(); }
+function shuffleSp() {
+  for(let i=spOrder.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[spOrder[i],spOrder[j]]=[spOrder[j],spOrder[i]];}
+  spIdx=0; renderSp();
+}
+
+// ─── CHOICE ──────────────────────────────────
+function renderChoice() {
+  const p = P[chOrder[chIdx]];
+  document.getElementById('ch-cnt').textContent = `${chIdx+1} / ${P.length}`;
+  document.getElementById('ch-prg').style.width = `${(chIdx/P.length)*100}%`;
+  document.getElementById('ch-q').textContent = p.cq;
+  document.getElementById('ch-fb').className = 'choice-fb';
+  document.getElementById('ch-next').style.display = 'none';
+  chAnswered = false;
+  const opts = [p.cc,...p.cw].sort(()=>Math.random()-0.5);
+  const cont = document.getElementById('ch-opts');
+  cont.innerHTML = '';
+  opts.forEach(o => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-opt';
+    btn.textContent = o;
+    btn.onclick = () => pickChoice(btn, o===p.cc, p.cc);
+    cont.appendChild(btn);
+  });
+}
+function pickChoice(btn, correct, correctText) {
+  if(chAnswered) return;
+  chAnswered = true;
+  document.querySelectorAll('.choice-opt').forEach(b => {
+    b.disabled = true;
+    if(b.textContent===correctText) b.classList.add('reveal-correct');
+  });
+  if(correct){btn.classList.add('correct');chScore++;}
+  else btn.classList.add('wrong');
+  const fb = document.getElementById('ch-fb');
+  fb.className = 'choice-fb show '+(correct?'ok':'no');
+  fb.textContent = correct
+    ? '✓ Exactly right. This is the most natural way to say it in English.'
+    : `✗ Not quite. The most natural phrase is: "${correctText}"`;
+  document.getElementById('ch-score').textContent = `Score: ${chScore} / ${chIdx+1}`;
+  document.getElementById('ch-next').style.display = 'inline-block';
+}
+function nextChoice() { chIdx=(chIdx+1)%P.length; renderChoice(); }
+
+// ─── ROLE-PLAY ───────────────────────────────
+function renderRP() {
+  const p = P[rpOrder[rpIdx]];
+  document.getElementById('rp-cnt').textContent = `${rpIdx+1} / ${P.length}`;
+  document.getElementById('rp-prg').style.width = `${(rpIdx/P.length)*100}%`;
+  document.getElementById('rp-lbl').textContent = p.phrase;
+  document.getElementById('rp-ctx').textContent = p.ctx;
+  document.getElementById('rp-setup').textContent = p.setup;
+  document.getElementById('rp-cue').textContent = p.cue;
+  document.getElementById('rp-ta').value = '';
+  document.getElementById('rp-reveal').classList.remove('show');
+  document.getElementById('rp-rev-btn').style.display = 'inline-block';
+  document.getElementById('rp-model').innerHTML = p.model;
+  document.getElementById('rp-why').textContent = p.why;
+}
+function revealRP() {
+  document.getElementById('rp-reveal').classList.add('show');
+  document.getElementById('rp-rev-btn').style.display = 'none';
+}
+function rateRP(r) { done++; if(r==='easy') fluent++; updateStats(); rpNav(1); }
+function rpNav(d) { rpIdx=(rpIdx+d+P.length)%P.length; renderRP(); }
+
+// ─── BROWSE ──────────────────────────────────
+function renderBrowse(q) {
+  const lower = q.toLowerCase();
+  const filtered = P.filter(p =>
+    p.phrase.toLowerCase().includes(lower) ||
+    p.def.toLowerCase().includes(lower) ||
+    p.ex.toLowerCase().includes(lower) ||
+    p.tip.toLowerCase().includes(lower)
+  );
+  document.getElementById('br-count').textContent = `Showing ${filtered.length} of ${P.length} phrases`;
+  const list = document.getElementById('br-list');
+  list.innerHTML = '';
+  filtered.forEach((p,i) => {
+    const item = document.createElement('div');
+    item.className = 'br-item';
+    item.innerHTML = `
+      <div class="bi-phrase">${p.phrase}</div>
+      <div class="bi-ex">${p.ex}</div>
+      <div class="bi-exp" id="bi-exp-${i}">
+        <div class="bi-def">${p.def}</div>
+        <div class="bi-tip" style="margin-top:8px">💡 ${p.tip}</div>
+      </div>`;
+    item.onclick = () => document.getElementById(`bi-exp-${i}`).classList.toggle('open');
+    list.appendChild(item);
+  });
+}
+
+// ─── STATS ───────────────────────────────────
+function updateStats() {
+  document.getElementById('s-done').textContent = done;
+  document.getElementById('s-fluent').textContent = fluent;
+}
+
+// ─── INIT ────────────────────────────────────
+renderSp();
+</script>
+</body>
+</html>

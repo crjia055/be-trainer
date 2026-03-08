@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Office Phrases — Trainer</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f5f5f5;
+  --surface: #ffffff;
+  --surface2: #ebebeb;
+  --border: #dcdcdc;
+  --ink: #1c1c2e;
+  --muted: #7a7f94;
+  --gold: #b8892a;
+  --gold-bg: #fdf6e3;
+  --green: #1a7a4a;
+  --green-bg: #edf7f1;
+  --red: #c0392b;
+  --red-bg: #fdf0ee;
+  --blue: #2060a8;
+  --blue-bg: #edf3fd;
+  --accent: #7c4dbd;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; }
+
+header {
+  background: var(--ink); color: #f4efe4;
+  padding: 17px 32px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 3px solid var(--gold);
+}
+.header-title { font-family: 'Lora', serif; font-size: 1.35rem; }
+.header-title em { color: #d4aa50; }
+.header-meta { font-family: 'DM Mono', monospace; font-size: 0.68rem; opacity: 0.7; }
+.header-meta strong { color: #d4aa50; }
+
+.tabs {
+  display: flex; background: var(--surface2);
+  border-bottom: 2px solid var(--border);
+  padding: 0 32px;
+}
+.tab {
+  padding: 13px 22px;
+  font-family: 'DM Mono', monospace; font-size: 0.7rem;
+  letter-spacing: 0.07em; text-transform: uppercase;
+  cursor: pointer; border: none; background: transparent;
+  color: var(--muted); border-bottom: 2px solid transparent;
+  margin-bottom: -2px; white-space: nowrap; transition: all 0.18s;
+}
+.tab.active { color: var(--gold); border-bottom-color: var(--gold); font-weight: 600; }
+.tab:hover:not(.active) { color: var(--ink); }
+
+main { max-width: 760px; margin: 0 auto; padding: 28px 32px; }
+
+/* ── PROGRESS ── */
+.prog-row { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; }
+.prog-text { font-family: 'DM Mono', monospace; font-size: 0.68rem; color: var(--muted); white-space: nowrap; }
+.prog-track { flex: 1; height: 3px; background: var(--border); border-radius: 2px; }
+.prog-fill { height: 100%; background: var(--gold); border-radius: 2px; transition: width 0.4s; }
+
+/* ── SPEAKING DRILL ── */
+.situation-card {
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: 8px; padding: 28px 32px; margin-bottom: 16px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.06); position: relative; overflow: hidden;
+}
+.situation-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--gold), #d4aa50);
+}
+.sc-label { font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; }
+.sc-situation { font-size: 0.97rem; line-height: 1.75; color: var(--muted); margin-bottom: 10px; }
+.sc-prompt { font-family: 'Lora', serif; font-style: italic; font-size: 1.18rem; color: var(--ink); line-height: 1.55; }
+
+.reveal-box {
+  background: var(--surface2); border: 1.5px solid var(--border);
+  border-radius: 8px; padding: 24px 28px; margin-bottom: 16px; display: none;
+}
+.reveal-box.show { display: block; }
+.reveal-label { font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--green); margin-bottom: 12px; }
+.reveal-phrase { font-family: 'Lora', serif; font-size: 1.5rem; font-weight: 600; color: var(--ink); margin-bottom: 10px; line-height: 1.3; }
+.reveal-example { font-family: 'Lora', serif; font-style: italic; font-size: 0.9rem; color: var(--muted); border-left: 2px solid var(--gold); padding-left: 14px; line-height: 1.65; margin-bottom: 12px; }
+.reveal-tip { font-size: 0.82rem; color: var(--blue); background: var(--blue-bg); padding: 10px 14px; border-radius: 5px; line-height: 1.55; }
+
+.rate-row { display: flex; gap: 9px; margin-top: 14px; }
+.rate-btn { flex: 1; padding: 10px; border-radius: 5px; border: 1px solid; font-family: 'DM Mono', monospace; font-size: 0.66rem; letter-spacing: 0.04em; text-transform: uppercase; cursor: pointer; transition: all 0.15s; }
+.rate-hard { border-color: var(--red); color: var(--red); background: transparent; }
+.rate-hard:hover { background: var(--red-bg); }
+.rate-ok { border-color: var(--gold); color: var(--gold); background: transparent; }
+.rate-ok:hover { background: var(--gold-bg); }
+.rate-easy { border-color: var(--green); color: var(--green); background: transparent; }
+.rate-easy:hover { background: var(--green-bg); }
+
+.nav-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.btn { padding: 9px 22px; border-radius: 5px; border: 1px solid; font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 0.05em; text-transform: uppercase; cursor: pointer; transition: all 0.15s; }
+.btn-ink { background: var(--ink); color: #d4aa50; border-color: var(--ink); }
+.btn-ink:hover { background: #2d2d50; }
+.btn-ghost { background: transparent; color: var(--muted); border-color: var(--border); }
+.btn-ghost:hover { color: var(--ink); border-color: var(--muted); }
+.btn-gold { background: var(--gold); color: white; border-color: var(--gold); }
+.btn-gold:hover { opacity: 0.88; }
+.btn-sm { padding: 6px 14px; font-size: 0.62rem; }
+
+/* ── CHOICE ── */
+#m-choice { display: none; }
+.choice-card {
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: 8px; padding: 24px 28px; margin-bottom: 16px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+}
+.choice-label { font-family: 'DM Mono', monospace; font-size: 0.62rem; color: var(--gold); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+.choice-q { font-size: 0.97rem; line-height: 1.7; color: var(--ink); }
+.choice-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.choice-opt {
+  padding: 13px 16px; border: 1.5px solid var(--border); border-radius: 6px;
+  background: var(--surface); font-size: 0.85rem; line-height: 1.5;
+  cursor: pointer; text-align: left; font-family: 'DM Sans', sans-serif;
+  transition: all 0.15s; color: var(--ink);
+}
+.choice-opt:hover:not(:disabled) { border-color: var(--gold); background: var(--gold-bg); }
+.choice-opt.correct { border-color: var(--green); background: var(--green-bg); color: var(--green); font-weight: 600; }
+.choice-opt.wrong { border-color: var(--red); background: var(--red-bg); color: var(--red); }
+.choice-opt.reveal-correct { border-color: var(--green); background: var(--green-bg); }
+.choice-fb { padding: 11px 14px; border-radius: 5px; font-size: 0.84rem; line-height: 1.6; display: none; margin-bottom: 12px; }
+.choice-fb.show { display: block; }
+.choice-fb.ok { background: var(--green-bg); border-left: 3px solid var(--green); color: var(--green); }
+.choice-fb.no { background: var(--red-bg); border-left: 3px solid var(--red); color: var(--red); }
+.score-badge { font-family: 'DM Mono', monospace; font-size: 0.68rem; color: var(--muted); }
+
+/* ── ROLE-PLAY ── */
+#m-roleplay { display: none; }
+.rp-scene {
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: 8px; padding: 24px 28px; margin-bottom: 14px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+}
+.rp-context { font-family: 'DM Mono', monospace; font-size: 0.62rem; color: var(--accent); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 7px; }
+.rp-setup { font-size: 0.88rem; color: var(--muted); line-height: 1.65; margin-bottom: 12px; font-style: italic; }
+.rp-cue { background: var(--surface2); border-left: 3px solid var(--accent); padding: 12px 16px; border-radius: 0 6px 6px 0; font-size: 0.95rem; line-height: 1.65; color: var(--ink); }
+.rp-textarea {
+  width: 100%; min-height: 88px; padding: 13px 15px;
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: 6px; color: var(--ink); font-size: 0.93rem; line-height: 1.65;
+  font-family: 'DM Sans', sans-serif; resize: vertical; outline: none;
+  margin-bottom: 10px; transition: border 0.2s;
+}
+.rp-textarea:focus { border-color: var(--accent); }
+.rp-reveal { background: var(--surface2); border: 1.5px solid var(--border); border-radius: 8px; padding: 20px 24px; display: none; margin-bottom: 14px; }
+.rp-reveal.show { display: block; }
+.rp-reveal-label { font-family: 'DM Mono', monospace; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--gold); margin-bottom: 10px; }
+.model-resp { font-family: 'Lora', serif; font-size: 1.05rem; line-height: 1.8; color: var(--ink); margin-bottom: 10px; }
+.kp { background: var(--gold-bg); border-radius: 3px; padding: 1px 5px; color: var(--gold); font-weight: 600; border-bottom: 1px solid #d4aa50; }
+.rp-why { font-size: 0.8rem; color: var(--muted); line-height: 1.6; background: var(--blue-bg); padding: 9px 13px; border-radius: 5px; }
+
+/* ── BROWSE ── */
+#m-browse { display: none; }
+.br-search {
+  width: 100%; padding: 11px 15px; font-size: 0.88rem; font-family: 'DM Sans', sans-serif;
+  border: 1.5px solid var(--border); border-radius: 6px; background: var(--surface);
+  color: var(--ink); outline: none; margin-bottom: 14px; transition: border 0.2s;
+}
+.br-search:focus { border-color: var(--gold); }
+.br-count { font-family: 'DM Mono', monospace; font-size: 0.68rem; color: var(--muted); margin-bottom: 10px; }
+.br-table { border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+.br-item { padding: 14px 18px; background: var(--surface); border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.12s; }
+.br-item:last-child { border-bottom: none; }
+.br-item:hover { background: var(--surface2); }
+.br-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.bi-phrase { font-family: 'Lora', serif; font-weight: 600; font-size: 0.95rem; color: var(--ink); }
+.bi-ex { font-family: 'Lora', serif; font-style: italic; font-size: 0.8rem; color: var(--muted); margin-top: 3px; line-height: 1.5; }
+.bi-exp { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+.bi-exp.open { display: block; }
+.bi-def { font-size: 0.84rem; color: var(--ink); line-height: 1.6; margin-bottom: 8px; }
+.bi-tip { font-size: 0.78rem; color: var(--blue); background: var(--blue-bg); padding: 8px 12px; border-radius: 4px; line-height: 1.5; }
+
+@media(max-width:580px){
+  main { padding: 16px; }
+  header, .tabs { padding-left: 16px; padding-right: 16px; }
+  .choice-opts { grid-template-columns: 1fr; }
+  .rate-row { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-title">Office Phrases <em>Trainer</em></div>
+  <div class="header-meta">Done: <strong id="s-done">0</strong> &nbsp;|&nbsp; Fluent: <strong id="s-fluent">0</strong></div>
+</header>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('speak',this)">① Speaking Drill</button>
+  <button class="tab" onclick="switchTab('choice',this)">② Right Phrase?</button>
+  <button class="tab" onclick="switchTab('roleplay',this)">③ Role-Play</button>
+  <button class="tab" onclick="switchTab('browse',this)">④ Browse All</button>
+</div>
+
+<main>
+
+<!-- ① SPEAKING DRILL -->
+<div id="m-speak">
+  <div class="prog-row">
+    <span class="prog-text" id="sp-cnt">1 / 18</span>
+    <div class="prog-track"><div class="prog-fill" id="sp-prg" style="width:0%"></div></div>
+    <span class="prog-text" id="sp-lbl">—</span>
+  </div>
+  <div class="situation-card">
+    <div class="sc-label">🎯 Situation — say a natural response out loud first</div>
+    <div class="sc-situation" id="sp-sit">—</div>
+    <div class="sc-prompt" id="sp-prompt">—</div>
+  </div>
+  <div class="reveal-box" id="sp-reveal">
+    <div class="reveal-label">✓ Model Phrase</div>
+    <div class="reveal-phrase" id="sp-phrase">—</div>
+    <div class="reveal-example" id="sp-ex">—</div>
+    <div class="reveal-tip" id="sp-tip">—</div>
+    <div class="rate-row">
+      <button class="rate-btn rate-hard" onclick="rateSp('hard')">🔴 Couldn't say it</button>
+      <button class="rate-btn rate-ok" onclick="rateSp('ok')">🟡 Said it, not fluently</button>
+      <button class="rate-btn rate-easy" onclick="rateSp('easy')">🟢 Said it naturally</button>
+    </div>
+  </div>
+  <div class="nav-row">
+    <button class="btn btn-ghost" onclick="spNav(-1)">← Prev</button>
+    <button class="btn btn-gold" id="sp-rev-btn" onclick="revealSp()">Reveal Phrase</button>
+    <button class="btn btn-ghost" onclick="spNav(1)">Next →</button>
+  </div>
+  <div style="text-align:center;margin-top:10px">
+    <button class="btn btn-ghost btn-sm" onclick="shuffleSp()">⇄ Shuffle order</button>
+  </div>
+</div>
+
+<!-- ② RIGHT PHRASE? -->
+<div id="m-choice">
+  <div class="prog-row">
+    <span class="prog-text" id="ch-cnt">1 / 18</span>
+    <div class="prog-track"><div class="prog-fill" id="ch-prg" style="width:0%"></div></div>
+    <span class="score-badge" id="ch-score">Score: 0 / 0</span>
+  </div>
+  <div class="choice-card">
+    <div class="choice-label">📍 Which phrase fits this moment?</div>
+    <div class="choice-q" id="ch-q">—</div>
+  </div>
+  <div class="choice-opts" id="ch-opts"></div>
+  <div class="choice-fb" id="ch-fb"></div>
+  <div class="nav-row">
+    <button class="btn btn-ghost" id="ch-next" style="display:none" onclick="nextChoice()">Next →</button>
+  </div>
+</div>
+
+<!-- ③ ROLE-PLAY -->
+<div id="m-roleplay">
+  <div class="prog-row">
+    <span class="prog-text" id="rp-cnt">1 / 18</span>
+    <div class="prog-track"><div class="prog-fill" id="rp-prg" style="width:0%"></div></div>
+    <span class="prog-text" id="rp-lbl">—</span>
+  </div>
+  <div class="rp-scene">
+    <div class="rp-context" id="rp-ctx">—</div>
+    <div class="rp-setup" id="rp-setup">—</div>
+    <div class="rp-cue" id="rp-cue">—</div>
+  </div>
+  <textarea class="rp-textarea" id="rp-ta" placeholder="Write what you would say in this situation…"></textarea>
+  <div class="nav-row" style="margin-bottom:12px">
+    <button class="btn btn-ghost" onclick="rpNav(-1)">← Prev</button>
+    <button class="btn btn-gold" id="rp-rev-btn" onclick="revealRP()">See Model Response</button>
+    <button class="btn btn-ghost" onclick="rpNav(1)">Next →</button>
+  </div>
+  <div class="rp-reveal" id="rp-reveal">
+    <div class="rp-reveal-label">Model Response — key phrases highlighted</div>
+    <div class="model-resp" id="rp-model">—</div>
+    <div class="rp-why" id="rp-why">—</div>
+    <div class="rate-row">
+      <button class="rate-btn rate-hard" onclick="rateRP('hard')">🔴 Very different</button>
+      <button class="rate-btn rate-ok" onclick="rateRP('ok')">🟡 Similar but less natural</button>
+      <button class="rate-btn rate-easy" onclick="rateRP('easy')">🟢 Close to model</button>
+    </div>
+  </div>
+</div>
+
+<!-- ④ BROWSE -->
+<div id="m-browse">
+  <input class="br-search" type="text" id="br-q" placeholder="Search phrases, meanings, examples…" oninput="renderBrowse(this.value)">
+  <div class="br-count" id="br-count"></div>
+  <div class="br-table" id="br-list"></div>
+</div>
+
+</main>
+
+<script>
+// ─────────────────────────────────────────────
+// DATA — all 18 Office phrases
+// phrase, situation, prompt, example, tip,
+// choiceQ, choiceCorrect, choiceWrong[3],
+// rpCtx, rpSetup, rpCue, rpModel (with <b>), rpWhy
+// ─────────────────────────────────────────────
+const P = [
+  {
+    phrase: "I wouldn't say no to that",
+    def: "A polite, indirect way of saying 'I would very much like' — warm British understatement.",
+    sit: "A colleague is doing a coffee run and offers to get you something.",
+    prompt: "Accept warmly without being too direct…",
+    ex: "\"It's freezing outside; I certainly wouldn't say no to a hot cup of cocoa right now.\"",
+    tip: "More sophisticated than 'yes please'. Always follow with what you'd like and a thank-you.",
+    cq: "A colleague offers to pick up lunch for you. How do you accept warmly without sounding too eager?",
+    cc: "Oh, I certainly wouldn't say no to that — a sandwich would be lovely, thank you.",
+    cw: ["Yes please, bring me something.", "Sure, I'd like something too.", "That would be fine, yes."],
+    ctx: "Informal office — colleague doing a coffee run",
+    setup: "It's 3 PM on a Friday. Your colleague is heading to the café downstairs and offers to get you something.",
+    cue: "Colleague: \"I'm doing a coffee run — can I get you anything?\"",
+    model: "Oh, <b>I certainly wouldn't say no to</b> a flat white right now — it's been quite an afternoon. That's very kind. <b>Let me give you the money before you head down.</b>",
+    why: "'Let me give you the money' is the natural follow-up — it shows you're not taking the gesture for granted. The tone should be warm and slightly amused."
+  },
+  {
+    phrase: "It fits in perfectly with my schedule",
+    def: "When an event or task happens at a time that is extremely convenient for you.",
+    sit: "Someone proposes a meeting time that is actually perfect for you.",
+    prompt: "Express that the proposed time works extremely well…",
+    ex: "\"The 6 PM yoga class fits in perfectly with my schedule because I finish work at 5:30.\"",
+    tip: "More expressive than 'that suits me'. Implies the timing is almost too convenient to be a coincidence.",
+    cq: "A client suggests Thursday at 10 AM for a call, which actually works perfectly for you. You say:",
+    cc: "Thursday at 10 fits in perfectly with my schedule — I'll send the invite right now.",
+    cw: ["Thursday is fine for me.", "That time is okay.", "I am free on Thursday morning."],
+    ctx: "Scheduling a client call",
+    setup: "You've been trying to find a good time to speak with a client for two weeks. They've just suggested a slot.",
+    cue: "Client: \"Would Thursday at 10 work on your end?\"",
+    model: "Thursday at 10 <b>fits in perfectly with my schedule</b> — I was actually hoping for a morning slot this week. <b>I'll shoot you an invite right now</b> so we both have it confirmed.",
+    why: "'I was hoping for a morning slot' adds warmth and personality. 'Shoot you an invite right now' creates immediate momentum — don't let a scheduling agreement sit as just words."
+  },
+  {
+    phrase: "Let me jot that down",
+    def: "To write something down quickly and informally, often to avoid forgetting it.",
+    sit: "Someone gives you information you need to remember and you want to note it immediately.",
+    prompt: "You need to quickly write something down before it's forgotten…",
+    ex: "\"Let me jot down your phone number on this napkin before I forget it.\"",
+    tip: "'Jot down' is much more natural in spoken English than 'write down'. Use it whenever you're making a quick informal note.",
+    cq: "Someone gives you their personal email address at the end of a meeting. You want to note it immediately. You say:",
+    cc: "Give me one second — let me just jot that down before we wrap up.",
+    cw: ["I will write that down now.", "Let me record that information.", "I need to note that somewhere."],
+    ctx: "End of a networking event",
+    setup: "You've had a great conversation with someone useful. They're about to leave and are giving you their contact details.",
+    cue: "Contact: \"My personal email is probably the best way to reach me — it's james@…\"",
+    model: "<b>Let me jot that down</b> before I lose it — one second. Got it. And <b>I'll drop you a line this week</b> with the context of what we discussed so it doesn't read like a cold email.",
+    why: "'I'll drop you a line this week with context' is excellent follow-through. It reassures them you're serious about the connection and tells them exactly what to expect."
+  },
+  {
+    phrase: "Can you hop on a quick call?",
+    def: "To join a call quickly, casually, and without much setup. Also used for buses, trains, and transport.",
+    sit: "An email thread has gone back and forth without resolution and a quick call would sort it out.",
+    prompt: "Suggest a short, casual call as the faster solution…",
+    ex: "\"Can you hop on a quick Zoom call?\" / \"Hop on the bus and meet me there.\"",
+    tip: "'Hop on' sounds effortless and low-pressure. Much more natural than 'can we schedule a phone call'. Use it when you want to convey that the call will be short.",
+    cq: "An email chain has gone back and forth four times with no resolution. You message your colleague:",
+    cc: "Can we hop on a quick call? I think I can explain this in two minutes.",
+    cw: ["Can we have a telephone conversation?", "Let's speak on the phone please.", "I'd like to arrange a call with you."],
+    ctx: "Slack message during a busy deal week",
+    setup: "You've been going back and forth with a colleague over a model assumption. The thread is getting confusing.",
+    cue: "Colleague (on Slack): \"I'm still not sure what you mean by the third column — can you explain?\"",
+    model: "Let me try something different — <b>can you hop on a quick call?</b> I think I can explain it in literally two minutes. <b>I'm free now or at 3 PM — whichever is easier for you.</b>",
+    why: "Offering two specific times removes the friction of 'finding time'. Always make it as easy as possible to say yes to a call."
+  },
+  {
+    phrase: "Keep it top of mind",
+    def: "Used for things that are urgent or need to be your primary focus. It means: don't let this slip out of your attention.",
+    sit: "You want to remind a colleague to keep a deadline or concern as their primary focus.",
+    prompt: "Remind someone to keep something as a priority…",
+    ex: "\"Let's keep the client's budget constraints top of mind while we negotiate the service fees.\"",
+    tip: "Different from 'on the radar' — top of mind means it's the active focus right now, not just something to watch.",
+    cq: "You want to remind the team that the client's risk appetite must guide all decisions this week. You say:",
+    cc: "Let's keep the client's risk appetite top of mind as we build out the scenario analysis.",
+    cw: ["Don't forget about the client's risk appetite.", "Remember that the client is risk-averse.", "Keep thinking about what the client wants."],
+    ctx: "Team briefing before a model review session",
+    setup: "The team is about to spend the afternoon building scenarios. The client has been very clear about their risk limits.",
+    cue: "MD: \"Alright, let's get into the modelling session. Any last thoughts before we start?\"",
+    model: "Just one — <b>let's keep the client's downside tolerance top of mind</b> throughout this session. It's easy to get excited about the upside scenarios and drift from what they've actually told us they're comfortable with. <b>The model should tell their story, not ours.</b>",
+    why: "'The model should tell their story, not ours' is a memorable principle. It reminds the team who the work is really for."
+  },
+  {
+    phrase: "Put it on the radar",
+    def: "Something that needs to be watched or noted, even if it isn't the main priority today.",
+    sit: "Something is six months away but you want to make sure it doesn't get overlooked.",
+    prompt: "Flag something that needs monitoring even though it's not urgent today…",
+    ex: "\"We should put the Q3 earnings call on the radar so we aren't scrambling at the last minute.\"",
+    tip: "Distinct from 'top of mind' — the radar means watch it in the background, not act on it immediately. Use it for upcoming deadlines and potential risks.",
+    cq: "A contract renewal is six months away but requires early preparation. How do you flag this?",
+    cc: "Let's put the contract renewal on the radar — it's six months out but we'll need to start preparing early.",
+    cw: ["Remember that the contract renews in six months.", "The contract renewal is coming up eventually.", "We should think about the contract at some point."],
+    ctx: "Quarterly planning meeting",
+    setup: "The team is setting priorities for Q2. A significant contract renewal in Q4 could easily get lost in the shuffle.",
+    cue: "Manager: \"Any other items before we close the Q2 planning session?\"",
+    model: "One thing — <b>let's put the Hartley contract renewal on the radar</b> now. It's Q4, so it feels far away, but the negotiation lead time means we should <b>begin internal prep in Q3</b>. I'd rather flag it now than discover in August that we've left ourselves no room.",
+    why: "'I'd rather flag it now than discover in August we've left ourselves no room' justifies the early flag with a vivid, concrete consequence. This is how good planning sounds."
+  },
+  {
+    phrase: "Narrow the list down",
+    def: "To reduce a large number of options to a smaller, more manageable few using specific criteria.",
+    sit: "You have too many candidates, ideas, or options and need to reduce them systematically.",
+    prompt: "Describe filtering a long list down to the best options…",
+    ex: "\"We started with twenty candidates and need to narrow the list down to the top three.\"",
+    tip: "More precise than 'reduce'. It implies deliberate, criteria-based filtering — not random removal. Always say what you're narrowing to.",
+    cq: "You have 200 CVs for one role and need to create a structured selection process. You say:",
+    cc: "Let's agree on our must-have criteria first — that should narrow the list down to a manageable longlist pretty quickly.",
+    cw: ["We should look through fewer CVs.", "Let's reduce the number of applications we review.", "We have too many options so let's pick fewer."],
+    ctx: "Candidate shortlisting meeting",
+    setup: "The team has received 200 applications. This is the first screening meeting.",
+    cue: "HR lead: \"We have 200 CVs. Where do we even start?\"",
+    model: "Let's start with the must-have criteria — language skills, sector experience, and the modelling requirement. That should <b>narrow the list down</b> to under fifty fairly quickly. From there, we do a <b>closer read for longlist, then a final shortlist of five</b> for first-round interviews.",
+    why: "Presenting a three-step framework (criteria → longlist → shortlist) immediately makes the process feel manageable. Structure is what people need when facing a large task."
+  },
+  {
+    phrase: "That's a non-starter",
+    def: "An idea, proposal, or condition that has no chance of being accepted from the very beginning. From horse racing — a horse that doesn't show up at the starting line.",
+    sit: "Someone proposes something that you know will never be accepted.",
+    prompt: "Firmly reject an idea that can't work, right from the start…",
+    ex: "\"The proposal to move the office to another city was a non-starter — nobody wanted to relocate.\"",
+    tip: "Stronger and more final than 'I'm not sure that works'. It means: this is not even a starting point for negotiation. Use with confidence, not aggression.",
+    cq: "An investor asks to remove a key protection clause from a bond deal. You respond:",
+    cc: "Removing the change-of-control protection is a non-starter for our anchor investors.",
+    cw: ["Our investors don't want to remove that clause.", "That would be difficult to agree to.", "I don't think investors will accept that change."],
+    ctx: "Negotiation call with an issuer",
+    setup: "The issuer is pushing to remove a standard investor protection from the bond structure to simplify documentation.",
+    cue: "Issuer: \"Would your investors be comfortable if we dropped the change-of-control put?\"",
+    model: "I have to be direct — <b>removing the change-of-control protection is a non-starter for our anchor investors</b>. It's not a point we can negotiate around. Without it, we'd be going out to a materially weaker book. <b>The cost of including it is minimal; the cost of losing anchor support is not.</b>",
+    why: "'The cost of including it is minimal; the cost of losing anchor support is not' is a clean cost-benefit argument. It turns a firm refusal into a rational explanation."
+  },
+  {
+    phrase: "It's a no-brainer",
+    def: "A decision so obvious it requires no thought whatsoever.",
+    sit: "A decision has such a clear, obvious answer that you want to communicate it without lengthy explanation.",
+    prompt: "Describe something as an obvious, easy decision…",
+    ex: "\"Taking the job with a higher salary and shorter commute was a no-brainer.\"",
+    tip: "Use it to close debate on something obvious. Slightly more energetic than 'the obvious choice'. Avoid using it for genuinely complex decisions — it can come across as dismissive.",
+    cq: "A client is hesitating about refinancing at a historically low rate. You tell them:",
+    cc: "At these rates, refinancing now is a no-brainer — this window may not come around again.",
+    cw: ["This is obviously the right thing to do.", "The decision is very clear and easy.", "There is no need to think about this."],
+    ctx: "Client advisory call on refinancing timing",
+    setup: "Your client has expensive legacy debt. Rates have just fallen to a 5-year low.",
+    cue: "Client: \"We keep going back and forth on whether to refinance. What's your honest view?\"",
+    model: "Honestly? <b>At these rates, this is a no-brainer.</b> You have expensive legacy debt, rates are at a five-year low, and your credit profile has never been stronger. <b>The only question worth asking is how much to issue, not whether to.</b>",
+    why: "'The only question worth asking is how much, not whether' is a decisive reframe. It moves the conversation from a yes/no debate to a sizing discussion — which is the right place to be."
+  },
+  {
+    phrase: "I subscribe to the theory that…",
+    def: "To agree with, support, and believe in a specific idea, philosophy, or explanation.",
+    sit: "You want to express intellectual agreement with a particular view or approach.",
+    prompt: "Express agreement with a theory or philosophy in a sophisticated way…",
+    ex: "\"I don't necessarily subscribe to the theory that working longer hours automatically produces better results.\"",
+    tip: "More sophisticated than 'I agree with'. It implies you've evaluated the idea critically and chosen to adopt it — not just passively accepted it.",
+    cq: "A colleague argues that transparency always produces better client relationships. You agree. You say:",
+    cc: "I subscribe to that theory — in my experience, clients who feel well-informed are far more resilient when things get complicated.",
+    cw: ["I agree with that idea.", "I think that is correct.", "Yes, I think transparency is good."],
+    ctx: "Discussion about relationship management philosophy",
+    setup: "Over lunch, a senior colleague is sharing their view on how to manage difficult client conversations.",
+    cue: "Senior MD: \"My view has always been that radical transparency with clients — even when the news is bad — builds more loyalty than managing information ever does.\"",
+    model: "<b>I subscribe to that entirely.</b> The clients I've seen react best to bad news are the ones who felt they heard it from us first and honestly. <b>The credibility you build by being candid in a difficult moment is worth far more than whatever short-term discomfort you avoid by softening it.</b>",
+    why: "'The credibility you build in a difficult moment is worth far more than the discomfort you avoid by softening it' is a sophisticated, experience-based elaboration that elevates the agreement into genuine insight."
+  },
+  {
+    phrase: "Buy into the narrative",
+    def: "To accept and believe the story being told — particularly an investment or business case. Common in markets, politics, and marketing.",
+    sit: "You want to describe the process of an audience becoming convinced by a particular story or framing.",
+    prompt: "Describe investors or stakeholders starting to believe and accept the story…",
+    ex: "\"Investors are starting to buy into the narrative that the tech sector is undervalued.\"",
+    tip: "Implies more than passive understanding — it means they're actively accepting and acting on the story. Watch for 'buy into' vs. 'sell the narrative' (your job is to make others buy in).",
+    cq: "Early roadshow feedback is very positive and investors seem convinced by the growth story. You report back:",
+    cc: "Investors are starting to buy into the narrative — we're seeing it in the quality of their follow-up questions.",
+    cw: ["Investors are agreeing with our story.", "People believe what we are telling them.", "The market is accepting our version of events."],
+    ctx: "Post-roadshow day-one debrief",
+    setup: "The team is debriefing after the first day of investor education meetings.",
+    cue: "MD: \"What's the read from today's meetings? Are investors engaged?\"",
+    model: "Very engaged. <b>Investors are starting to buy into the narrative</b> — the sustainability angle in particular is resonating more than we expected. Three of the five meetings ended with specific allocation questions, which tells you <b>the story is landing, not just being politely received.</b>",
+    why: "'Ending with allocation questions vs. just being politely received' is a precise, experienced distinction. It separates genuine conviction from mere courtesy."
+  },
+  {
+    phrase: "The results speak for themselves",
+    def: "The facts, evidence, or results are so clear and strong that no further explanation or selling is needed.",
+    sit: "You want to point to strong performance and let the numbers make the argument without overselling.",
+    prompt: "Let strong results make the argument without additional commentary…",
+    ex: "\"We don't need a lengthy pitch — the quarterly profit margins speak for themselves.\"",
+    tip: "One of the most confident phrases in business English. It signals quiet confidence — not arrogance. Most effective when the results actually are strong.",
+    cq: "A colleague questions your team's strategy despite strong results. You respond:",
+    cc: "I'm happy to discuss methodology, but I'd start with the results — they speak for themselves.",
+    cw: ["Our results are very good and explain everything.", "Look at the numbers — they show we did well.", "The performance data makes our case for us."],
+    ctx: "Defending a strategy in an internal review",
+    setup: "A peer in another department is questioning whether your approach was the most efficient, despite strong outcomes.",
+    cue: "Peer: \"I'm not sure your methodology was the most rigorous. Couldn't you have gotten the same result with less risk?\"",
+    model: "I appreciate the question. But I'd suggest we start where the data starts — <b>the results speak for themselves</b>: 22% above target, best execution in the region, zero client attrition. <b>Once we agree on what the outcome was, I'm very happy to walk through the methodology.</b>",
+    why: "'Once we agree on what the outcome was, I'm happy to walk through the methodology' is a confident sequencing move. It says: let's establish facts before we debate process."
+  },
+  {
+    phrase: "Find a loophole",
+    def: "A technicality or gap in rules, laws, or a contract that allows someone to avoid a restriction without technically breaking the law.",
+    sit: "You want to describe a way to work around a rule through a legitimate technicality.",
+    prompt: "Describe the act of finding a legitimate gap in the rules…",
+    ex: "\"The new regulations were meant to stop risky lending, but banks quickly found a loophole to continue the practice.\"",
+    tip: "Neutral in meaning — a loophole can be used positively (clever structuring) or negatively (evasion). Context determines tone. Used in legal, tax, and regulatory conversations.",
+    cq: "New capital regulations have been enacted but a technical exception still applies to certain instruments. You note:",
+    cc: "There's a loophole in the new framework — instruments issued before the effective date are grandfathered in.",
+    cw: ["There is a way around the new rules.", "The regulations don't apply in this case technically.", "We found a gap in the new requirements."],
+    ctx: "Regulatory strategy call",
+    setup: "New capital requirements have come into force. A specific product line is potentially exempt due to a transitional provision.",
+    cue: "Counsel: \"Does the new framework affect the existing hybrid portfolio?\"",
+    model: "Not immediately. There's <b>a loophole in the transitional provisions</b> — instruments issued prior to the effective date retain their classification for another 18 months. <b>That gives us a window to restructure before the full framework applies.</b>",
+    why: "'That gives us a window to restructure before the full framework applies' immediately converts a legal observation into a strategic action. Always connect a loophole to what you do with it."
+  },
+  {
+    phrase: "We've hit a snag",
+    def: "A minor, unexpected difficulty or obstacle that slows momentum without being a disaster.",
+    sit: "Something unexpected has come up that is blocking or delaying progress.",
+    prompt: "Describe a minor unexpected obstacle professionally and calmly…",
+    ex: "\"We've hit a minor snag with the legal team on the 'Change of Control' language — but I'm already working on it.\"",
+    tip: "Not a crisis — a snag is an inconvenience, not a failure. Always follow immediately with what you're doing about it. That's what separates a professional update from a complaint.",
+    cq: "A regulatory opinion is taking longer than expected. You update the client on the timeline:",
+    cc: "We've hit a minor snag with the external counsel, but we're pacing to have it resolved by EOD Tuesday.",
+    cw: ["There is a problem that is slowing us down.", "Something came up that we didn't expect.", "We have an unexpected issue with the timeline."],
+    ctx: "Client update call during deal execution",
+    setup: "The deal is largely on track but one external legal opinion has been delayed.",
+    cue: "Client: \"Any updates on where we are before Thursday's launch?\"",
+    model: "Overall the deal is <b>tracking well</b>. We did <b>hit a minor snag with external counsel</b> on one of the tax jurisdiction opinions — but we've already pivoted, and <b>we're pacing to have a water-tight opinion by Tuesday</b>. Aside from that, we're in lockstep with the co-leads and on schedule for Thursday morning.",
+    why: "'Overall the deal is tracking well' comes first — before the snag. That's the right order. Lead with the positive state, then the issue, then the solution. The client should always hear confidence before concern."
+  },
+  {
+    phrase: "Just a hiccup",
+    def: "A small, temporary interruption in an otherwise smooth process — slightly less serious than a 'snag'.",
+    sit: "Something minor went wrong but the overall project is not in danger.",
+    prompt: "Reassure someone that a small problem doesn't threaten the overall plan…",
+    ex: "\"The deal is still on track; we just had a small hiccup with the wire transfer this morning.\"",
+    tip: "A hiccup is a momentary interruption — you don't stop breathing, you just have a brief involuntary pause. Use it to signal: this is annoying, but it means nothing for the outcome.",
+    cq: "The Wi-Fi cut out briefly during a client presentation. The client seems worried. You say:",
+    cc: "Not to worry — it was just a small hiccup. The key points all landed and the session was a success.",
+    cw: ["It was a small technical problem.", "That was a minor issue during the presentation.", "The interruption was not very serious."],
+    ctx: "Post-presentation reassurance call",
+    setup: "The internet dropped for 90 seconds during an important investor presentation. The issuer is concerned about how it looked.",
+    cue: "CFO: \"I hope that technical issue didn't undermine our credibility with the investors.\"",
+    model: "Not at all — in the room, it barely registered. It was <b>just a small hiccup</b> and you handled it completely seamlessly. If anything, <b>the way you kept the room engaged during the pause showed composure</b>, which is exactly what investors want to see in a management team.",
+    why: "Reframing the hiccup as an opportunity to demonstrate composure is a generous and intelligent response. It turns a mild embarrassment into a positive signal."
+  },
+  {
+    phrase: "Keep some dry powder",
+    def: "Cash reserves or uncommitted capital deliberately held back for future opportunities or emergencies. From military use: keep your gunpowder dry so it's ready to fire.",
+    sit: "You're explaining the strategy of reserving capital rather than deploying everything now.",
+    prompt: "Describe holding capital in reserve for the right future opportunity…",
+    ex: "\"We've opted for a smaller dividend this quarter to maintain some dry powder for potential M&A in Q4.\"",
+    tip: "Implies discipline and strategic thinking — you're not being passive, you're waiting for the right moment. Often paired with 'deploy capital' when the moment arrives.",
+    cq: "The board asks why you paid a lower dividend this quarter. You explain:",
+    cc: "We deliberately kept some dry powder — we see a few interesting M&A opportunities developing and want to be able to move quickly.",
+    cw: ["We kept some cash because we might need it later.", "We didn't pay out all our money in case something comes up.", "We held back money for possible future investment."],
+    ctx: "Board-level capital allocation discussion",
+    setup: "The dividend was lower than usual and a board member is questioning the decision.",
+    cue: "Board member: \"Can you explain why the dividend was lower than last quarter?\"",
+    model: "A deliberate decision. <b>We've maintained some dry powder</b> — the current M&A environment has two or three situations we're watching closely, and we want to be able to move quickly if one becomes actionable. <b>Committing all capital now would leave us dependent on the debt markets at the worst possible moment.</b>",
+    why: "'Dependent on the debt markets at the worst possible moment' makes the opportunity cost of paying out everything feel immediate and real."
+  },
+  {
+    phrase: "Low-hanging fruit",
+    def: "Tasks or opportunities that are easy to achieve and give quick results — from the image of fruit you can reach without climbing.",
+    sit: "You want to identify the easiest wins to pursue first, building momentum before tackling harder tasks.",
+    prompt: "Identify which tasks are easiest and fastest to complete first…",
+    ex: "\"Let's knock out the low-hanging fruit this morning so we can focus on the complex slides this afternoon.\"",
+    tip: "Use it to create a plan that builds early momentum. It signals pragmatism and efficiency — not laziness. Always say what the low-hanging fruit actually is.",
+    cq: "The team has a large deliverable due in three days and doesn't know where to start. You suggest:",
+    cc: "Let's start with the low-hanging fruit — the three sections we can complete quickly — and build from there.",
+    cw: ["Let's start with the easy things first.", "We should do the simplest tasks before the hard ones.", "Let's begin with the most straightforward parts."],
+    ctx: "Morning project planning meeting — three days before a major deadline",
+    setup: "The team is feeling overwhelmed by a large document deliverable. The MD is asking how you'll approach it.",
+    cue: "MD: \"It's a big document. How are you planning to sequence the work?\"",
+    model: "I'd suggest we start with <b>the low-hanging fruit</b> — sections 2, 4, and 6 are largely templated and we can have them done by midday. That clears mental bandwidth and gives us a realistic view of how much runway we have for sections 3 and 5, which are the complex ones. <b>Momentum matters as much as method</b> on a tight timeline.",
+    why: "'Momentum matters as much as method on a tight timeline' is a memorable principle. It explains why you don't always start with the hardest thing."
+  },
+  {
+    phrase: "Put it on the back burner",
+    def: "To deliberately deprioritise something that isn't urgent right now — it's still 'cooking' but on low heat, not active heat.",
+    sit: "You need to defer a task or project that isn't urgent without cancelling it entirely.",
+    prompt: "Signal that something is being paused but not abandoned…",
+    ex: "\"That research request isn't urgent — let's put it on the back burner until the deal closes.\"",
+    tip: "The back burner means paused, not cancelled. Always say when you'll return to it — otherwise 'back burner' can feel like a polite way of saying 'never'.",
+    cq: "A colleague proposes starting a new research project during a very busy deal week. You respond:",
+    cc: "Good idea, but let's put it on the back burner until Thursday — the team doesn't have bandwidth before then.",
+    cw: ["We can do that later when we have time.", "That's not a priority right now.", "Let's delay that for now."],
+    ctx: "Priority conversation during a busy execution week",
+    setup: "A junior analyst wants to start a new market update report while the team is deep in a deal.",
+    cue: "Analyst: \"I've been meaning to pull together a sector update. Is now a good time to start?\"",
+    model: "Good initiative — but <b>let's put it on the back burner until after Thursday's launch</b>. The team's focus needs to be undivided this week. <b>Can you make a note of the idea so we don't lose it?</b> I'd like to revisit it properly the following week.",
+    why: "'Can you make a note so we don't lose it' is a gracious follow-up. It says the idea matters — just not right now. It also creates accountability for the revisit."
+  }
+];
+
+// ─── STATE ───────────────────────────────────
+let spIdx = 0, spOrder = P.map((_,i)=>i), spRevealed = false;
+let chIdx = 0, chOrder = P.map((_,i)=>i), chScore = 0, chAnswered = false;
+let rpIdx = 0, rpOrder = P.map((_,i)=>i), rpRevealed = false;
+let done = 0, fluent = 0;
+
+// ─── TABS ────────────────────────────────────
+function switchTab(t, btn) {
+  ['speak','choice','roleplay','browse'].forEach(id => {
+    document.getElementById('m-'+id).style.display = 'none';
+  });
+  document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('m-'+t).style.display = 'block';
+  btn.classList.add('active');
+  if (t === 'choice') renderChoice();
+  if (t === 'roleplay') renderRP();
+  if (t === 'browse') renderBrowse('');
+}
+
+// ─── SPEAKING DRILL ──────────────────────────
+function renderSp() {
+  const p = P[spOrder[spIdx]];
+  document.getElementById('sp-cnt').textContent = `${spIdx+1} / ${P.length}`;
+  document.getElementById('sp-prg').style.width = `${((spIdx)/P.length)*100}%`;
+  document.getElementById('sp-lbl').textContent = p.phrase;
+  document.getElementById('sp-sit').textContent = p.sit;
+  document.getElementById('sp-prompt').textContent = p.prompt;
+  document.getElementById('sp-phrase').textContent = p.phrase;
+  document.getElementById('sp-ex').textContent = p.ex;
+  document.getElementById('sp-tip').textContent = p.tip;
+  const rb = document.getElementById('sp-reveal');
+  rb.classList.remove('show');
+  document.getElementById('sp-rev-btn').style.display = 'inline-block';
+  spRevealed = false;
+}
+function revealSp() {
+  document.getElementById('sp-reveal').classList.add('show');
+  document.getElementById('sp-rev-btn').style.display = 'none';
+  spRevealed = true;
+}
+function rateSp(r) {
+  done++;
+  if (r === 'easy') fluent++;
+  updateStats();
+  spNav(1);
+}
+function spNav(d) {
+  spIdx = (spIdx + d + P.length) % P.length;
+  renderSp();
+}
+function shuffleSp() {
+  for (let i = spOrder.length-1; i>0; i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [spOrder[i], spOrder[j]] = [spOrder[j], spOrder[i]];
+  }
+  spIdx = 0; renderSp();
+}
+
+// ─── CHOICE ──────────────────────────────────
+function renderChoice() {
+  const p = P[chOrder[chIdx]];
+  document.getElementById('ch-cnt').textContent = `${chIdx+1} / ${P.length}`;
+  document.getElementById('ch-prg').style.width = `${((chIdx)/P.length)*100}%`;
+  document.getElementById('ch-q').textContent = p.cq;
+  document.getElementById('ch-fb').className = 'choice-fb';
+  document.getElementById('ch-fb').textContent = '';
+  document.getElementById('ch-next').style.display = 'none';
+  chAnswered = false;
+  // build options
+  const opts = [p.cc, ...p.cw].sort(()=>Math.random()-0.5);
+  const cont = document.getElementById('ch-opts');
+  cont.innerHTML = '';
+  opts.forEach(o => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-opt';
+    btn.textContent = o;
+    btn.onclick = () => pickChoice(btn, o === p.cc, p.cc);
+    cont.appendChild(btn);
+  });
+}
+function pickChoice(btn, correct, correctText) {
+  if (chAnswered) return;
+  chAnswered = true;
+  const allBtns = document.querySelectorAll('.choice-opt');
+  allBtns.forEach(b => {
+    b.disabled = true;
+    if (b.textContent === correctText) b.classList.add('reveal-correct');
+  });
+  if (correct) {
+    btn.classList.add('correct');
+    chScore++;
+  } else {
+    btn.classList.add('wrong');
+  }
+  const fb = document.getElementById('ch-fb');
+  fb.className = 'choice-fb show ' + (correct ? 'ok' : 'no');
+  fb.textContent = correct
+    ? '✓ Exactly right. This is the most natural way to say it in English.'
+    : `✗ Not quite. The most natural phrase is: "${correctText}"`;
+  document.getElementById('ch-score').textContent = `Score: ${chScore} / ${chIdx+1}`;
+  document.getElementById('ch-next').style.display = 'inline-block';
+}
+function nextChoice() {
+  chIdx = (chIdx + 1) % P.length;
+  renderChoice();
+}
+
+// ─── ROLE-PLAY ───────────────────────────────
+function renderRP() {
+  const p = P[rpOrder[rpIdx]];
+  document.getElementById('rp-cnt').textContent = `${rpIdx+1} / ${P.length}`;
+  document.getElementById('rp-prg').style.width = `${((rpIdx)/P.length)*100}%`;
+  document.getElementById('rp-lbl').textContent = p.phrase;
+  document.getElementById('rp-ctx').textContent = p.ctx;
+  document.getElementById('rp-setup').textContent = p.setup;
+  document.getElementById('rp-cue').textContent = p.cue;
+  document.getElementById('rp-ta').value = '';
+  document.getElementById('rp-reveal').classList.remove('show');
+  document.getElementById('rp-rev-btn').style.display = 'inline-block';
+  document.getElementById('rp-model').innerHTML = p.model;
+  document.getElementById('rp-why').textContent = p.why;
+  rpRevealed = false;
+}
+function revealRP() {
+  document.getElementById('rp-reveal').classList.add('show');
+  document.getElementById('rp-rev-btn').style.display = 'none';
+  rpRevealed = true;
+}
+function rateRP(r) {
+  done++;
+  if (r === 'easy') fluent++;
+  updateStats();
+  rpNav(1);
+}
+function rpNav(d) {
+  rpIdx = (rpIdx + d + P.length) % P.length;
+  renderRP();
+}
+
+// ─── BROWSE ──────────────────────────────────
+function renderBrowse(q) {
+  const lower = q.toLowerCase();
+  const filtered = P.filter(p =>
+    p.phrase.toLowerCase().includes(lower) ||
+    p.def.toLowerCase().includes(lower) ||
+    p.ex.toLowerCase().includes(lower) ||
+    p.tip.toLowerCase().includes(lower)
+  );
+  document.getElementById('br-count').textContent = `Showing ${filtered.length} of ${P.length} phrases`;
+  const list = document.getElementById('br-list');
+  list.innerHTML = '';
+  filtered.forEach((p, i) => {
+    const item = document.createElement('div');
+    item.className = 'br-item';
+    item.innerHTML = `
+      <div class="br-top">
+        <div>
+          <div class="bi-phrase">${p.phrase}</div>
+          <div class="bi-ex">${p.ex}</div>
+        </div>
+      </div>
+      <div class="bi-exp" id="bi-exp-${i}">
+        <div class="bi-def">${p.def}</div>
+        <div class="bi-tip" style="margin-top:8px">💡 ${p.tip}</div>
+      </div>
+    `;
+    item.onclick = () => {
+      const exp = document.getElementById(`bi-exp-${i}`);
+      exp.classList.toggle('open');
+    };
+    list.appendChild(item);
+  });
+}
+
+// ─── STATS ───────────────────────────────────
+function updateStats() {
+  document.getElementById('s-done').textContent = done;
+  document.getElementById('s-fluent').textContent = fluent;
+}
+
+// ─── INIT ────────────────────────────────────
+renderSp();
+</script>
+</body>
+</html>

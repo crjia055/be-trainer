@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Shadowing Demo</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f5f5f5;--surface:#fff;--border:#dcdcdc;--ink:#1c1c2e;--muted:#7a7f94;--gold:#b8892a;--gold-bg:#fdf6e3;--green:#1a7a4a;--green-bg:#edf7f1;--red:#c0392b;--red-bg:#fdf0ee;--blue:#2060a8;--blue-bg:#edf3fd;--accent:#5b3fa0}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:40px 20px}
+.card{background:var(--surface);border:1.5px solid var(--border);border-radius:12px;width:100%;max-width:580px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,.08)}
+.card-top{background:var(--ink);padding:20px 28px;border-bottom:3px solid var(--gold)}
+.label{font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:#d4aa50;margin-bottom:8px}
+.phrase{font-family:'Lora',serif;font-size:1.25rem;color:#f4efe4;line-height:1.5}
+.context{font-family:'DM Mono',monospace;font-size:.65rem;color:rgba(244,239,228,.5);margin-top:6px}
+
+.steps{padding:24px 28px;display:flex;flex-direction:column;gap:16px}
+
+/* each step row */
+.step{display:flex;align-items:flex-start;gap:16px}
+.step-num{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:.7rem;font-weight:600;flex-shrink:0;margin-top:2px}
+.step-num.idle{background:var(--border);color:var(--muted)}
+.step-num.active{background:var(--gold);color:#fff}
+.step-num.done{background:var(--green);color:#fff}
+.step-body{flex:1}
+.step-title{font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.step-title.active{color:var(--ink)}
+
+/* STEP 1 — listen */
+.listen-btn{display:flex;align-items:center;gap:10px;padding:12px 20px;background:var(--ink);color:#f4efe4;border:none;border-radius:7px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:500;transition:opacity .15s;width:100%}
+.listen-btn:hover{opacity:.85}
+.listen-btn:disabled{opacity:.4;cursor:not-allowed}
+.listen-btn .icon{font-size:1.2rem}
+.speed-row{display:flex;gap:8px;margin-top:8px}
+.speed-btn{padding:5px 12px;border-radius:4px;border:1px solid var(--border);background:var(--surface);font-family:'DM Mono',monospace;font-size:.62rem;color:var(--muted);cursor:pointer;transition:all .15s}
+.speed-btn.active{border-color:var(--gold);color:var(--gold);background:var(--gold-bg)}
+.waveform-bar{height:36px;background:var(--bg);border-radius:5px;margin-top:8px;overflow:hidden;position:relative;display:none}
+.waveform-bar.show{display:block}
+canvas{width:100%;height:100%}
+.progress-line{position:absolute;top:0;bottom:0;width:2px;background:var(--gold);opacity:.7;transition:left .1s linear;pointer-events:none}
+
+/* STEP 2 — record */
+.rec-area{background:var(--bg);border-radius:7px;padding:14px 16px;text-align:center}
+.rec-btn{display:inline-flex;align-items:center;gap:8px;padding:12px 28px;border-radius:7px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.95rem;font-weight:600;transition:all .18s}
+.rec-btn.idle{background:var(--accent);color:#fff}
+.rec-btn.idle:hover{opacity:.88}
+.rec-btn.recording{background:var(--red);color:#fff;animation:pulse 1.2s infinite}
+.rec-btn.disabled-state{background:var(--border);color:var(--muted);cursor:not-allowed}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(192,57,43,.4)}50%{box-shadow:0 0 0 8px rgba(192,57,43,0)}}
+.rec-hint{font-family:'DM Mono',monospace;font-size:.62rem;color:var(--muted);margin-top:8px}
+.rec-wave{height:40px;background:var(--surface);border-radius:5px;margin-top:10px;overflow:hidden;display:none}
+.rec-wave.show{display:block}
+.rec-timer{font-family:'DM Mono',monospace;font-size:.75rem;color:var(--red);margin-top:6px;display:none}
+.rec-timer.show{display:block}
+
+/* STEP 3 — compare */
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.audio-block{background:var(--bg);border-radius:7px;padding:12px 14px}
+.audio-label{font-family:'DM Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+.audio-label.model{color:var(--gold)}
+.audio-label.yours{color:var(--accent)}
+.play-btn{display:flex;align-items:center;gap:7px;padding:9px 14px;border-radius:5px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.83rem;width:100%;transition:all .15s}
+.play-btn.model-play{background:var(--gold-bg);color:var(--gold);border:1px solid var(--gold)}
+.play-btn.model-play:hover{background:var(--gold);color:#fff}
+.play-btn.yours-play{background:#f0ebff;color:var(--accent);border:1px solid var(--accent)}
+.play-btn.yours-play:hover{background:var(--accent);color:#fff}
+.play-btn:disabled{opacity:.35;cursor:not-allowed}
+
+/* self-check */
+.check-row{display:flex;gap:8px;margin-top:14px}
+.check-btn{flex:1;padding:9px 6px;border-radius:5px;border:1px solid;font-family:'DM Mono',monospace;font-size:.62rem;text-transform:uppercase;letter-spacing:.04em;cursor:pointer;transition:all .15s}
+.chk-hard{border-color:var(--red);color:var(--red);background:transparent}.chk-hard:hover{background:var(--red-bg)}
+.chk-ok{border-color:var(--gold);color:var(--gold);background:transparent}.chk-ok:hover{background:var(--gold-bg)}
+.chk-good{border-color:var(--green);color:var(--green);background:transparent}.chk-good:hover{background:var(--green-bg)}
+
+/* tip box */
+.tip-box{background:var(--blue-bg);border-radius:7px;padding:12px 16px;margin-top:14px;font-size:.83rem;line-height:1.6;color:var(--blue);display:none}
+.tip-box.show{display:block}
+
+/* repeat hint */
+.repeat-row{text-align:center;padding:0 28px 20px}
+.repeat-hint{font-family:'DM Mono',monospace;font-size:.65rem;color:var(--muted);text-align:center}
+.retry-btn{margin-top:10px;padding:8px 20px;border-radius:5px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:'DM Mono',monospace;font-size:.65rem;text-transform:uppercase;cursor:pointer;transition:all .15s}
+.retry-btn:hover{border-color:var(--ink);color:var(--ink)}
+
+.divider{height:1px;background:var(--border);margin:0 0 4px}
+</style>
+</head>
+<body>
+
+<div style="width:100%;max-width:580px;margin-bottom:18px">
+  <div style="font-family:'DM Mono',monospace;font-size:.65rem;color:var(--muted);text-align:center;letter-spacing:.08em">SHADOWING MODE — DEMO</div>
+  <div style="font-family:'Lora',serif;font-size:.88rem;color:var(--muted);text-align:center;margin-top:4px">Listen → Shadow → Record → Compare by ear</div>
+</div>
+
+<div class="card">
+  <div class="card-top">
+    <div class="label">Target phrase — Pitch</div>
+    <div class="phrase">"We don't just execute — we manage the narrative."</div>
+    <div class="context">Use when: differentiating your bank's value beyond pure deal mechanics</div>
+  </div>
+
+  <div class="steps">
+
+    <!-- STEP 1: LISTEN -->
+    <div class="step" id="s1">
+      <div class="step-num active" id="n1">1</div>
+      <div class="step-body">
+        <div class="step-title active" id="t1">Listen to the model</div>
+        <button class="listen-btn" id="listenBtn" onclick="speakPhrase()">
+          <span class="icon" id="listenIcon">▶</span>
+          <span id="listenLabel">Play model phrase</span>
+        </button>
+        <div class="speed-row">
+          <span style="font-family:'DM Mono',monospace;font-size:.6rem;color:var(--muted);align-self:center">Speed:</span>
+          <button class="speed-btn" onclick="setSpeed(0.75,this)">0.75×</button>
+          <button class="speed-btn active" onclick="setSpeed(1.0,this)">1.0×</button>
+          <button class="speed-btn" onclick="setSpeed(1.15,this)">1.15×</button>
+        </div>
+        <!-- voice selector -->
+        <div id="voiceRow" style="display:none;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap">
+          <span style="font-family:'DM Mono',monospace;font-size:.6rem;color:var(--muted);white-space:nowrap">Voice:</span>
+          <select id="voiceSel" onchange="onVoiceChange(this)" style="flex:1;min-width:0;padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-family:'DM Sans',sans-serif;font-size:.8rem;background:var(--surface);color:var(--ink);cursor:pointer"></select>
+        </div>
+        <div id="voiceInfo" style="font-family:'DM Mono',monospace;font-size:.58rem;color:var(--muted);margin-top:4px"></div>
+        <div class="waveform-bar show" id="waveBar">
+          <canvas id="waveCanvas"></canvas>
+          <div class="progress-line" id="progLine" style="left:0%"></div>
+        </div>
+        <div style="font-family:'DM Mono',monospace;font-size:.6rem;color:var(--muted);margin-top:6px">
+          💡 Tip: listen 2–3 times. Notice the stress on <em>execute</em> and <em>narrative</em>, and the pause at the dash.
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- STEP 2: RECORD -->
+    <div class="step" id="s2">
+      <div class="step-num idle" id="n2">2</div>
+      <div class="step-body">
+        <div class="step-title" id="t2">Shadow it — record yourself</div>
+        <div class="rec-area">
+          <button class="rec-btn disabled-state" id="recBtn" onclick="toggleRecord()" disabled>
+            <span id="recIcon">🎙</span> <span id="recLabel">Record yourself</span>
+          </button>
+          <div class="rec-timer" id="recTimer">0:00</div>
+          <canvas class="rec-wave" id="recWave"></canvas>
+          <div class="rec-hint" id="recHint">Listen first, then record when ready</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- STEP 3: COMPARE -->
+    <div class="step" id="s3">
+      <div class="step-num idle" id="n3">3</div>
+      <div class="step-body">
+        <div class="step-title" id="t3">Compare — play both back</div>
+        <div class="compare-grid">
+          <div class="audio-block">
+            <div class="audio-label model">🔊 Model</div>
+            <button class="play-btn model-play" id="playModel" onclick="playModel()" disabled>
+              ▶ Play model
+            </button>
+          </div>
+          <div class="audio-block">
+            <div class="audio-label yours">🎙 Yours</div>
+            <button class="play-btn yours-play" id="playYours" onclick="playYours()" disabled>
+              ▶ Play yours
+            </button>
+          </div>
+        </div>
+
+        <div style="font-family:'DM Mono',monospace;font-size:.62rem;color:var(--muted);margin-top:10px">
+          Listen for: stress pattern · pause at the dash · natural speed · rising/falling intonation
+        </div>
+
+        <div class="check-row">
+          <button class="check-btn chk-hard" onclick="selfCheck('hard')">🔴 Very different</button>
+          <button class="check-btn chk-ok" onclick="selfCheck('ok')">🟡 Close but stiff</button>
+          <button class="check-btn chk-good" onclick="selfCheck('good')">🟢 Sounds natural</button>
+        </div>
+
+        <div class="tip-box" id="tipBox"></div>
+      </div>
+    </div>
+
+  </div><!-- end steps -->
+
+  <div class="repeat-row" id="repeatRow" style="display:none">
+    <div class="repeat-hint">Shadowing works through repetition. Try again — aim to match the model more closely each round.</div>
+    <br>
+    <button class="retry-btn" onclick="resetAll()">↺ Shadow again</button>
+  </div>
+
+</div><!-- end card -->
+
+<div style="width:100%;max-width:580px;margin-top:18px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px 20px">
+  <div style="font-family:'DM Mono',monospace;font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">How shadowing works</div>
+  <div style="font-size:.83rem;line-height:1.7;color:var(--ink)">
+    <strong>Step 1</strong> — Listen 2–3 times at normal speed. Don't try to repeat yet. Let the rhythm and stress sink in.<br>
+    <strong>Step 2</strong> — Record yourself saying the phrase immediately after. Don't pause to think — speed matters.<br>
+    <strong>Step 3</strong> — Play both back to back. Your ear is the judge. Listen for rhythm and stress, not just individual sounds.<br><br>
+    <span style="color:var(--muted)">Most learners find round 3 sounds noticeably closer to the model than round 1. That improvement is the mechanism.</span>
+  </div>
+</div>
+
+<script>
+// ── state ──
+let speechRate = 1.0;
+let hasListened = false;
+let mediaRecorder = null;
+let audioChunks = [];
+let recordingBlob = null;
+let recordingURL = null;
+let isRecording = false;
+let recTimerInterval = null;
+let recSeconds = 0;
+let recWaveInterval = null;
+let modelUtterance = null;
+let isSpeaking = false;
+let selectedVoice = null;
+let allVoices = [];
+
+const PHRASE = "We don't just execute — we manage the narrative. We ensure the equity story is framed in a way that resonates with both credit and equity investors.";
+const PHRASE_SHORT = "We don't just execute — we manage the narrative.";
+
+// ── voice priority list: American English female, best quality first ──
+// Covers: Mac/iOS (Samantha, Ava, Susan), Chrome desktop (Google US English Female),
+// Edge/Windows (Jenny, Aria, Michelle, Amanda), Android (en-us-x-sfg)
+const FEMALE_US_PRIORITY = [
+  // Apple — Premium / Enhanced variants first
+  'Samantha (Premium)', 'Samantha (Enhanced)', 'Samantha',
+  'Ava (Premium)', 'Ava (Enhanced)', 'Ava',
+  'Susan (Premium)', 'Susan (Enhanced)', 'Susan',
+  'Allison (Premium)', 'Allison (Enhanced)', 'Allison',
+  'Victoria (Premium)', 'Victoria (Enhanced)', 'Victoria',
+  // Chrome desktop (online, highest quality on Chrome)
+  'Google US English Female',
+  // Edge / Windows natural voices
+  'Microsoft Jenny Online (Natural) - English (United States)',
+  'Microsoft Aria Online (Natural) - English (United States)',
+  'Microsoft Michelle Online (Natural) - English (United States)',
+  'Microsoft Amanda Online (Natural) - English (United States)',
+  'Microsoft Zira - English (United States)',
+  // fallback partial matches handled in pickVoice()
+];
+
+function pickVoice(voices) {
+  // 1. Try exact name match in priority list
+  for (const name of FEMALE_US_PRIORITY) {
+    const v = voices.find(v => v.name === name);
+    if (v) return v;
+  }
+  // 2. Try partial name match for Apple localised variants (e.g. "Samantha (English (US))")
+  const appleNames = ['Samantha','Ava','Susan','Allison','Victoria'];
+  for (const n of appleNames) {
+    const v = voices.find(v => v.name.startsWith(n) && v.lang.startsWith('en'));
+    if (v) return v;
+  }
+  // 3. Any en-US female voice
+  const enUS = voices.filter(v => v.lang === 'en-US');
+  const femaleUS = enUS.find(v =>
+    v.name.toLowerCase().includes('female') ||
+    ['jenny','aria','michelle','amanda','zira','karen','lisa','kate'].some(n => v.name.toLowerCase().includes(n))
+  );
+  if (femaleUS) return femaleUS;
+  // 4. Any en-US voice
+  if (enUS.length) return enUS[0];
+  // 5. Any English voice
+  return voices.find(v => v.lang.startsWith('en')) || null;
+}
+
+function loadVoices() {
+  allVoices = window.speechSynthesis.getVoices();
+  if (!allVoices.length) return;
+  selectedVoice = pickVoice(allVoices);
+  buildVoiceSelector(allVoices);
+}
+
+function buildVoiceSelector(voices) {
+  const sel = document.getElementById('voiceSel');
+  if (!sel) return;
+  // only show en-US / en voices to keep list manageable
+  const enVoices = voices.filter(v => v.lang.startsWith('en-US') || v.lang === 'en-US');
+  sel.innerHTML = '';
+  enVoices.forEach(v => {
+    const opt = document.createElement('option');
+    opt.value = v.name;
+    opt.textContent = v.name.replace('Microsoft ','').replace(' Online (Natural)','★').replace(' - English (United States)','');
+    if (selectedVoice && v.name === selectedVoice.name) opt.selected = true;
+    sel.appendChild(opt);
+  });
+  // show selector row now voices are loaded
+  const row = document.getElementById('voiceRow');
+  if (row) row.style.display = 'flex';
+  // show which voice was auto-picked
+  const info = document.getElementById('voiceInfo');
+  if (info && selectedVoice) info.textContent = `Auto-selected: ${selectedVoice.name.replace('Microsoft ','').replace(' Online (Natural) - English (United States)','★')}`;
+}
+
+function onVoiceChange(sel) {
+  selectedVoice = allVoices.find(v => v.name === sel.value) || selectedVoice;
+  const info = document.getElementById('voiceInfo');
+  if (info) info.textContent = `Selected: ${selectedVoice.name.replace('Microsoft ','').replace(' Online (Natural) - English (United States)','★')}`;
+}
+
+// ── waveform drawing (decorative static bars) ──
+function drawStaticWave(canvasId, color, seed) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  canvas.width = canvas.offsetWidth * window.devicePixelRatio || 400;
+  canvas.height = canvas.offsetHeight * window.devicePixelRatio || 36;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const bars = 60;
+  const gap = 2;
+  const barW = (canvas.width - (bars - 1) * gap) / bars;
+  for (let i = 0; i < bars; i++) {
+    const h = (Math.sin(i * 0.4 + seed) * 0.35 + Math.sin(i * 0.9 + seed * 2) * 0.25 + 0.4) * canvas.height * 0.8;
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.roundRect(i * (barW + gap), (canvas.height - h) / 2, barW, h, 2);
+    ctx.fill();
+  }
+}
+
+// ── live waveform during recording ──
+let analyser = null;
+let liveWaveRAF = null;
+
+function startLiveWave(stream) {
+  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  const source = audioCtx.createMediaStreamSource(stream);
+  analyser = audioCtx.createAnalyser();
+  analyser.fftSize = 128;
+  source.connect(analyser);
+  const canvas = document.getElementById('recWave');
+  canvas.width = canvas.offsetWidth * window.devicePixelRatio || 400;
+  canvas.height = 40 * window.devicePixelRatio;
+  const ctx = canvas.getContext('2d');
+  const data = new Uint8Array(analyser.frequencyBinCount);
+  function draw() {
+    analyser.getByteFrequencyData(data);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const bars = data.length;
+    const barW = canvas.width / bars;
+    for (let i = 0; i < bars; i++) {
+      const h = (data[i] / 255) * canvas.height;
+      ctx.fillStyle = '#5b3fa0';
+      ctx.beginPath();
+      ctx.roundRect(i * barW, canvas.height - h, barW - 1, h, 1);
+      ctx.fill();
+    }
+    liveWaveRAF = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function stopLiveWave() {
+  if (liveWaveRAF) cancelAnimationFrame(liveWaveRAF);
+}
+
+// ── speed ──
+function setSpeed(s, btn) {
+  speechRate = s;
+  document.querySelectorAll('.speed-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// ── STEP 1: speak ──
+function speakPhrase() {
+  if (isSpeaking) {
+    window.speechSynthesis.cancel();
+    isSpeaking = false;
+    document.getElementById('listenIcon').textContent = '▶';
+    document.getElementById('listenLabel').textContent = 'Play model phrase';
+    return;
+  }
+  window.speechSynthesis.cancel();
+  const utt = new SpeechSynthesisUtterance(PHRASE);
+  utt.rate = speechRate;
+  utt.pitch = 1.0;
+  if (selectedVoice) utt.voice = selectedVoice;
+
+  utt.onstart = () => {
+    isSpeaking = true;
+    document.getElementById('listenIcon').textContent = '⏹';
+    document.getElementById('listenLabel').textContent = 'Stop';
+    animateProgress(utt);
+  };
+  utt.onend = utt.onerror = () => {
+    isSpeaking = false;
+    document.getElementById('listenIcon').textContent = '▶';
+    document.getElementById('listenLabel').textContent = 'Play again';
+    document.getElementById('progLine').style.left = '0%';
+    if (!hasListened) {
+      hasListened = true;
+      unlockRecord();
+    }
+  };
+  window.speechSynthesis.speak(utt);
+  modelUtterance = utt;
+  drawStaticWave('waveCanvas', 'rgba(184,137,42,0.5)', 1.2);
+}
+
+function animateProgress(utt) {
+  // estimate duration from rate
+  const estMs = (PHRASE.length / 14) * 1000 / speechRate;
+  const start = Date.now();
+  const line = document.getElementById('progLine');
+  function tick() {
+    if (!isSpeaking) return;
+    const pct = Math.min(100, ((Date.now() - start) / estMs) * 100);
+    line.style.left = pct + '%';
+    if (pct < 100) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
+// ── unlock record after first listen ──
+function unlockRecord() {
+  document.getElementById('n2').className = 'step-num active';
+  document.getElementById('t2').className = 'step-title active';
+  const btn = document.getElementById('recBtn');
+  btn.className = 'rec-btn idle';
+  btn.disabled = false;
+  document.getElementById('recHint').textContent = 'Say the phrase aloud as naturally as you can';
+}
+
+// ── STEP 2: record ──
+async function toggleRecord() {
+  if (isRecording) {
+    stopRecording();
+  } else {
+    await startRecording();
+  }
+}
+
+async function startRecording() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    audioChunks = [];
+    mediaRecorder = new MediaRecorder(stream);
+    mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+    mediaRecorder.onstop = () => {
+      recordingBlob = new Blob(audioChunks, { type: 'audio/webm' });
+      recordingURL = URL.createObjectURL(recordingBlob);
+      stream.getTracks().forEach(t => t.stop());
+      stopLiveWave();
+      finishRecording();
+    };
+    mediaRecorder.start();
+    isRecording = true;
+    startLiveWave(stream);
+    // UI
+    const btn = document.getElementById('recBtn');
+    btn.className = 'rec-btn recording';
+    document.getElementById('recIcon').textContent = '⏹';
+    document.getElementById('recLabel').textContent = 'Stop recording';
+    document.getElementById('recWave').classList.add('show');
+    document.getElementById('recTimer').classList.add('show');
+    recSeconds = 0;
+    recTimerInterval = setInterval(() => {
+      recSeconds++;
+      const m = Math.floor(recSeconds / 60);
+      const s = recSeconds % 60;
+      document.getElementById('recTimer').textContent = `${m}:${s.toString().padStart(2,'0')}`;
+    }, 1000);
+  } catch(e) {
+    document.getElementById('recHint').textContent = '⚠️ Microphone access denied. Please allow microphone in your browser settings.';
+  }
+}
+
+function stopRecording() {
+  if (mediaRecorder && isRecording) {
+    mediaRecorder.stop();
+    isRecording = false;
+    clearInterval(recTimerInterval);
+    document.getElementById('recTimer').classList.remove('show');
+  }
+}
+
+function finishRecording() {
+  const btn = document.getElementById('recBtn');
+  btn.className = 'rec-btn idle';
+  document.getElementById('recIcon').textContent = '🎙';
+  document.getElementById('recLabel').textContent = 'Record again';
+  document.getElementById('recHint').textContent = '✓ Recording saved — now compare below';
+  drawStaticWave('recWave', 'rgba(91,63,160,0.55)', 2.7);
+  document.getElementById('recWave').classList.add('show');
+  // unlock compare
+  document.getElementById('n3').className = 'step-num active';
+  document.getElementById('t3').className = 'step-title active';
+  document.getElementById('playModel').disabled = false;
+  document.getElementById('playYours').disabled = false;
+}
+
+// ── STEP 3: playback ──
+function playModel() {
+  window.speechSynthesis.cancel();
+  const utt = new SpeechSynthesisUtterance(PHRASE);
+  utt.rate = speechRate;
+  if (selectedVoice) utt.voice = selectedVoice;
+  const btn = document.getElementById('playModel');
+  utt.onstart = () => { btn.textContent = '⏹ Stop'; };
+  utt.onend = utt.onerror = () => { btn.textContent = '▶ Play model'; };
+  window.speechSynthesis.speak(utt);
+}
+
+function playYours() {
+  if (!recordingURL) return;
+  const audio = new Audio(recordingURL);
+  const btn = document.getElementById('playYours');
+  btn.textContent = '⏹ Playing…';
+  audio.play();
+  audio.onended = () => { btn.textContent = '▶ Play yours'; };
+}
+
+// ── self-check ──
+const TIPS = {
+  hard: "That's the most useful round — your ear heard the gap. Listen to the model one more time, focus only on the rhythm and the pause at the dash, then record again immediately.",
+  ok: "You're close. The phrase is landing but it sounds studied. Try saying it faster — business English moves quickly. Don't pause before 'manage the narrative'. Record once more.",
+  good: "Excellent. That's the goal — natural delivery at speed. Now try it without listening to the model first. Can you produce it cold?"
+};
+
+function selfCheck(level) {
+  const tip = document.getElementById('tipBox');
+  tip.textContent = TIPS[level];
+  tip.className = 'tip-box show';
+  document.getElementById('repeatRow').style.display = 'block';
+  // mark step 3 done
+  document.getElementById('n3').className = 'step-num done';
+  document.getElementById('n3').textContent = '✓';
+}
+
+// ── reset ──
+function resetAll() {
+  window.speechSynthesis.cancel();
+  recordingURL = null;
+  recordingBlob = null;
+  hasListened = false;
+  document.getElementById('n1').className = 'step-num active';
+  document.getElementById('t1').className = 'step-title active';
+  document.getElementById('listenIcon').textContent = '▶';
+  document.getElementById('listenLabel').textContent = 'Play model phrase';
+  document.getElementById('n2').className = 'step-num idle';
+  document.getElementById('t2').className = 'step-title';
+  const rb = document.getElementById('recBtn');
+  rb.className = 'rec-btn disabled-state';
+  rb.disabled = true;
+  document.getElementById('recHint').textContent = 'Listen first, then record when ready';
+  document.getElementById('recWave').classList.remove('show');
+  document.getElementById('recTimer').classList.remove('show');
+  document.getElementById('n3').className = 'step-num idle';
+  document.getElementById('n3').textContent = '3';
+  document.getElementById('t3').className = 'step-title';
+  document.getElementById('playModel').disabled = true;
+  document.getElementById('playYours').disabled = true;
+  document.getElementById('playModel').textContent = '▶ Play model';
+  document.getElementById('playYours').textContent = '▶ Play yours';
+  document.getElementById('tipBox').className = 'tip-box';
+  document.getElementById('repeatRow').style.display = 'none';
+  document.getElementById('progLine').style.left = '0%';
+  drawStaticWave('waveCanvas', 'rgba(184,137,42,0.3)', 1.2);
+}
+
+// init wave on load
+window.addEventListener('load', () => {
+  // Chrome needs a slight delay before voices are populated
+  window.speechSynthesis.onvoiceschanged = loadVoices;
+  loadVoices(); // immediate attempt (works on Firefox/Safari)
+  setTimeout(loadVoices, 300); // retry for Chrome
+  drawStaticWave('waveCanvas', 'rgba(184,137,42,0.3)', 1.2);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Pitch & Meeting Phrases — Trainer</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f5f5f5;
+  --surface: #ffffff;
+  --surface2: #ebebeb;
+  --border: #dcdcdc;
+  --ink: #1c1c2e;
+  --muted: #7a7f94;
+  --gold: #b8892a;
+  --gold-bg: #fdf6e3;
+  --green: #1a7a4a;
+  --green-bg: #edf7f1;
+  --red: #c0392b;
+  --red-bg: #fdf0ee;
+  --blue: #2060a8;
+  --blue-bg: #edf3fd;
+  --accent: #7c4dbd;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; }
+
+header {
+  background: var(--ink); color: #f4efe4;
+  padding: 17px 32px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 3px solid var(--gold);
+}
+.header-title { font-family: 'Lora', serif; font-size: 1.35rem; }
+.header-title em { color: #d4aa50; }
+.header-meta { font-family: 'DM Mono', monospace; font-size: 0.68rem; opacity: 0.7; }
+.header-meta strong { color: #d4aa50; }
+
+.tabs {
+  display: flex; background: var(--surface2);
+  border-bottom: 2px solid var(--border);
+  padding: 0 32px;
+}
+.tab {
+  padding: 13px 22px;
+  font-family: 'DM Mono', monospace; font-size: 0.7rem;
+  letter-spacing: 0.07em; text-transform: uppercase;
+  cursor: pointer; border: none; background: transparent;
+  color: var(--muted); border-bottom: 2px solid transparent;
+  margin-bottom: -2px; white-space: nowrap; transition: all 0.18s;
+}
+.tab.active { color: var(--gold); border-bottom-color: var(--gold); font-weight: 600; }
+.tab:hover:not(.active) { color: var(--ink); }
+
+main { max-width: 760px; margin: 0 auto; padding: 28px 32px; }
+
+/* ── PROGRESS ── */
+.prog-row { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; }
+.prog-text { font-family: 'DM Mono', monospace; font-size: 0.68rem; color: var(--muted); white-space: nowrap; }
+.prog-track { flex: 1; height: 3px; background: var(--border); border-radius: 2px; }
+.prog-fill { height: 100%; background: var(--gold); border-radius: 2px; transition: width 0.4s; }
+
+/* ── SPEAKING DRILL ── */
+.situation-card {
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: 8px; padding: 28px 32px; margin-bottom: 16px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.06); position: relative; overflow: hidden;
+}
+.situation-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--gold), #d4aa50);
+}
+.sc-label { font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; }
+.sc-situation { font-size: 0.97rem; line-height: 1.75; color: var(--muted); margin-bottom: 10px; }
+.sc-prompt { font-family: 'Lora', serif; font-style: italic; font-size: 1.18rem; color: var(--ink); line-height: 1.55; }
+
+.reveal-box {
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: 8px; padding: 24px 28px; margin-bottom: 16px; display: none;
+}
+.reveal-box.show { display: block; }
+.reveal-label { font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--green); margin-bottom: 12px; }
+.reveal-phrase { font-family: 'Lora', serif; font-size: 1.5rem; font-weight: 600; color: var(--ink); margin-bottom: 10px; line-height: 1.3; }
+.reveal-example { font-family: 'Lora', serif; font-style: italic; font-size: 0.9rem; color: var(--muted); border-left: 2px solid var(--gold); padding-left: 14px; line-height: 1.65; margin-bottom: 12px; }
+.reveal-tip { font-size: 0.82rem; color: var(--blue); background: var(--blue-bg); padding: 10px 14px; border-radius: 5px; line-height: 1.55; }
+
+.rate-row { display: flex; gap: 9px; margin-top: 14px; }
+.rate-btn { flex: 1; padding: 10px; border-radius: 5px; border: 1px solid; font-family: 'DM Mono', monospace; font-size: 0.66rem; letter-spacing: 0.04em; text-transform: uppercase; cursor: pointer; transition: all 0.15s; }
+.rate-hard { border-color: var(--red); color: var(--red); background: transparent; }
+.rate-hard:hover { background: var(--red-bg); }
+.rate-ok { border-color: var(--gold); color: var(--gold); background: transparent; }
+.rate-ok:hover { background: var(--gold-bg); }
+.rate-easy { border-color: var(--green); color: var(--green); background: transparent; }
+.rate-easy:hover { background: var(--green-bg); }
+
+.nav-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.btn { padding: 9px 22px; border-radius: 5px; border: 1px solid; font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 0.05em; text-transform: uppercase; cursor: pointer; transition: all 0.15s; }
+.btn-ink { background: var(--ink); color: #d4aa50; border-color: var(--ink); }
+.btn-ink:hover { background: #2d2d50; }
+.btn-ghost { background: transparent; color: var(--muted); border-color: var(--border); }
+.btn-ghost:hover { color: var(--ink); border-color: var(--muted); }
+.btn-gold { background: var(--gold); color: white; border-color: var(--gold); }
+.btn-gold:hover { opacity: 0.88; }
+.btn-sm { padding: 6px 14px; font-size: 0.62rem; }
+
+/* ── CHOICE ── */
+#m-choice { display: none; }
+.choice-card {
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: 8px; padding: 24px 28px; margin-bottom: 16px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+}
+.choice-label { font-family: 'DM Mono', monospace; font-size: 0.62rem; color: var(--gold); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+.choice-q { font-size: 0.97rem; line-height: 1.7; color: var(--ink); }
+.choice-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.choice-opt {
+  padding: 13px 16px; border: 1.5px solid var(--border); border-radius: 6px;
+  background: var(--surface); font-size: 0.85rem; line-height: 1.5;
+  cursor: pointer; text-align: left; font-family: 'DM Sans', sans-serif;
+  transition: all 0.15s; color: var(--ink);
+}
+.choice-opt:hover:not(:disabled) { border-color: var(--gold); background: var(--gold-bg); }
+.choice-opt.correct { border-color: var(--green); background: var(--green-bg); color: var(--green); font-weight: 600; }
+.choice-opt.wrong { border-color: var(--red); background: var(--red-bg); color: var(--red); }
+.choice-opt.reveal-correct { border-color: var(--green); background: var(--green-bg); }
+.choice-fb { padding: 11px 14px; border-radius: 5px; font-size: 0.84rem; line-height: 1.6; display: none; margin-bottom: 12px; }
+.choice-fb.show { display: block; }
+.choice-fb.ok { background: var(--green-bg); border-left: 3px solid var(--green); color: var(--green); }
+.choice-fb.no { background: var(--red-bg); border-left: 3px solid var(--red); color: var(--red); }
+.score-badge { font-family: 'DM Mono', monospace; font-size: 0.68rem; color: var(--muted); }
+
+/* ── ROLE-PLAY ── */
+#m-roleplay { display: none; }
+.rp-scene {
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: 8px; padding: 24px 28px; margin-bottom: 14px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+}
+.rp-context { font-family: 'DM Mono', monospace; font-size: 0.62rem; color: var(--accent); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 7px; }
+.rp-setup { font-size: 0.88rem; color: var(--muted); line-height: 1.65; margin-bottom: 12px; font-style: italic; }
+.rp-cue { background: var(--surface2); border-left: 3px solid var(--accent); padding: 12px 16px; border-radius: 0 6px 6px 0; font-size: 0.95rem; line-height: 1.65; color: var(--ink); }
+.rp-textarea {
+  width: 100%; min-height: 88px; padding: 13px 15px;
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: 6px; color: var(--ink); font-size: 0.93rem; line-height: 1.65;
+  font-family: 'DM Sans', sans-serif; resize: vertical; outline: none;
+  margin-bottom: 10px; transition: border 0.2s;
+}
+.rp-textarea:focus { border-color: var(--accent); }
+.rp-reveal { background: var(--surface); border: 1.5px solid var(--border); border-radius: 8px; padding: 20px 24px; display: none; margin-bottom: 14px; }
+.rp-reveal.show { display: block; }
+.rp-reveal-label { font-family: 'DM Mono', monospace; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--gold); margin-bottom: 10px; }
+.model-resp { font-family: 'Lora', serif; font-size: 1.05rem; line-height: 1.8; color: var(--ink); margin-bottom: 10px; }
+.kp { background: var(--gold-bg); border-radius: 3px; padding: 1px 5px; color: var(--gold); font-weight: 600; border-bottom: 1px solid #d4aa50; }
+.rp-why { font-size: 0.8rem; color: var(--muted); line-height: 1.6; background: var(--blue-bg); padding: 9px 13px; border-radius: 5px; }
+
+/* ── BROWSE ── */
+#m-browse { display: none; }
+.br-search {
+  width: 100%; padding: 11px 15px; font-size: 0.88rem; font-family: 'DM Sans', sans-serif;
+  border: 1.5px solid var(--border); border-radius: 6px; background: var(--surface);
+  color: var(--ink); outline: none; margin-bottom: 14px; transition: border 0.2s;
+}
+.br-search:focus { border-color: var(--gold); }
+.br-count { font-family: 'DM Mono', monospace; font-size: 0.68rem; color: var(--muted); margin-bottom: 10px; }
+.br-table { border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+.br-item { padding: 14px 18px; background: var(--surface); border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.12s; }
+.br-item:last-child { border-bottom: none; }
+.br-item:hover { background: var(--surface2); }
+.bi-phrase { font-family: 'Lora', serif; font-weight: 600; font-size: 0.95rem; color: var(--ink); }
+.bi-ex { font-family: 'Lora', serif; font-style: italic; font-size: 0.8rem; color: var(--muted); margin-top: 3px; line-height: 1.5; }
+.bi-exp { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+.bi-exp.open { display: block; }
+.bi-def { font-size: 0.84rem; color: var(--ink); line-height: 1.6; margin-bottom: 8px; }
+.bi-tip { font-size: 0.78rem; color: var(--blue); background: var(--blue-bg); padding: 8px 12px; border-radius: 4px; line-height: 1.5; }
+
+@media(max-width:580px){
+  main { padding: 16px; }
+  header, .tabs { padding-left: 16px; padding-right: 16px; }
+  .choice-opts { grid-template-columns: 1fr; }
+  .rate-row { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-title">Pitch &amp; Meeting <em>Phrases</em></div>
+  <div class="header-meta">Done: <strong id="s-done">0</strong> &nbsp;|&nbsp; Fluent: <strong id="s-fluent">0</strong></div>
+</header>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('speak',this)">① Speaking Drill</button>
+  <button class="tab" onclick="switchTab('choice',this)">② Right Phrase?</button>
+  <button class="tab" onclick="switchTab('roleplay',this)">③ Role-Play</button>
+  <button class="tab" onclick="switchTab('browse',this)">④ Browse All</button>
+</div>
+
+<main>
+
+<!-- ① SPEAKING DRILL -->
+<div id="m-speak">
+  <div class="prog-row">
+    <span class="prog-text" id="sp-cnt">1 / 11</span>
+    <div class="prog-track"><div class="prog-fill" id="sp-prg" style="width:0%"></div></div>
+    <span class="prog-text" id="sp-lbl">—</span>
+  </div>
+  <div class="situation-card">
+    <div class="sc-label">🎯 Situation — say a natural response out loud first</div>
+    <div class="sc-situation" id="sp-sit">—</div>
+    <div class="sc-prompt" id="sp-prompt">—</div>
+  </div>
+  <div class="reveal-box" id="sp-reveal">
+    <div class="reveal-label">✓ Model Phrase</div>
+    <div class="reveal-phrase" id="sp-phrase">—</div>
+    <div class="reveal-example" id="sp-ex">—</div>
+    <div class="reveal-tip" id="sp-tip">—</div>
+    <div class="rate-row">
+      <button class="rate-btn rate-hard" onclick="rateSp('hard')">🔴 Couldn't say it</button>
+      <button class="rate-btn rate-ok" onclick="rateSp('ok')">🟡 Said it, not fluently</button>
+      <button class="rate-btn rate-easy" onclick="rateSp('easy')">🟢 Said it naturally</button>
+    </div>
+  </div>
+  <div class="nav-row">
+    <button class="btn btn-ghost" onclick="spNav(-1)">← Prev</button>
+    <button class="btn btn-gold" id="sp-rev-btn" onclick="revealSp()">Reveal Phrase</button>
+    <button class="btn btn-ghost" onclick="spNav(1)">Next →</button>
+  </div>
+  <div style="text-align:center;margin-top:10px">
+    <button class="btn btn-ghost btn-sm" onclick="shuffleSp()">⇄ Shuffle order</button>
+  </div>
+</div>
+
+<!-- ② RIGHT PHRASE? -->
+<div id="m-choice">
+  <div class="prog-row">
+    <span class="prog-text" id="ch-cnt">1 / 11</span>
+    <div class="prog-track"><div class="prog-fill" id="ch-prg" style="width:0%"></div></div>
+    <span class="score-badge" id="ch-score">Score: 0 / 0</span>
+  </div>
+  <div class="choice-card">
+    <div class="choice-label">📍 Which phrase fits this moment?</div>
+    <div class="choice-q" id="ch-q">—</div>
+  </div>
+  <div class="choice-opts" id="ch-opts"></div>
+  <div class="choice-fb" id="ch-fb"></div>
+  <div class="nav-row">
+    <button class="btn btn-ghost" id="ch-next" style="display:none" onclick="nextChoice()">Next →</button>
+  </div>
+</div>
+
+<!-- ③ ROLE-PLAY -->
+<div id="m-roleplay">
+  <div class="prog-row">
+    <span class="prog-text" id="rp-cnt">1 / 11</span>
+    <div class="prog-track"><div class="prog-fill" id="rp-prg" style="width:0%"></div></div>
+    <span class="prog-text" id="rp-lbl">—</span>
+  </div>
+  <div class="rp-scene">
+    <div class="rp-context" id="rp-ctx">—</div>
+    <div class="rp-setup" id="rp-setup">—</div>
+    <div class="rp-cue" id="rp-cue">—</div>
+  </div>
+  <textarea class="rp-textarea" id="rp-ta" placeholder="Write what you would say in this situation…"></textarea>
+  <div class="nav-row" style="margin-bottom:12px">
+    <button class="btn btn-ghost" onclick="rpNav(-1)">← Prev</button>
+    <button class="btn btn-gold" id="rp-rev-btn" onclick="revealRP()">See Model Response</button>
+    <button class="btn btn-ghost" onclick="rpNav(1)">Next →</button>
+  </div>
+  <div class="rp-reveal" id="rp-reveal">
+    <div class="rp-reveal-label">Model Response — key phrases highlighted</div>
+    <div class="model-resp" id="rp-model">—</div>
+    <div class="rp-why" id="rp-why">—</div>
+    <div class="rate-row">
+      <button class="rate-btn rate-hard" onclick="rateRP('hard')">🔴 Very different</button>
+      <button class="rate-btn rate-ok" onclick="rateRP('ok')">🟡 Similar but less natural</button>
+      <button class="rate-btn rate-easy" onclick="rateRP('easy')">🟢 Close to model</button>
+    </div>
+  </div>
+</div>
+
+<!-- ④ BROWSE -->
+<div id="m-browse">
+  <input class="br-search" type="text" id="br-q" placeholder="Search phrases, meanings, examples…" oninput="renderBrowse(this.value)">
+  <div class="br-count" id="br-count"></div>
+  <div class="br-table" id="br-list"></div>
+</div>
+
+</main>
+
+<script>
+const P = [
+  {
+    phrase: "Get our foot in the door",
+    def: "To secure a first opportunity or entry point into a company, client, or industry that is difficult to access. Once you're in, you can work to expand.",
+    sit: "You've been given a small, low-profile mandate from a large client you've been pursuing for two years.",
+    prompt: "Frame this small win as a strategic entry point to a much bigger relationship…",
+    ex: "\"This small deal is a great way to get our foot in the door with that tech conglomerate.\"",
+    tip: "Always implies that the first opportunity is just the beginning — the goal is to expand from there. Pair it with a follow-up plan.",
+    cq: "Your bank has just won a small FX advisory role from a company you've been targeting. Your MD asks what the plan is. You say:",
+    cc: "It's a modest mandate, but it gets our foot in the door — from here, we can demonstrate our capabilities and build toward the bigger advisory relationship.",
+    cw: ["We finally have a deal with them after all this time.", "It's a small win but a win nonetheless.", "We're now working with this client which is good for us."],
+    ctx: "Internal debrief after winning a small mandate",
+    setup: "Your team has just been awarded a small hedging advisory role with a conglomerate you've been pitching for 18 months. The MD wants to know the strategy.",
+    cue: "MD: \"It's a small ticket. Is it worth the resource?\"",
+    model: "Absolutely. <b>This gets our foot in the door</b> — and once we're inside, we can show them the depth of our platform. The treasury team already mentioned they're reviewing their bond programme in Q4. <b>A seamless delivery on this mandate puts us at the front of the queue for that conversation.</b>",
+    why: "'A seamless delivery on this mandate puts us at the front of the queue' is the crucial follow-through. It answers the MD's real question: what do we get out of this? Always connect the small win to the bigger prize."
+  },
+  {
+    phrase: "Bridge the gap",
+    def: "To close the distance between two positions — a problem and a solution, two departments, or current performance and a target.",
+    sit: "Sales performance is below target and you need to propose a strategy to close that shortfall.",
+    prompt: "Propose a strategy that closes the gap between current results and the year-end goal…",
+    ex: "\"We need a more aggressive sales strategy to bridge the gap between our current performance and our year-end targets.\"",
+    tip: "More sophisticated than 'close the gap'. It implies an active, constructive effort — you're building a bridge, not just wishing the gap would disappear.",
+    cq: "The team is 15% behind on its Q3 revenue target with six weeks remaining. Your manager asks what can be done. You respond:",
+    cc: "We need to identify two or three high-probability deals that can close before quarter-end and bridge the gap on the shortfall.",
+    cw: ["We need to do more to reach our target.", "Let's try to get closer to the numbers we need.", "We're behind and need to catch up somehow."],
+    ctx: "Q3 revenue review — management committee meeting",
+    setup: "The team is 15% short of its Q3 target with six weeks to go. You've been asked to present a recovery plan.",
+    cue: "CFO: \"We're behind. What's the plan to bridge this by quarter-end?\"",
+    model: "We've identified three live mandates that are at an advanced stage and could realistically close in the next six weeks. <b>If all three execute, they bridge the gap entirely.</b> I'd suggest we re-sequence the team's priorities now — pull two analysts off the pipeline work and put them fully on execution support for these deals. <b>We protect the quarter by concentrating firepower on the highest-probability outcomes.</b>",
+    why: "'Concentrating firepower on the highest-probability outcomes' is a decisive, military-style framing that signals urgency without panic. It answers exactly what the CFO needs to hear: a concrete plan, not a vague reassurance."
+  },
+  {
+    phrase: "Find common ground",
+    def: "To identify areas of agreement between two parties who disagree on other things. It is the essential starting point for any successful negotiation.",
+    sit: "Two parties are in deadlock and you need to restart the conversation by identifying what they actually agree on.",
+    prompt: "Steer a difficult negotiation back to what both sides actually agree on…",
+    ex: "\"We have different ideas about the budget, but we can find common ground on the need for better security.\"",
+    tip: "The most effective negotiators don't start with disagreements — they start with common ground and build from there. Use it to de-escalate and create momentum.",
+    cq: "Pricing negotiations have stalled. The issuer and investors can't agree, but both want the deal to succeed. You step in:",
+    cc: "Let's step back from the pricing for a moment — I think we can find common ground on the strategic rationale and work backwards from there.",
+    cw: ["Let's try to agree on something so we can move forward.", "Maybe there is something both sides can accept.", "We should look for areas where we are not too different."],
+    ctx: "Tense pricing negotiation between issuer and lead bank",
+    setup: "The issuer wants a 2.5% coupon; investors are demanding 3.0%. Both parties are dug in. You're the bookrunner.",
+    cue: "Issuer: \"We're not moving above 2.75%. That's our final position.\"",
+    model: "I hear you. Before we get further into the coupon, <b>let's find common ground on what we both want from this deal</b> — a clean execution, strong aftermarket performance, and a diversified book. Those goals are fully aligned. <b>The coupon is the mechanism, not the objective.</b> If we anchor to the shared goal, I believe we can find a number that works for both sides.",
+    why: "'The coupon is the mechanism, not the objective' is a powerful reframe. It shifts the conversation from a zero-sum fight over a number to a collaborative search for a shared outcome."
+  },
+  {
+    phrase: "Iron out the details",
+    def: "To resolve the small remaining problems or 'wrinkles' in a plan or agreement — the final smoothing before everything is finished.",
+    sit: "A deal or agreement is mostly done but a few loose ends still need resolving before signing.",
+    prompt: "Signal that an agreement is nearly there — just a few final details to resolve…",
+    ex: "\"The contract is mostly ready; we just need to iron out a few details regarding the delivery dates.\"",
+    tip: "Implies you're close to the finish line. 'Iron out' suggests effort — you're removing creases, not making fundamental changes. If you're making big changes, use a different phrase.",
+    cq: "The term sheet has been agreed in principle, but legal is still working through a few clauses. You update the client:",
+    cc: "We're essentially there — just a few remaining clauses to iron out with counsel and then we're ready to sign.",
+    cw: ["We just need to finish sorting out the last parts of the contract.", "There are a few small things still to resolve in the agreement.", "Legal is still working on the contract but it's nearly done."],
+    ctx: "Client update call — final stages of a merger agreement",
+    setup: "The heads of terms are agreed. Legal teams from both sides are working through the last few protective clauses.",
+    cue: "Client CEO: \"Where do we stand? Are we close to signing?\"",
+    model: "Very close. The commercial terms are fully agreed and we're just <b>ironing out the final details</b> on the indemnity and representation clauses — standard language, but we want to make sure it's water-tight before you sign. <b>I'd expect to have a clean document in front of you by Wednesday.</b>",
+    why: "'Standard language, but we want to make sure it's water-tight' reassures the client there are no surprises while justifying the extra time. Always explain why a small remaining step matters."
+  },
+  {
+    phrase: "Meet halfway",
+    def: "To compromise by having both parties make equal concessions. Neither side gets everything they want, but both get something.",
+    sit: "A negotiation is deadlocked and the only way forward is for both parties to move from their original positions.",
+    prompt: "Propose a genuine compromise where both sides give something to move forward…",
+    ex: "\"If you can extend the deadline, I can increase the budget — let's meet halfway.\"",
+    tip: "The key word is 'both'. Meeting halfway means you're willing to concede something — and you're asking them to do the same. It's a generous and constructive phrase. Don't use it if you're only asking them to move.",
+    cq: "The candidate has asked for a salary that is above your band, but you want to hire them. You respond:",
+    cc: "We can't go to that number, but I'd like to find a way to make this work — can we meet halfway with a performance bonus in the first year?",
+    cw: ["We'll try to get close to what you're asking for.", "Let me see how much flexibility we have on the salary.", "Maybe there's a compromise somewhere that works for both sides."],
+    ctx: "Salary negotiation — final round candidate",
+    setup: "Your top candidate for a senior role has asked for £120k. Your band tops out at £110k. You don't want to lose them.",
+    cue: "Candidate: \"I've thought about it and I really need to be at £120k to make the move.\"",
+    model: "I appreciate you being direct with me. We're genuinely at our ceiling on base at £110k — but I want to find a way to make this work. <b>Can we meet halfway with a guaranteed first-year bonus of £10k?</b> You'd be at the same total compensation, and it gives you upside in year two if performance justifies it. <b>I'd rather find a creative structure than lose you over a gap this small.</b>",
+    why: "'I'd rather find a creative structure than lose you over a gap this small' is a high-impact closing line. It flatters the candidate and signals genuine desire without simply capitulating on base salary."
+  },
+  {
+    phrase: "Sweeten the deal",
+    def: "To add something extra to an offer to make it more attractive — often when the original offer hasn't been enough to convince the other party.",
+    sit: "Your initial offer hasn't been enough to secure agreement and you need to add something extra to close.",
+    prompt: "Add an attractive extra to your offer to push the other party toward a yes…",
+    ex: "\"If they are still hesitant, we can sweeten the deal by offering a three-year warranty instead of one.\"",
+    tip: "The 'sweetener' should feel like a genuine bonus, not a desperate bid. Timing matters — sweeten too early and you've left money on the table. Wait until the other party has genuinely pushed back.",
+    cq: "Investor feedback suggests the bond coupon is 10bps too tight and the book is building slowly. You discuss options with the team:",
+    cc: "If the book doesn't build by tomorrow morning we may need to sweeten the deal — perhaps tighten the premium or move the coupon 5bps.",
+    cw: ["We might need to make the offer better to attract more investors.", "Maybe we should change some terms to make this deal more attractive.", "We could adjust the pricing to get more people interested."],
+    ctx: "Bookbuilding debrief — convertible bond roadshow, day two",
+    setup: "The book is 60% covered after day one of roadshow. Anchor investors are engaged but want slightly better terms.",
+    cue: "Co-lead: \"Anchors are in, but some real-money accounts are sitting on the fence. What's our read?\"",
+    model: "The hesitation is on the coupon — we're hearing 10bps consistently. If the book doesn't build materially by tomorrow lunchtime, <b>we may need to sweeten the deal</b> by moving to a 3.0% coupon rather than 2.875%. It costs the issuer a little, but it <b>buys us execution certainty</b>, which is worth considerably more than 12.5bps of coupon.",
+    why: "'Execution certainty is worth considerably more than 12.5bps of coupon' is a precise, professional argument. It converts the decision into a clear cost-benefit trade-off the issuer can accept."
+  },
+  {
+    phrase: "Smooth things over",
+    def: "To repair a relationship or calm a situation after a misunderstanding, mistake, or argument — to restore trust and goodwill.",
+    sit: "Something went wrong in a client relationship and you need to restore goodwill before it becomes a bigger problem.",
+    prompt: "Propose a way to repair the relationship after an awkward or difficult moment…",
+    ex: "\"I'll take the client to lunch to smooth things over after yesterday's technical glitch.\"",
+    tip: "The repair should match the size of the issue — a small hiccup needs a sincere apology, a significant failure needs a more substantial gesture. 'Smooth over' implies the problem isn't fundamental — it's a surface issue.",
+    cq: "A junior analyst sent a draft model with errors to a client by accident. The client is irritated. You say:",
+    cc: "I'll call the client directly to smooth things over — I want them to hear from me personally before this becomes a bigger issue.",
+    cw: ["I'll speak to the client and say sorry about the mistake.", "We should apologise to the client for the error.", "Let me contact the client and explain what happened."],
+    ctx: "Post-error conversation with your team",
+    setup: "A draft model was accidentally sent to the client with several visible errors. The client forwarded it to their CFO with a note of concern.",
+    cue: "MD: \"The client is unhappy. How do we handle this?\"",
+    model: "I'll call the CFO directly — I don't want this to sit and fester over email. <b>A personal call goes a long way toward smoothing things over.</b> I'll acknowledge the error, explain what happened, confirm the correct version, and make clear it won't happen again. <b>If we handle this well in the next hour, it becomes a footnote rather than a story.</b>",
+    why: "'If we handle this well in the next hour, it becomes a footnote rather than a story' is excellent crisis framing. It motivates immediate, decisive action by showing what's at stake."
+  },
+  {
+    phrase: "Agree to disagree",
+    def: "A polite, professional way to end a debate when both sides have heard each other and neither will change their position. It allows you to move forward without either party 'winning'.",
+    sit: "Two senior people have irreconcilable views on a strategic direction and continuing to debate is unproductive.",
+    prompt: "End a circular debate professionally so the team can move forward…",
+    ex: "\"We clearly have different visions for the brand — let's agree to disagree and let the CEO make the executive decision.\"",
+    tip: "This phrase saves face for both parties. It says: I respect your view, I maintain mine, and we both value progress over being right. Use it when you're genuinely stuck, not as a way to avoid hard conversations.",
+    cq: "You and a colleague have spent 20 minutes debating a modelling assumption with no resolution. The deadline is approaching. You say:",
+    cc: "I think we need to agree to disagree on this one and flag both scenarios to the MD — let's not let this block the whole model.",
+    cw: ["Let's just stop arguing about this and move on.", "We're not going to agree so let's just pick one and continue.", "This debate isn't going anywhere so let's just leave it."],
+    ctx: "Model review — two hours before a client presentation",
+    setup: "You and a co-analyst disagree on whether to use a 10x or 12x EBITDA multiple. Both positions are defensible. Time is running short.",
+    cue: "Co-analyst: \"I really think 12x is too aggressive given the sector comps.\"",
+    model: "I hear you — and I understand the 10x argument. But we've been going back and forth on this for twenty minutes. <b>Let's agree to disagree and present both scenarios to the MD.</b> We'll frame it as a sensitivity: base case at 10x, upside at 12x. <b>That's actually more useful to the client than a single number anyway</b> — it shows them the range of outcomes.",
+    why: "Presenting both scenarios as a 'sensitivity' is a brilliant reframe. It turns a disagreement into a richer deliverable. The client gets more value, and neither analyst has to back down."
+  },
+  {
+    phrase: "Weigh in on this",
+    def: "To give your opinion, expertise, or advice on a decision before it is finalised. It implies your input has weight — it matters to the outcome.",
+    sit: "A decision is about to be made but it affects another team or requires specialist expertise that hasn't been consulted yet.",
+    prompt: "Request that an expert or senior stakeholder share their view before a decision is locked in…",
+    ex: "\"We need the Chief Risk Officer to weigh in on this trade before we execute it.\"",
+    tip: "More sophisticated than 'give their opinion'. It implies the person's view carries authority. Use it when you genuinely want someone's judgment — not just their sign-off.",
+    cq: "The legal team hasn't reviewed the new compliance clause yet and a decision is imminent. You say:",
+    cc: "Before we finalise this, I'd like legal to weigh in on the new compliance clause — I don't want to lock in language they haven't seen.",
+    cw: ["We should ask legal what they think about this clause.", "Legal should look at this before we agree to it.", "Can we get legal's opinion on this part of the contract?"],
+    ctx: "Pre-signing review call with the deal team",
+    setup: "The term sheet is almost ready to circulate but a new regulatory clause was added late in the process without legal review.",
+    cue: "Banker: \"Can we circulate the term sheet now? The client is waiting.\"",
+    model: "Almost — but I want <b>legal to weigh in on the new paragraph 4(c) first.</b> It was added after their last review and it touches on distribution restrictions in the EU. Five minutes now could save us a significant conversation later. <b>Let me send it across now and ask for a 30-minute turnaround.</b>",
+    why: "'Five minutes now could save us a significant conversation later' is a classic risk-management argument. It justifies a small delay with a large consequence — which is always persuasive."
+  },
+  {
+    phrase: "Skip the preamble",
+    def: "To bypass the introductory remarks, background context, or small talk and get directly to the substance. Used when time is limited or the audience is already informed.",
+    sit: "You're in a time-pressured meeting and the speaker is spending too long on background before getting to the key point.",
+    prompt: "Politely redirect the conversation to skip the background and get to the substance…",
+    ex: "\"We only have ten minutes, so let's skip the preamble and look at the budget.\"",
+    tip: "Slightly more formal than 'cut to the chase'. Use it in meetings where you want to signal respect for everyone's time without sounding impatient. Always say what you want to go to instead.",
+    cq: "A meeting is running over and the presenter is still in the background slides. You have a hard stop in 10 minutes. You say:",
+    cc: "Given the time, can we skip the preamble and go straight to the recommendation? That's what we need to land today.",
+    cw: ["Can we skip the introduction and get to the point please?", "Let's not do all the background and just get to the main part.", "We're short on time so please summarise quickly."],
+    ctx: "Executive committee meeting — presenter running over time",
+    setup: "A 30-minute meeting has been running for 25 minutes. The presenter is still on background slides. Three executives have hard stops.",
+    cue: "Presenter: \"—and if we look at the historical context going back to 2019, we can see that the trend has been…\"",
+    model: "Apologies for interrupting — we're at the twenty-five minute mark and I know several people have hard stops. <b>Could we skip the preamble and go straight to the recommendation?</b> The committee can always review the background materials offline. <b>What we need to land in the next five minutes is the decision itself.</b>",
+    why: "'What we need to land in the next five minutes is the decision itself' is a decisive, respectful redirect. It tells the presenter what matters and implicitly tells the committee what to focus on."
+  },
+  {
+    phrase: "Cut to the chase",
+    def: "To stop wasting time on small talk or unnecessary detail and address the most important point immediately. More casual than 'skip the preamble'.",
+    sit: "Someone is being evasive or overly lengthy and you need to redirect them to the actual point.",
+    prompt: "Redirect a meandering conversation directly to the core issue…",
+    ex: "\"I've been listening for twenty minutes — can we just cut to the chase?\"",
+    tip: "Slightly more direct and casual than 'skip the preamble'. Can be used with a smile to soften it. From old Hollywood — films would 'cut to the chase scene' to skip the talking. Great in one-on-one conversations.",
+    cq: "A client has spent 15 minutes on background context you already know. You want to get to their actual ask. You say:",
+    cc: "I appreciate the context — I think I have the picture. Let's cut to the chase: what would you need from us to make a decision by end of month?",
+    cw: ["Can you get to the main point now please?", "What exactly do you want from us?", "Let's stop talking around the issue and get to the point."],
+    ctx: "Client discovery call — second meeting",
+    setup: "A client has been giving extensive background on their company for 15 minutes. You already know most of it from research. The call is 30 minutes.",
+    cue: "Client: \"—so we've been in this market for about twelve years, and the way we think about our capital structure has evolved considerably over that period…\"",
+    model: "That's really helpful context — and I think I have a strong picture of where you've come from. <b>Let's cut to the chase</b> so we use the remaining time well: <b>what does the ideal outcome of this process look like for you, and what would need to be true for you to move forward before year-end?</b>",
+    why: "The follow-up question — 'what would need to be true to move forward before year-end?' — is a classic qualifying question. It identifies the client's decision criteria and creates a natural path to a proposal."
+  }
+];
+
+// ─── STATE ───────────────────────────────────
+let spIdx = 0, spOrder = P.map((_,i)=>i), spRevealed = false;
+let chIdx = 0, chOrder = P.map((_,i)=>i), chScore = 0, chAnswered = false;
+let rpIdx = 0, rpOrder = P.map((_,i)=>i), rpRevealed = false;
+let done = 0, fluent = 0;
+
+// ─── TABS ────────────────────────────────────
+function switchTab(t, btn) {
+  ['speak','choice','roleplay','browse'].forEach(id => {
+    document.getElementById('m-'+id).style.display = 'none';
+  });
+  document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('m-'+t).style.display = 'block';
+  btn.classList.add('active');
+  if (t === 'choice') renderChoice();
+  if (t === 'roleplay') renderRP();
+  if (t === 'browse') renderBrowse('');
+}
+
+// ─── SPEAKING DRILL ──────────────────────────
+function renderSp() {
+  const p = P[spOrder[spIdx]];
+  document.getElementById('sp-cnt').textContent = `${spIdx+1} / ${P.length}`;
+  document.getElementById('sp-prg').style.width = `${(spIdx/P.length)*100}%`;
+  document.getElementById('sp-lbl').textContent = p.phrase;
+  document.getElementById('sp-sit').textContent = p.sit;
+  document.getElementById('sp-prompt').textContent = p.prompt;
+  document.getElementById('sp-phrase').textContent = p.phrase;
+  document.getElementById('sp-ex').textContent = p.ex;
+  document.getElementById('sp-tip').textContent = p.tip;
+  document.getElementById('sp-reveal').classList.remove('show');
+  document.getElementById('sp-rev-btn').style.display = 'inline-block';
+  spRevealed = false;
+}
+function revealSp() {
+  document.getElementById('sp-reveal').classList.add('show');
+  document.getElementById('sp-rev-btn').style.display = 'none';
+  spRevealed = true;
+}
+function rateSp(r) {
+  done++;
+  if (r === 'easy') fluent++;
+  updateStats();
+  spNav(1);
+}
+function spNav(d) {
+  spIdx = (spIdx + d + P.length) % P.length;
+  renderSp();
+}
+function shuffleSp() {
+  for (let i = spOrder.length-1; i>0; i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [spOrder[i], spOrder[j]] = [spOrder[j], spOrder[i]];
+  }
+  spIdx = 0; renderSp();
+}
+
+// ─── CHOICE ──────────────────────────────────
+function renderChoice() {
+  const p = P[chOrder[chIdx]];
+  document.getElementById('ch-cnt').textContent = `${chIdx+1} / ${P.length}`;
+  document.getElementById('ch-prg').style.width = `${(chIdx/P.length)*100}%`;
+  document.getElementById('ch-q').textContent = p.cq;
+  document.getElementById('ch-fb').className = 'choice-fb';
+  document.getElementById('ch-fb').textContent = '';
+  document.getElementById('ch-next').style.display = 'none';
+  chAnswered = false;
+  const opts = [p.cc, ...p.cw].sort(() => Math.random() - 0.5);
+  const cont = document.getElementById('ch-opts');
+  cont.innerHTML = '';
+  opts.forEach(o => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-opt';
+    btn.textContent = o;
+    btn.onclick = () => pickChoice(btn, o === p.cc, p.cc);
+    cont.appendChild(btn);
+  });
+}
+function pickChoice(btn, correct, correctText) {
+  if (chAnswered) return;
+  chAnswered = true;
+  document.querySelectorAll('.choice-opt').forEach(b => {
+    b.disabled = true;
+    if (b.textContent === correctText) b.classList.add('reveal-correct');
+  });
+  if (correct) { btn.classList.add('correct'); chScore++; }
+  else { btn.classList.add('wrong'); }
+  const fb = document.getElementById('ch-fb');
+  fb.className = 'choice-fb show ' + (correct ? 'ok' : 'no');
+  fb.textContent = correct
+    ? '✓ Exactly right. This is the most natural way to say it in English.'
+    : `✗ Not quite. The most natural phrase is: "${correctText}"`;
+  document.getElementById('ch-score').textContent = `Score: ${chScore} / ${chIdx+1}`;
+  document.getElementById('ch-next').style.display = 'inline-block';
+}
+function nextChoice() {
+  chIdx = (chIdx + 1) % P.length;
+  renderChoice();
+}
+
+// ─── ROLE-PLAY ───────────────────────────────
+function renderRP() {
+  const p = P[rpOrder[rpIdx]];
+  document.getElementById('rp-cnt').textContent = `${rpIdx+1} / ${P.length}`;
+  document.getElementById('rp-prg').style.width = `${(rpIdx/P.length)*100}%`;
+  document.getElementById('rp-lbl').textContent = p.phrase;
+  document.getElementById('rp-ctx').textContent = p.ctx;
+  document.getElementById('rp-setup').textContent = p.setup;
+  document.getElementById('rp-cue').textContent = p.cue;
+  document.getElementById('rp-ta').value = '';
+  document.getElementById('rp-reveal').classList.remove('show');
+  document.getElementById('rp-rev-btn').style.display = 'inline-block';
+  document.getElementById('rp-model').innerHTML = p.model;
+  document.getElementById('rp-why').textContent = p.why;
+  rpRevealed = false;
+}
+function revealRP() {
+  document.getElementById('rp-reveal').classList.add('show');
+  document.getElementById('rp-rev-btn').style.display = 'none';
+  rpRevealed = true;
+}
+function rateRP(r) {
+  done++;
+  if (r === 'easy') fluent++;
+  updateStats();
+  rpNav(1);
+}
+function rpNav(d) {
+  rpIdx = (rpIdx + d + P.length) % P.length;
+  renderRP();
+}
+
+// ─── BROWSE ──────────────────────────────────
+function renderBrowse(q) {
+  const lower = q.toLowerCase();
+  const filtered = P.filter(p =>
+    p.phrase.toLowerCase().includes(lower) ||
+    p.def.toLowerCase().includes(lower) ||
+    p.ex.toLowerCase().includes(lower) ||
+    p.tip.toLowerCase().includes(lower)
+  );
+  document.getElementById('br-count').textContent = `Showing ${filtered.length} of ${P.length} phrases`;
+  const list = document.getElementById('br-list');
+  list.innerHTML = '';
+  filtered.forEach((p, i) => {
+    const item = document.createElement('div');
+    item.className = 'br-item';
+    item.innerHTML = `
+      <div class="bi-phrase">${p.phrase}</div>
+      <div class="bi-ex">${p.ex}</div>
+      <div class="bi-exp" id="bi-exp-${i}">
+        <div class="bi-def">${p.def}</div>
+        <div class="bi-tip" style="margin-top:8px">💡 ${p.tip}</div>
+      </div>`;
+    item.onclick = () => document.getElementById(`bi-exp-${i}`).classList.toggle('open');
+    list.appendChild(item);
+  });
+}
+
+// ─── STATS ───────────────────────────────────
+function updateStats() {
+  document.getElementById('s-done').textContent = done;
+  document.getElementById('s-fluent').textContent = fluent;
+}
+
+// ─── INIT ────────────────────────────────────
+renderSp();
+</script>
+</body>
+</html>

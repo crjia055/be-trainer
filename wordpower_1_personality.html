@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Busy Phrases — Trainer</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f5f5f5; --surface: #ffffff; --surface2: #ebebeb; --border: #dcdcdc;
+  --ink: #1c1c2e; --muted: #7a7f94; --gold: #b8892a; --gold-bg: #fdf6e3;
+  --green: #1a7a4a; --green-bg: #edf7f1; --red: #c0392b; --red-bg: #fdf0ee;
+  --blue: #2060a8; --blue-bg: #edf3fd; --accent: #7c4dbd;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; }
+header { background: var(--ink); color: #f4efe4; padding: 17px 32px; display: flex; align-items: center; justify-content: space-between; border-bottom: 3px solid var(--gold); }
+.header-title { font-family: 'Lora', serif; font-size: 1.35rem; }
+.header-title em { color: #d4aa50; }
+.header-meta { font-family: 'DM Mono', monospace; font-size: 0.68rem; opacity: 0.7; }
+.header-meta strong { color: #d4aa50; }
+.tabs { display: flex; background: var(--surface2); border-bottom: 2px solid var(--border); padding: 0 32px; }
+.tab { padding: 13px 22px; font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.07em; text-transform: uppercase; cursor: pointer; border: none; background: transparent; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -2px; white-space: nowrap; transition: all 0.18s; }
+.tab.active { color: var(--gold); border-bottom-color: var(--gold); font-weight: 600; }
+.tab:hover:not(.active) { color: var(--ink); }
+main { max-width: 760px; margin: 0 auto; padding: 28px 32px; }
+.prog-row { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; }
+.prog-text { font-family: 'DM Mono', monospace; font-size: 0.68rem; color: var(--muted); white-space: nowrap; }
+.prog-track { flex: 1; height: 3px; background: var(--border); border-radius: 2px; }
+.prog-fill { height: 100%; background: var(--gold); border-radius: 2px; transition: width 0.4s; }
+.situation-card { background: var(--surface); border: 1.5px solid var(--border); border-radius: 8px; padding: 28px 32px; margin-bottom: 16px; box-shadow: 0 1px 6px rgba(0,0,0,0.06); position: relative; overflow: hidden; }
+.situation-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--gold), #d4aa50); }
+.sc-label { font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; }
+.sc-situation { font-size: 0.97rem; line-height: 1.75; color: var(--muted); margin-bottom: 10px; }
+.sc-prompt { font-family: 'Lora', serif; font-style: italic; font-size: 1.18rem; color: var(--ink); line-height: 1.55; }
+.reveal-box { background: var(--surface); border: 1.5px solid var(--border); border-radius: 8px; padding: 24px 28px; margin-bottom: 16px; display: none; }
+.reveal-box.show { display: block; }
+.reveal-label { font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--green); margin-bottom: 12px; }
+.reveal-phrase { font-family: 'Lora', serif; font-size: 1.5rem; font-weight: 600; color: var(--ink); margin-bottom: 10px; line-height: 1.3; }
+.reveal-example { font-family: 'Lora', serif; font-style: italic; font-size: 0.9rem; color: var(--muted); border-left: 2px solid var(--gold); padding-left: 14px; line-height: 1.65; margin-bottom: 12px; }
+.reveal-tip { font-size: 0.82rem; color: var(--blue); background: var(--blue-bg); padding: 10px 14px; border-radius: 5px; line-height: 1.55; }
+.rate-row { display: flex; gap: 9px; margin-top: 14px; }
+.rate-btn { flex: 1; padding: 10px; border-radius: 5px; border: 1px solid; font-family: 'DM Mono', monospace; font-size: 0.66rem; letter-spacing: 0.04em; text-transform: uppercase; cursor: pointer; transition: all 0.15s; }
+.rate-hard { border-color: var(--red); color: var(--red); background: transparent; }
+.rate-hard:hover { background: var(--red-bg); }
+.rate-ok { border-color: var(--gold); color: var(--gold); background: transparent; }
+.rate-ok:hover { background: var(--gold-bg); }
+.rate-easy { border-color: var(--green); color: var(--green); background: transparent; }
+.rate-easy:hover { background: var(--green-bg); }
+.nav-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.btn { padding: 9px 22px; border-radius: 5px; border: 1px solid; font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 0.05em; text-transform: uppercase; cursor: pointer; transition: all 0.15s; }
+.btn-ghost { background: transparent; color: var(--muted); border-color: var(--border); }
+.btn-ghost:hover { color: var(--ink); border-color: var(--muted); }
+.btn-gold { background: var(--gold); color: white; border-color: var(--gold); }
+.btn-gold:hover { opacity: 0.88; }
+.btn-sm { padding: 6px 14px; font-size: 0.62rem; }
+#m-choice { display: none; }
+.choice-card { background: var(--surface); border: 1.5px solid var(--border); border-radius: 8px; padding: 24px 28px; margin-bottom: 16px; box-shadow: 0 1px 6px rgba(0,0,0,0.06); }
+.choice-label { font-family: 'DM Mono', monospace; font-size: 0.62rem; color: var(--gold); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+.choice-q { font-size: 0.97rem; line-height: 1.7; color: var(--ink); }
+.choice-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.choice-opt { padding: 13px 16px; border: 1.5px solid var(--border); border-radius: 6px; background: var(--surface); font-size: 0.85rem; line-height: 1.5; cursor: pointer; text-align: left; font-family: 'DM Sans', sans-serif; transition: all 0.15s; color: var(--ink); }
+.choice-opt:hover:not(:disabled) { border-color: var(--gold); background: var(--gold-bg); }
+.choice-opt.correct { border-color: var(--green); background: var(--green-bg); color: var(--green); font-weight: 600; }
+.choice-opt.wrong { border-color: var(--red); background: var(--red-bg); color: var(--red); }
+.choice-opt.reveal-correct { border-color: var(--green); background: var(--green-bg); }
+.choice-fb { padding: 11px 14px; border-radius: 5px; font-size: 0.84rem; line-height: 1.6; display: none; margin-bottom: 12px; }
+.choice-fb.show { display: block; }
+.choice-fb.ok { background: var(--green-bg); border-left: 3px solid var(--green); color: var(--green); }
+.choice-fb.no { background: var(--red-bg); border-left: 3px solid var(--red); color: var(--red); }
+.score-badge { font-family: 'DM Mono', monospace; font-size: 0.68rem; color: var(--muted); }
+#m-roleplay { display: none; }
+.rp-scene { background: var(--surface); border: 1.5px solid var(--border); border-radius: 8px; padding: 24px 28px; margin-bottom: 14px; box-shadow: 0 1px 6px rgba(0,0,0,0.06); }
+.rp-context { font-family: 'DM Mono', monospace; font-size: 0.62rem; color: var(--accent); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 7px; }
+.rp-setup { font-size: 0.88rem; color: var(--muted); line-height: 1.65; margin-bottom: 12px; font-style: italic; }
+.rp-cue { background: var(--surface2); border-left: 3px solid var(--accent); padding: 12px 16px; border-radius: 0 6px 6px 0; font-size: 0.95rem; line-height: 1.65; color: var(--ink); }
+.rp-textarea { width: 100%; min-height: 88px; padding: 13px 15px; background: var(--surface); border: 1.5px solid var(--border); border-radius: 6px; color: var(--ink); font-size: 0.93rem; line-height: 1.65; font-family: 'DM Sans', sans-serif; resize: vertical; outline: none; margin-bottom: 10px; transition: border 0.2s; }
+.rp-textarea:focus { border-color: var(--accent); }
+.rp-reveal { background: var(--surface); border: 1.5px solid var(--border); border-radius: 8px; padding: 20px 24px; display: none; margin-bottom: 14px; }
+.rp-reveal.show { display: block; }
+.rp-reveal-label { font-family: 'DM Mono', monospace; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--gold); margin-bottom: 10px; }
+.model-resp { font-family: 'Lora', serif; font-size: 1.05rem; line-height: 1.8; color: var(--ink); margin-bottom: 10px; }
+.rp-why { font-size: 0.8rem; color: var(--muted); line-height: 1.6; background: var(--blue-bg); padding: 9px 13px; border-radius: 5px; }
+#m-browse { display: none; }
+.br-search { width: 100%; padding: 11px 15px; font-size: 0.88rem; font-family: 'DM Sans', sans-serif; border: 1.5px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--ink); outline: none; margin-bottom: 14px; transition: border 0.2s; }
+.br-search:focus { border-color: var(--gold); }
+.br-count { font-family: 'DM Mono', monospace; font-size: 0.68rem; color: var(--muted); margin-bottom: 10px; }
+.br-table { border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+.br-item { padding: 14px 18px; background: var(--surface); border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.12s; }
+.br-item:last-child { border-bottom: none; }
+.br-item:hover { background: var(--surface2); }
+.bi-phrase { font-family: 'Lora', serif; font-weight: 600; font-size: 0.95rem; color: var(--ink); }
+.bi-ex { font-family: 'Lora', serif; font-style: italic; font-size: 0.8rem; color: var(--muted); margin-top: 3px; line-height: 1.5; }
+.bi-exp { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+.bi-exp.open { display: block; }
+.bi-def { font-size: 0.84rem; color: var(--ink); line-height: 1.6; margin-bottom: 8px; }
+.bi-tip { font-size: 0.78rem; color: var(--blue); background: var(--blue-bg); padding: 8px 12px; border-radius: 4px; line-height: 1.5; }
+@media(max-width:580px){ main { padding: 16px; } header, .tabs { padding-left: 16px; padding-right: 16px; } .choice-opts { grid-template-columns: 1fr; } .rate-row { flex-direction: column; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-title">Busy <em>Phrases</em></div>
+  <div class="header-meta">Done: <strong id="s-done">0</strong> &nbsp;|&nbsp; Fluent: <strong id="s-fluent">0</strong></div>
+</header>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('speak',this)">① Speaking Drill</button>
+  <button class="tab" onclick="switchTab('choice',this)">② Right Phrase?</button>
+  <button class="tab" onclick="switchTab('roleplay',this)">③ Role-Play</button>
+  <button class="tab" onclick="switchTab('browse',this)">④ Browse All</button>
+</div>
+
+<main>
+
+<div id="m-speak">
+  <div class="prog-row">
+    <span class="prog-text" id="sp-cnt">1 / 10</span>
+    <div class="prog-track"><div class="prog-fill" id="sp-prg" style="width:0%"></div></div>
+    <span class="prog-text" id="sp-lbl">—</span>
+  </div>
+  <div class="situation-card">
+    <div class="sc-label">🎯 Situation — say a natural response out loud first</div>
+    <div class="sc-situation" id="sp-sit">—</div>
+    <div class="sc-prompt" id="sp-prompt">—</div>
+  </div>
+  <div class="reveal-box" id="sp-reveal">
+    <div class="reveal-label">✓ Model Phrase</div>
+    <div class="reveal-phrase" id="sp-phrase">—</div>
+    <div class="reveal-example" id="sp-ex">—</div>
+    <div class="reveal-tip" id="sp-tip">—</div>
+    <div class="rate-row">
+      <button class="rate-btn rate-hard" onclick="rateSp('hard')">🔴 Couldn't say it</button>
+      <button class="rate-btn rate-ok" onclick="rateSp('ok')">🟡 Said it, not fluently</button>
+      <button class="rate-btn rate-easy" onclick="rateSp('easy')">🟢 Said it naturally</button>
+    </div>
+  </div>
+  <div class="nav-row">
+    <button class="btn btn-ghost" onclick="spNav(-1)">← Prev</button>
+    <button class="btn btn-gold" id="sp-rev-btn" onclick="revealSp()">Reveal Phrase</button>
+    <button class="btn btn-ghost" onclick="spNav(1)">Next →</button>
+  </div>
+  <div style="text-align:center;margin-top:10px">
+    <button class="btn btn-ghost btn-sm" onclick="shuffleSp()">⇄ Shuffle order</button>
+  </div>
+</div>
+
+<div id="m-choice">
+  <div class="prog-row">
+    <span class="prog-text" id="ch-cnt">1 / 10</span>
+    <div class="prog-track"><div class="prog-fill" id="ch-prg" style="width:0%"></div></div>
+    <span class="score-badge" id="ch-score">Score: 0 / 0</span>
+  </div>
+  <div class="choice-card">
+    <div class="choice-label">📍 Which phrase fits this moment?</div>
+    <div class="choice-q" id="ch-q">—</div>
+  </div>
+  <div class="choice-opts" id="ch-opts"></div>
+  <div class="choice-fb" id="ch-fb"></div>
+  <div class="nav-row">
+    <button class="btn btn-ghost" id="ch-next" style="display:none" onclick="nextChoice()">Next →</button>
+  </div>
+</div>
+
+<div id="m-roleplay">
+  <div class="prog-row">
+    <span class="prog-text" id="rp-cnt">1 / 10</span>
+    <div class="prog-track"><div class="prog-fill" id="rp-prg" style="width:0%"></div></div>
+    <span class="prog-text" id="rp-lbl">—</span>
+  </div>
+  <div class="rp-scene">
+    <div class="rp-context" id="rp-ctx">—</div>
+    <div class="rp-setup" id="rp-setup">—</div>
+    <div class="rp-cue" id="rp-cue">—</div>
+  </div>
+  <textarea class="rp-textarea" id="rp-ta" placeholder="Write what you would say in this situation…"></textarea>
+  <div class="nav-row" style="margin-bottom:12px">
+    <button class="btn btn-ghost" onclick="rpNav(-1)">← Prev</button>
+    <button class="btn btn-gold" id="rp-rev-btn" onclick="revealRP()">See Model Response</button>
+    <button class="btn btn-ghost" onclick="rpNav(1)">Next →</button>
+  </div>
+  <div class="rp-reveal" id="rp-reveal">
+    <div class="rp-reveal-label">Model Response — key phrases highlighted</div>
+    <div class="model-resp" id="rp-model">—</div>
+    <div class="rp-why" id="rp-why">—</div>
+    <div class="rate-row">
+      <button class="rate-btn rate-hard" onclick="rateRP('hard')">🔴 Very different</button>
+      <button class="rate-btn rate-ok" onclick="rateRP('ok')">🟡 Similar but less natural</button>
+      <button class="rate-btn rate-easy" onclick="rateRP('easy')">🟢 Close to model</button>
+    </div>
+  </div>
+</div>
+
+<div id="m-browse">
+  <input class="br-search" type="text" id="br-q" placeholder="Search phrases, meanings, examples…" oninput="renderBrowse(this.value)">
+  <div class="br-count" id="br-count"></div>
+  <div class="br-table" id="br-list"></div>
+</div>
+
+</main>
+
+<script>
+const P = [
+  {
+    phrase: "Keeps me on my toes",
+    def: "To keep someone alert, ready, and prepared — requiring constant attention and adaptability. Like an athlete or dancer balanced on their toes, ready to move in any direction at any moment.",
+    sit: "A client asks how you manage working across four different industry sectors simultaneously without losing focus on any of them.",
+    prompt: "Describe how a demanding, unpredictable situation requires you to stay constantly alert and ready to respond…",
+    ex: "\"Working across four sectors simultaneously definitely keeps me on my toes — no two days look the same.\"",
+    tip: "Positive in tone — it implies you are rising to the challenge, not drowning in it. It signals adaptability and energy rather than complaint. Very natural in small talk with clients when describing a busy or varied role.",
+    cq: "A client asks how you manage covering so many different mandates at once without things slipping through the cracks:",
+    cc: "Honestly, juggling this many live mandates keeps me on my toes — but that's what I thrive on. The variety actually sharpens your thinking.",
+    cw: ["It's quite challenging to manage so many different mandates at the same time without losing track.", "I have to be very organised because there are a lot of different things going on at once.", "It requires a lot of focus and attention to keep track of everything that's happening simultaneously."],
+    ctx: "Client small talk — describing a busy and varied workload",
+    setup: "You're covering five live mandates across three sectors. A client asks how you stay on top of it all.",
+    cue: "Client: \"How do you manage to cover so many clients at once? Don't things fall through the cracks?\"",
+    model: "Honestly, <b>it keeps me on my toes</b> — which is genuinely what I enjoy about it. No two mandates are in the same phase at the same time, so you're always switching modes: one client is in diligence, another is in execution, another is just starting to think about strategy. <b>The variety is actually clarifying — it stops you from getting tunnel vision on any one situation.</b> And yes, the system has to be very disciplined underneath all of it.",
+    why: "'The variety is actually clarifying — it stops you from getting tunnel vision on any one situation' reframes a potential weakness (spreading attention) as a genuine cognitive advantage. It's the kind of insight that makes a client trust that their mandate is in capable hands."
+  },
+  {
+    phrase: "On the run / On the go",
+    def: "Continuously busy and moving — doing things while travelling between tasks or locations because there is no time to sit down. Both phrases describe constant motion and activity. 'On the run' also has a specific bond market meaning: the most recently issued, most liquid Treasury security.",
+    sit: "A client calls you on your mobile at 8 AM and asks if this is a good time to talk. You're in a taxi between two meetings.",
+    prompt: "Signal that you are busy and moving between commitments — but willing to talk…",
+    ex: "\"I'm on the go between meetings right now but I can speak — what's on your mind?\" / \"As a consultant, I'm always on the run between client offices.\"",
+    tip: "Both phrases signal busy-ness without complaint. 'On the run' is slightly more informal and energetic; 'on the go' is equally common and slightly softer. In finance, always flag the bond market meaning of 'on-the-run' separately — it's a completely different usage.",
+    cq: "A client calls at 8:15 AM. You're in a taxi heading to a breakfast meeting across town. You can speak for about 10 minutes:",
+    cc: "I'm on the go right now — in a cab heading to a breakfast — but I've got about ten minutes. What's on your mind?",
+    cw: ["I'm a bit busy at the moment travelling to a meeting but I have some time if you need to talk.", "I'm currently on my way to another meeting but I can speak briefly if it's important.", "I'm travelling between appointments right now but go ahead — I can listen while I'm in the taxi."],
+    ctx: "Mobile call — caught between two meetings",
+    setup: "It's 8:15 AM. You're in a taxi. A client calls. You have 10 minutes before the taxi arrives.",
+    cue: "Client: \"Is this a good time?\"",
+    model: "I'm <b>on the go</b> — in a cab to a breakfast meeting — but I've got about ten minutes before I arrive, so go ahead. <b>If we need more time than that, I can call you back at 9:30 when I'm free.</b> What's on your mind?",
+    why: "Offering a precise callback time — '9:30 when I'm free' — is professional and considerate. It tells the client exactly what they can expect and prevents the vague 'I'll call you later' that often doesn't happen. It manages the interaction rather than just accepting it."
+  },
+  {
+    phrase: "Snowed under",
+    def: "Completely buried in work — so overwhelmed with tasks that you cannot see a way through them. The image is of being covered in snow: you're invisible beneath the volume of what has been dumped on you.",
+    sit: "A colleague asks if you can take on a new piece of work during the busiest period of the year-end close.",
+    prompt: "Decline taking on additional work by vividly conveying how overwhelmed you already are with existing commitments…",
+    ex: "\"I'd love to help, but I'm completely snowed under with the year-end close right now — I genuinely don't have a free hour until next week.\"",
+    tip: "More vivid and specific than 'very busy'. It gives a sense of scale — this isn't ordinary busyness, this is a buried state. Always follow it with either a reason (what you're buried in) or a timeframe (when you'll surface) so the person knows when to come back.",
+    cq: "A colleague asks if you can review their pitch deck before Friday. You're in the middle of a live transaction and have three deliverables due this week:",
+    cc: "I'm completely snowed under this week — live transaction with three deliverables due before Friday. Can it wait until Monday? I can give it proper attention then.",
+    cw: ["I'm very busy this week with a live deal and I don't think I have the time to help before Friday.", "This week is extremely hectic for me — I have several deadlines on an active transaction.", "I'm not sure I can fit it in before Friday — it's a very busy week with a lot of competing priorities."],
+    ctx: "Colleague request — peer review during year-end crunch",
+    setup: "You're mid-execution on a live transaction. Three deliverables are due Friday. A colleague asks for a pitch deck review.",
+    cue: "Colleague: \"Any chance you could look over my deck before Friday? Just a quick read.\"",
+    model: "I really want to — but I have to be honest, <b>I'm completely snowed under</b> this week. Live transaction, three deliverables by Friday, and I haven't seen a clear hour since Monday. <b>If it can wait until Monday morning, I'll give it a proper read rather than a rushed one.</b> A Monday review done well is worth more than a Friday glance done badly.",
+    why: "'A Monday review done well is worth more than a Friday glance done badly' is an excellent reframe. It turns the delay from a refusal into a quality argument — the colleague actually benefits from waiting. That's the kind of response that maintains the relationship while being honest about capacity."
+  },
+  {
+    phrase: "Up to my neck in",
+    def: "Deeply immersed in something — usually work, problems, or obligations — to the point where you are barely keeping your head above it. More intense than 'snowed under'; the pressure feels physical, like rising water.",
+    sit: "You haven't responded to a friend's messages for two weeks because work has been relentless.",
+    prompt: "Explain that you are deeply and completely absorbed in a demanding situation — almost submerged by it…",
+    ex: "\"Sorry for going quiet — I've been up to my neck in this deal for the past three weeks. Coming up for air now.\"",
+    tip: "More dramatic and personal than 'snowed under'. It implies emotional immersion as well as workload. Use it when you want to convey not just busyness but the intensity and all-consuming nature of what you're dealing with. 'Coming up for air' is a natural companion phrase.",
+    cq: "You haven't replied to a client's casual email in ten days because a deal has consumed everything. You're reconnecting now:",
+    cc: "I apologise for the silence — I've been up to my neck in a deal that's taken over the last two weeks. I'm coming up for air now and your email is top of the list.",
+    cw: ["Sorry for not getting back to you sooner — it has been an extremely busy couple of weeks.", "I apologise for the delay in responding — I've been very heavily occupied with a transaction.", "I'm sorry it's taken so long to reply — the past two weeks have been completely consumed by a deal."],
+    ctx: "Reconnecting with a client after an unusually long silence",
+    setup: "A deal has consumed three weeks entirely. A client sent a casual email ten days ago. You're finally surfacing.",
+    cue: "Client (in their email): \"No rush on this — just wanted to catch up when you have a moment.\"",
+    model: "Apologies for the silence — I've been <b>up to my neck in</b> a deal that took over the last three weeks completely. <b>Coming up for air now.</b> I read your note when it came in and kept meaning to reply properly — which clearly didn't happen. I'd love to catch up properly. Are you free for a call later this week?",
+    why: "'I read your note when it came in and kept meaning to reply properly — which clearly didn't happen' is a disarmingly honest acknowledgement. It's the kind of transparency that actually builds trust rather than eroding it, because the client can see you're not making excuses."
+  },
+  {
+    phrase: "Bandwidth",
+    def: "Mental or physical capacity to take on additional work. Borrowed from technology — just as a network has a maximum data capacity, a person has a maximum workload capacity. One of the highest-frequency corporate phrases in modern professional life.",
+    sit: "Your MD asks if you could take on a new client relationship while you're already managing four active mandates.",
+    prompt: "Politely but clearly signal that you have reached the limit of what you can take on without sacrificing quality…",
+    ex: "\"I'd love to, but I genuinely don't have the bandwidth right now — I'm already stretched across four live mandates.\"",
+    tip: "More precise and professional than 'I'm too busy'. It frames capacity as a finite, measurable resource — which makes the limitation feel structural rather than personal. Very commonly used to check on others too: 'Do you have the bandwidth to take this on?'",
+    cq: "Your MD asks if you can take on relationship management for a new client while your current four mandates are all in active phases:",
+    cc: "I want to be honest — I don't have the bandwidth to take this on properly right now. Four live mandates in execution simultaneously is already at the edge of what I can manage well.",
+    cw: ["I'm not sure I can add another client right now given how much I'm already managing.", "I think I might be taking on too much if I add this to my current workload.", "I'm already quite stretched with four active mandates and I'm worried about quality if I add more."],
+    ctx: "MD conversation — capacity planning for a new client",
+    setup: "You have four mandates in simultaneous active execution. The MD wants to add a fifth significant relationship.",
+    cue: "MD: \"We've just been introduced to a new client — I'd like you to lead the relationship. Can you take it on?\"",
+    model: "I want to be straight with you — <b>I don't have the bandwidth</b> right now to do it justice. Four live mandates in execution simultaneously is already at the limit of what I can manage at the quality level I'm comfortable with. <b>If I take a fifth, something slips — and I'd rather tell you that now than find out in three months when a client notices.</b> Can we talk about what gets handed off, or whether this new relationship can wait six weeks until two of the current mandates close?",
+    why: "'I'd rather tell you that now than find out in three months when a client notices' is exactly what a trusted, senior person says. It reframes the pushback as risk management and client protection — which is far more persuasive to an MD than a personal complaint about workload."
+  },
+  {
+    phrase: "At capacity",
+    def: "Having reached the absolute maximum of what can be handled — not just busy, but full. No more can be added without something breaking or being dropped. More definitive than 'low on bandwidth'.",
+    sit: "A client asks whether your team can add a parallel workstream to an already full deal process.",
+    prompt: "State clearly and professionally that your team has reached its absolute limit and cannot take on anything additional without consequence…",
+    ex: "\"Until we close the current merger, our team is completely at capacity — adding a parallel workstream would compromise both.\"",
+    tip: "More absolute than 'low bandwidth'. It signals a hard limit, not a preference. In team management, it's essential vocabulary for protecting quality. Use it to have an honest conversation about resources before things go wrong, not after.",
+    cq: "Midway through a complex M&A process, the client asks if your team can simultaneously run a secondary fundraising process on the side:",
+    cc: "Honestly, we're at capacity on the M&A process right now — running a parallel fundraising would split our attention and compromise both outcomes. I'd recommend sequencing them.",
+    cw: ["I don't think we can add a fundraising process while we're in the middle of the M&A work.", "We're very busy with the M&A right now and I'm not sure we have enough resources for both simultaneously.", "Adding a second workstream at this stage would be very difficult given how much we're already managing."],
+    ctx: "Mid-deal client conversation — request to add a parallel workstream",
+    setup: "You're three weeks into a complex cross-border M&A process. The client wants to add a Series C fundraising simultaneously.",
+    cue: "Client: \"While we're doing the M&A work — could you also run a fundraising process in parallel? We want to keep all options open.\"",
+    model: "I appreciate the instinct to keep options open — but I have to be honest: <b>we are at capacity</b> on the M&A process right now. Every senior person on my team is committed to it. If we split attention to run a parallel fundraising, we risk doing both things adequately instead of the M&A excellently. <b>My recommendation is to sequence, not parallel: close the M&A, then assess whether fundraising is still needed.</b> If the M&A terms are right, you may not need it.",
+    why: "'Close the M&A, then assess whether fundraising is still needed. If the M&A terms are right, you may not need it.' This is strategic advice that serves the client's actual interest rather than maximising the bank's fee. That kind of recommendation builds trust for a decade."
+  },
+  {
+    phrase: "Gruelling",
+    def: "Extremely demanding, exhausting, and requiring sustained endurance — not just tiring but physically or mentally punishing over an extended period. More intense than 'exhausting' — it implies a long struggle that tests your limits.",
+    sit: "You've just emerged from a 14-hour negotiation session that required constant attention and produced a final agreed term sheet at 2 AM.",
+    prompt: "Describe an experience that was not just tiring but genuinely demanding and endurance-testing over a long period…",
+    ex: "\"The negotiation was absolutely gruelling — fourteen hours, no real breaks, and we didn't have a term sheet until 2 AM.\"",
+    tip: "More expressive and vivid than 'very tiring' or 'exhausting'. It signals genuine physical and mental cost — and often earns a degree of respect for having gone through it. Use it when the experience genuinely tested your limits, not just as a synonym for 'long'.",
+    cq: "A client asks how the term sheet negotiation went. You've just emerged after 14 hours, bleary-eyed, at 2:30 AM:",
+    cc: "Genuinely gruelling — fourteen hours straight, three rounds of counterproposals, and we didn't shake hands until 2 AM. But we have a term sheet.",
+    cw: ["It was a very long and tiring day — we were negotiating for about fourteen hours before finishing.", "The negotiation took much longer than expected and was quite exhausting for everyone involved.", "It was an extremely hard day — we went through several rounds of back and forth before getting to an agreement."],
+    ctx: "Post-negotiation debrief call with client — early hours of the morning",
+    setup: "It's 2:30 AM. You've just finished a 14-hour negotiation. You have a signed term sheet. The client is calling for a debrief.",
+    cue: "Client: \"I've been waiting for this call. How did it go?\"",
+    model: "We have a term sheet. <b>It was gruelling</b> — fourteen hours, three full rounds of counterproposals, and the final thirty minutes were the hardest. But we held the key commercial positions you cared most about: the earn-out structure and the non-compete terms are exactly where we wanted them. <b>Everything else we gave was packaging.</b> I'll send the full summary in the morning. For now — we got the deal.",
+    why: "'Everything else we gave was packaging' is a brilliantly compressed way to reassure the client that the concessions made were tactical, not strategic. It immediately frames the outcome as a win without requiring the client to read the full term sheet at 2 AM to know they should feel good."
+  },
+  {
+    phrase: "In the pit",
+    def: "In the middle of intense, high-pressure, chaotic market activity or negotiations — the thick of it, where everything is fast-moving and demanding. Originally from trading floors where the pit was the literal centre of market activity.",
+    sit: "A friend texts asking if you want to grab lunch. You're in the middle of managing a volatile hedging position as markets move sharply.",
+    prompt: "Convey that you are completely immersed in an intense, high-stakes, fast-moving situation right now…",
+    ex: "\"Can't do lunch — I've been in the pit all morning trying to manage this hedging position before the market closes.\"",
+    tip: "Vivid and specific — it conveys intensity, pace, and total immersion. It's a slightly theatrical phrase that signals you're in a genuinely demanding operational moment. More colourful than 'I'm in the middle of something' and carries the right sense of market chaos.",
+    cq: "It's 11 AM. Volatility has spiked and you're managing a delta hedging position that needs constant attention. Your MD checks in:",
+    cc: "I'm fully in the pit right now — vol has spiked and I'm managing the delta continuously. I'll brief you properly at 1 PM when things settle.",
+    cw: ["I'm very busy managing a position that needs constant attention because of the volatility right now.", "I'm dealing with a hedging situation that requires me to keep watching the market closely.", "Things are quite intense at the moment — I'm managing a position through a volatile period and need to focus."],
+    ctx: "Mid-morning check-in during a volatile market session",
+    setup: "Volatility has spiked sharply at market open. You're delta-hedging a large convertible position and can't step away.",
+    cue: "MD: \"Where are we on the CB hedge?\"",
+    model: "I'm <b>in the pit</b> right now — vol spiked at open and I've been managing the delta continuously since 8:30. We're hedged but it's moving fast. <b>I don't want to talk and trade at the same time on this one</b> — give me until 1 PM and I'll give you a full picture. If something critical changes before then, I'll call you immediately.",
+    why: "'I don't want to talk and trade at the same time on this one' is a confident and honest statement about focused execution. It signals professionalism and seriousness — and the MD will respect the boundary because it's clearly in the client's interest."
+  },
+  {
+    phrase: "Enervate / Enervating",
+    def: "To drain someone of energy, vitality, and strength — to leave them feeling weakened and depleted rather than stimulated. The opposite of energise. A sophisticated word that captures a specific kind of exhaustion: not from physical effort but from sustained drain.",
+    sit: "After a week of back-to-back meetings with no substantive outcomes, you're describing to a colleague how the week has felt.",
+    prompt: "Describe the specific kind of tiredness that comes from prolonged, draining engagement rather than physical exertion…",
+    ex: "\"A week of back-to-back three-hour meetings with no decisions being made is genuinely enervating — you end the week more tired than if you'd done real work.\"",
+    tip: "A high-register word that distinguishes between healthy tiredness (from real effort) and enervation (from sustained drain with no payoff). Very effective in professional self-reflection and performance discussions. Its specificity makes it more credible than simply 'exhausting'.",
+    cq: "You've just come through a week of six-hour daily briefings preparing for a regulatory review that ultimately produced no decisions. A colleague asks how you're doing:",
+    cc: "Genuinely enervated — six hours of briefings every day for a week with nothing decided at the end of it. That kind of week leaves you emptier than if you'd just been working hard.",
+    cw: ["I'm very tired after a week of very long meetings that didn't seem to produce very much.", "It's been a draining week — lots of preparation and meetings but nothing concrete to show for it.", "I'm exhausted after spending all week in briefings that didn't lead to any actual decisions being made."],
+    ctx: "Post-regulatory-briefing week debrief with a colleague",
+    setup: "You spent five days in six-hour regulatory briefings. The review was postponed. No decisions were made. You're drained.",
+    cue: "Colleague: \"You look tired. How was the week?\"",
+    model: "I'm completely <b>enervated.</b> Six hours a day in briefing sessions, five days straight, and the review has been postponed — nothing was decided. <b>It's a specific kind of tiredness that comes from sustained engagement with no output.</b> If I'd spent the week executing, I'd be tired but satisfied. This is just... empty. I need a weekend where I don't look at a screen.",
+    why: "'It's a specific kind of tiredness that comes from sustained engagement with no output' is a precise and resonant description that perfectly captures what enervation actually feels like. Using the word and then defining it in plain language in the same breath is exactly how to introduce a sophisticated vocabulary word naturally."
+  },
+  {
+    phrase: "On-the-run (bond market) / Off-the-run",
+    def: "In fixed income markets: 'on-the-run' refers to the most recently issued Treasury bond or note of a given maturity — the most liquid and most actively traded. 'Off-the-run' refers to older, previously issued securities of the same maturity, which are less liquid and typically trade at a slight yield premium.",
+    sit: "A client asks why there is a small but persistent yield difference between two Treasury bonds with identical maturities.",
+    prompt: "Explain the liquidity difference between the most recently issued Treasury and older issues of the same maturity — and why it matters for pricing…",
+    ex: "\"Most institutional traders prefer on-the-run Treasuries because they're the most liquid — the bid-ask spread is tighter and you can move size without moving the market.\"",
+    tip: "A term that sounds exactly like the everyday phrase but means something very specific in bond markets. Always worth clarifying which meaning you're using in context. The yield premium on off-the-run bonds is known as the 'liquidity premium' — typically 1–5 basis points but can widen significantly in stressed markets.",
+    cq: "A client notices that the 10-year Treasury they bought six months ago now yields 3 basis points more than the current 10-year benchmark, despite identical maturity. They ask why:",
+    cc: "Your bond has become off-the-run — six months ago it was the benchmark 10-year, but a new issue has since taken that role. The yield difference is simply a liquidity premium.",
+    cw: ["Your bond is older now and the market prefers the most recently issued version of the same maturity.", "The new 10-year Treasury that was issued since you bought yours is more actively traded, which affects pricing.", "There's a small liquidity difference between your bond and the current benchmark which explains the yield gap."],
+    ctx: "Client portfolio review — explaining an unexpected yield difference",
+    setup: "A client bought the 10-year Treasury benchmark six months ago. A new 10-year has since been issued. The client's bond now yields 3bp more.",
+    cue: "Client: \"My 10-year Treasury yields more than the current 10-year benchmark — they mature the same year. Why is there a difference?\"",
+    model: "Your bond has gone <b>off-the-run.</b> When you bought it six months ago, it was the <b>on-the-run</b> 10-year — the most recently issued benchmark. Since then, a new 10-year has been issued and taken that role. Traders and institutions prefer the on-the-run because it's the most liquid — tighter spreads, easier to move size. <b>That liquidity preference is worth about 1–5 basis points in normal markets, which is exactly what you're seeing.</b> It's not a credit or duration difference — it's purely a liquidity premium.",
+    why: "Ending with 'It's not a credit or duration difference — it's purely a liquidity premium' directly answers the anxiety behind the question. The client was probably wondering if something was wrong with their bond. Ruling out the concerning explanations before naming the actual one is excellent client communication."
+  }
+];
+
+// ─── STATE ───────────────────────────────────
+let spIdx = 0, spOrder = P.map((_,i)=>i);
+let chIdx = 0, chOrder = P.map((_,i)=>i), chScore = 0, chAnswered = false;
+let rpIdx = 0, rpOrder = P.map((_,i)=>i);
+let done = 0, fluent = 0;
+
+function switchTab(t, btn) {
+  ['speak','choice','roleplay','browse'].forEach(id => { document.getElementById('m-'+id).style.display = 'none'; });
+  document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('m-'+t).style.display = 'block';
+  btn.classList.add('active');
+  if (t==='choice') renderChoice();
+  if (t==='roleplay') renderRP();
+  if (t==='browse') renderBrowse('');
+}
+
+function renderSp() {
+  const p = P[spOrder[spIdx]];
+  document.getElementById('sp-cnt').textContent = `${spIdx+1} / ${P.length}`;
+  document.getElementById('sp-prg').style.width = `${(spIdx/P.length)*100}%`;
+  document.getElementById('sp-lbl').textContent = p.phrase;
+  document.getElementById('sp-sit').textContent = p.sit;
+  document.getElementById('sp-prompt').textContent = p.prompt;
+  document.getElementById('sp-phrase').textContent = p.phrase;
+  document.getElementById('sp-ex').textContent = p.ex;
+  document.getElementById('sp-tip').textContent = p.tip;
+  document.getElementById('sp-reveal').classList.remove('show');
+  document.getElementById('sp-rev-btn').style.display = 'inline-block';
+}
+function revealSp() { document.getElementById('sp-reveal').classList.add('show'); document.getElementById('sp-rev-btn').style.display = 'none'; }
+function rateSp(r) { done++; if(r==='easy') fluent++; updateStats(); spNav(1); }
+function spNav(d) { spIdx=(spIdx+d+P.length)%P.length; renderSp(); }
+function shuffleSp() {
+  for(let i=spOrder.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[spOrder[i],spOrder[j]]=[spOrder[j],spOrder[i]];}
+  spIdx=0; renderSp();
+}
+
+function renderChoice() {
+  const p = P[chOrder[chIdx]];
+  document.getElementById('ch-cnt').textContent = `${chIdx+1} / ${P.length}`;
+  document.getElementById('ch-prg').style.width = `${(chIdx/P.length)*100}%`;
+  document.getElementById('ch-q').textContent = p.cq;
+  document.getElementById('ch-fb').className = 'choice-fb';
+  document.getElementById('ch-next').style.display = 'none';
+  chAnswered = false;
+  const opts = [p.cc,...p.cw].sort(()=>Math.random()-0.5);
+  const cont = document.getElementById('ch-opts');
+  cont.innerHTML = '';
+  opts.forEach(o => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-opt';
+    btn.textContent = o;
+    btn.onclick = () => pickChoice(btn, o===p.cc, p.cc);
+    cont.appendChild(btn);
+  });
+}
+function pickChoice(btn, correct, correctText) {
+  if(chAnswered) return;
+  chAnswered = true;
+  document.querySelectorAll('.choice-opt').forEach(b => { b.disabled = true; if(b.textContent===correctText) b.classList.add('reveal-correct'); });
+  if(correct){btn.classList.add('correct');chScore++;}
+  else btn.classList.add('wrong');
+  const fb = document.getElementById('ch-fb');
+  fb.className = 'choice-fb show '+(correct?'ok':'no');
+  fb.textContent = correct ? '✓ Exactly right. This is the most natural way to say it in English.' : `✗ Not quite. The most natural phrase is: "${correctText}"`;
+  document.getElementById('ch-score').textContent = `Score: ${chScore} / ${chIdx+1}`;
+  document.getElementById('ch-next').style.display = 'inline-block';
+}
+function nextChoice() { chIdx=(chIdx+1)%P.length; renderChoice(); }
+
+function renderRP() {
+  const p = P[rpOrder[rpIdx]];
+  document.getElementById('rp-cnt').textContent = `${rpIdx+1} / ${P.length}`;
+  document.getElementById('rp-prg').style.width = `${(rpIdx/P.length)*100}%`;
+  document.getElementById('rp-lbl').textContent = p.phrase;
+  document.getElementById('rp-ctx').textContent = p.ctx;
+  document.getElementById('rp-setup').textContent = p.setup;
+  document.getElementById('rp-cue').textContent = p.cue;
+  document.getElementById('rp-ta').value = '';
+  document.getElementById('rp-reveal').classList.remove('show');
+  document.getElementById('rp-rev-btn').style.display = 'inline-block';
+  document.getElementById('rp-model').innerHTML = p.model;
+  document.getElementById('rp-why').textContent = p.why;
+}
+function revealRP() { document.getElementById('rp-reveal').classList.add('show'); document.getElementById('rp-rev-btn').style.display = 'none'; }
+function rateRP(r) { done++; if(r==='easy') fluent++; updateStats(); rpNav(1); }
+function rpNav(d) { rpIdx=(rpIdx+d+P.length)%P.length; renderRP(); }
+
+function renderBrowse(q) {
+  const lower = q.toLowerCase();
+  const filtered = P.filter(p => p.phrase.toLowerCase().includes(lower) || p.def.toLowerCase().includes(lower) || p.ex.toLowerCase().includes(lower) || p.tip.toLowerCase().includes(lower));
+  document.getElementById('br-count').textContent = `Showing ${filtered.length} of ${P.length} phrases`;
+  const list = document.getElementById('br-list');
+  list.innerHTML = '';
+  filtered.forEach((p,i) => {
+    const item = document.createElement('div');
+    item.className = 'br-item';
+    item.innerHTML = `<div class="bi-phrase">${p.phrase}</div><div class="bi-ex">${p.ex}</div><div class="bi-exp" id="bi-exp-${i}"><div class="bi-def">${p.def}</div><div class="bi-tip" style="margin-top:8px">💡 ${p.tip}</div></div>`;
+    item.onclick = () => document.getElementById(`bi-exp-${i}`).classList.toggle('open');
+    list.appendChild(item);
+  });
+}
+
+function updateStats() {
+  document.getElementById('s-done').textContent = done;
+  document.getElementById('s-fluent').textContent = fluent;
+}
+
+renderSp();
+</script>
+</body>
+</html>

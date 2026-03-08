@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Pitch & Banks Trainer</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f5f5f5;--surface:#fff;--surface2:#ebebeb;--border:#dcdcdc;--ink:#1c1c2e;--muted:#7a7f94;--gold:#b8892a;--gold-bg:#fdf6e3;--green:#1a7a4a;--green-bg:#edf7f1;--red:#c0392b;--red-bg:#fdf0ee;--blue:#2060a8;--blue-bg:#edf3fd;--accent:#5b3fa0}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
+header{background:var(--ink);color:#f4efe4;padding:17px 32px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid var(--gold)}
+.header-title{font-family:'Lora',serif;font-size:1.3rem}.header-title em{color:#d4aa50}
+.header-sub{font-family:'DM Mono',monospace;font-size:.63rem;opacity:.55;margin-top:3px}
+.header-meta{font-family:'DM Mono',monospace;font-size:.68rem;opacity:.7;text-align:right}.header-meta strong{color:#d4aa50}
+.tabs{display:flex;background:var(--surface2);border-bottom:2px solid var(--border);padding:0 32px}
+.tab{padding:13px 20px;font-family:'DM Mono',monospace;font-size:.67rem;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;border:none;background:transparent;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap;transition:all .18s}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold);font-weight:600}.tab:hover:not(.active){color:var(--ink)}
+main{padding-bottom:env(safe-area-inset-bottom,0px);max-width:720px;margin:0 auto;padding:28px 32px}
+
+/* BROWSE */
+.section-label{font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;background:var(--ink);color:var(--gold);display:inline-block;padding:4px 10px;border-radius:3px;margin-bottom:14px;margin-top:24px}
+.section-label:first-child{margin-top:0}
+.phrase-card{background:var(--surface);border:1.5px solid var(--border);border-radius:8px;margin-bottom:10px;overflow:hidden;cursor:pointer;transition:border-color .15s}
+.phrase-card:hover{border-color:var(--gold)}.phrase-card.open{border-color:var(--accent)}
+.pc-top{padding:16px 20px;display:flex;align-items:center;gap:12px}
+.pc-phrase{font-family:'Lora',serif;font-size:.98rem;color:var(--ink);flex:1;line-height:1.45}
+.pc-arrow{font-size:.75rem;color:var(--muted);transition:transform .2s;flex-shrink:0}
+.phrase-card.open .pc-arrow{transform:rotate(90deg)}
+.pc-body{display:none;padding:4px 20px 18px;border-top:1px solid var(--border)}
+.phrase-card.open .pc-body{display:block}
+.pc-when{font-family:'DM Mono',monospace;font-size:.58rem;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);margin:12px 0 6px}
+.pc-def{font-size:.88rem;line-height:1.7;color:var(--ink);margin-bottom:10px}
+.pc-daily{background:var(--surface2);border-radius:5px;padding:11px 14px;margin-bottom:10px}
+.pc-daily-label{font-family:'DM Mono',monospace;font-size:.58rem;text-transform:uppercase;color:var(--muted);margin-bottom:7px}
+.pc-daily-ex{font-family:'Lora',serif;font-style:italic;font-size:.84rem;color:var(--muted);line-height:1.65;margin-bottom:5px;padding-left:10px;border-left:2px solid var(--border)}
+.pc-daily-ex:last-child{margin-bottom:0}
+.pc-daily-ex span{font-style:normal;font-family:'DM Mono',monospace;font-size:.6rem;color:var(--muted);display:block;margin-top:2px}
+.pc-tip{font-size:.8rem;color:var(--blue);background:var(--blue-bg);padding:9px 13px;border-radius:4px;line-height:1.55}
+
+/* DRILL */
+.prog-row{display:flex;align-items:center;gap:12px;margin-bottom:22px}
+.prog-text{font-family:'DM Mono',monospace;font-size:.68rem;color:var(--muted);white-space:nowrap}
+.prog-track{flex:1;height:3px;background:var(--border);border-radius:2px}
+.prog-fill{height:100%;background:var(--gold);border-radius:2px;transition:width .4s}
+.sec-tag{display:inline-block;font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;padding:3px 9px;border-radius:3px;margin-bottom:8px}
+.sec-pitch{background:#f0ebff;color:var(--accent)}.sec-banks{background:#fff3dc;color:var(--gold)}
+.drill-card{background:var(--surface);border:1.5px solid var(--border);border-radius:8px;padding:24px 28px;margin-bottom:16px;box-shadow:0 1px 6px rgba(0,0,0,.06);position:relative;overflow:hidden}
+.drill-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--gold))}
+.dc-sit{font-size:.93rem;line-height:1.75;color:var(--muted);margin-bottom:10px}
+.dc-prompt{font-family:'Lora',serif;font-style:italic;font-size:1.12rem;color:var(--ink);line-height:1.55}
+.reveal-box{background:var(--surface);border:1.5px solid var(--border);border-radius:8px;padding:22px 26px;margin-bottom:16px;display:none}
+.reveal-box.show{display:block}
+.rev-label{font-family:'DM Mono',monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin-bottom:10px}
+.rev-phrase{font-family:'Lora',serif;font-size:1.3rem;font-weight:600;color:var(--ink);margin-bottom:10px;line-height:1.4}
+.rev-ex{font-family:'Lora',serif;font-style:italic;font-size:.86rem;color:var(--muted);border-left:2px solid var(--gold);padding-left:14px;line-height:1.65;margin-bottom:10px}
+.rev-tip{font-size:.82rem;color:var(--blue);background:var(--blue-bg);padding:10px 14px;border-radius:5px;line-height:1.55}
+.rate-row{display:flex;gap:9px;margin-top:14px}
+.rate-btn{flex:1;padding:10px;border-radius:5px;border:1px solid;font-family:'DM Mono',monospace;font-size:.64rem;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;transition:all .15s}
+.rate-hard{border-color:var(--red);color:var(--red);background:transparent}.rate-hard:hover{background:var(--red-bg)}
+.rate-ok{border-color:var(--gold);color:var(--gold);background:transparent}.rate-ok:hover{background:var(--gold-bg)}
+.rate-easy{border-color:var(--green);color:var(--green);background:transparent}.rate-easy:hover{background:var(--green-bg)}
+.nav-row{display:flex;gap:10px;justify-content:center}
+.btn{padding:9px 22px;border-radius:5px;border:1px solid;font-family:'DM Mono',monospace;font-size:.68rem;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;transition:all .15s}
+.btn-ghost{background:transparent;color:var(--muted);border-color:var(--border)}.btn-ghost:hover{color:var(--ink);border-color:var(--muted)}
+.btn-gold{background:var(--gold);color:#fff;border-color:var(--gold)}.btn-gold:hover{opacity:.88}
+.btn-sm{padding:6px 14px;font-size:.62rem}
+
+/* CHOICE */
+.choice-card{background:var(--surface);border:1.5px solid var(--border);border-radius:8px;padding:22px 26px;margin-bottom:14px;box-shadow:0 1px 6px rgba(0,0,0,.06)}
+.ch-label{font-family:'DM Mono',monospace;font-size:.62rem;color:var(--gold);letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px}
+.ch-q{font-size:.95rem;line-height:1.7;color:var(--ink)}
+.ch-opts{display:flex;flex-direction:column;gap:9px;margin:14px 0}
+.ch-opt{padding:13px 16px;border:1.5px solid var(--border);border-radius:6px;background:var(--surface);font-size:.86rem;line-height:1.55;cursor:pointer;text-align:left;font-family:'DM Sans',sans-serif;transition:all .15s;color:var(--ink)}
+.ch-opt:hover:not(:disabled){border-color:var(--gold);background:var(--gold-bg)}
+.ch-opt.correct{border-color:var(--green);background:var(--green-bg);color:var(--green);font-weight:600}
+.ch-opt.wrong{border-color:var(--red);background:var(--red-bg);color:var(--red)}
+.ch-opt.show-correct{border-color:var(--green);background:var(--green-bg)}
+.ch-fb{padding:11px 14px;border-radius:5px;font-size:.84rem;line-height:1.6;display:none;margin-bottom:10px}
+.ch-fb.show{display:block}.ch-fb.ok{background:var(--green-bg);border-left:3px solid var(--green);color:var(--green)}
+.ch-fb.no{background:var(--red-bg);border-left:3px solid var(--red);color:var(--red)}
+.score-badge{font-family:'DM Mono',monospace;font-size:.68rem;color:var(--muted)}
+
+/* ROLEPLAY */
+.rp-scene{background:var(--surface);border:1.5px solid var(--border);border-radius:8px;padding:22px 26px;margin-bottom:14px;box-shadow:0 1px 6px rgba(0,0,0,.06)}
+.rp-ctx{font-family:'DM Mono',monospace;font-size:.6rem;color:var(--accent);letter-spacing:.08em;text-transform:uppercase;margin-bottom:5px}
+.rp-setup{font-size:.87rem;color:var(--muted);line-height:1.65;margin-bottom:10px;font-style:italic}
+.rp-cue{background:var(--surface2);border-left:3px solid var(--accent);padding:12px 16px;border-radius:0 6px 6px 0;font-size:.97rem;line-height:1.65;color:var(--ink)}
+.rp-ta{width:100%;min-height:80px;padding:12px 14px;background:var(--surface);border:1.5px solid var(--border);border-radius:6px;color:var(--ink);font-size:.92rem;line-height:1.65;font-family:'DM Sans',sans-serif;resize:vertical;outline:none;margin-bottom:10px;transition:border .2s}
+.rp-ta:focus{border-color:var(--accent)}
+.rp-reveal{background:var(--surface);border:1.5px solid var(--border);border-radius:8px;padding:20px 24px;display:none;margin-bottom:14px}
+.rp-reveal.show{display:block}
+.rp-rev-label{font-family:'DM Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.1em;color:var(--gold);margin-bottom:10px}
+.model-resp{font-family:'Lora',serif;font-size:1.02rem;line-height:1.85;color:var(--ink);margin-bottom:10px}
+.rp-why{font-size:.8rem;color:var(--muted);line-height:1.6;background:var(--blue-bg);padding:9px 13px;border-radius:5px}
+
+@media(max-width:560px){main{padding-bottom:env(safe-area-inset-bottom,0px);padding:16px}header,.tabs{padding-left:16px;padding-right:16px}.rate-row{flex-direction:column}}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <div class="header-title"><em>Pitch</em> &amp; <em>Banks</em></div>
+    <div class="header-sub">15 phrases from the pitch room and syndicate desk — with daily &amp; business examples</div>
+  </div>
+  <div class="header-meta">Done: <strong id="s-done">0</strong> &nbsp;|&nbsp; Fluent: <strong id="s-fluent">0</strong></div>
+</header>
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('ref',this)">① Browse All</button>
+  <button class="tab" onclick="switchTab('drill',this)">② Speaking Drill</button>
+  <button class="tab" onclick="switchTab('choice',this)">③ Right Phrase?</button>
+  <button class="tab" onclick="switchTab('roleplay',this)">④ Role-Play</button>
+</div>
+<main>
+
+<!-- ① BROWSE -->
+<div id="m-ref">
+
+<div class="section-label">Pitch</div>
+
+<div class="phrase-card" onclick="toggleCard(this)">
+  <div class="pc-top"><div class="pc-phrase">"Our desk is reading the tape in real-time."</div><span class="pc-arrow">›</span></div>
+  <div class="pc-body">
+    <div class="pc-when">What it means</div>
+    <div class="pc-def">Your team is monitoring live market flow and data to judge market conditions as they happen — not from a model, but from what is actually trading right now. It implies active, experienced market surveillance.</div>
+    <div class="pc-daily">
+      <div class="pc-daily-label">💼 Business</div>
+      <div class="pc-daily-ex">"Our desk is reading the tape in real-time — we know exactly when the market is receptive and when to wait for the volatility to settle."<span>Pitch to issuer on timing advantage</span></div>
+      <div class="pc-daily-ex">"We're reading the tape closely this week — there's a window opening in the CB market and we want to make sure you're positioned to take it."<span>Proactive client call</span></div>
+    </div>
+    <div class="pc-daily">
+      <div class="pc-daily-label">🗣️ Daily</div>
+      <div class="pc-daily-ex">"I've been reading the tape on the job market lately — salaries in our sector are moving fast and I think it's worth having a conversation."<span>Negotiating a raise</span></div>
+      <div class="pc-daily-ex">"She's been reading the tape on the neighbourhood for months — she knew exactly when prices had peaked before anyone else did."<span>Discussing a smart property buyer</span></div>
+    </div>
+    <div class="pc-tip">💡 Originally a trading-floor expression — the 'tape' was the ticker tape printing live stock prices. Now means any real-time monitoring of signals or data. Use it when you want to claim an edge based on live intelligence rather than modelled projections.</div>
+  </div>
+</div>
+
+<div class="phrase-card" onclick="toggleCard(this)">
+  <div class="pc-top"><div class="pc-phrase">"We don't just execute — we manage the narrative."</div><span class="pc-arrow">›</span></div>
+  <div class="pc-body">
+    <div class="pc-when">What it means</div>
+    <div class="pc-def">Execution is the mechanics — getting the deal done. Managing the narrative is controlling how the deal is perceived and communicated. The argument is that the story around a transaction matters as much as the transaction itself.</div>
+    <div class="pc-daily">
+      <div class="pc-daily-label">💼 Business</div>
+      <div class="pc-daily-ex">"We don't just execute — we manage the narrative. We ensure the equity story is framed in a way that resonates with both credit and equity investors."<span>Pitch differentiation</span></div>
+      <div class="pc-daily-ex">"Anyone can execute a refinancing. The question is how you manage the narrative with the rating agencies and the press at the same time."<span>Strategy discussion with CFO</span></div>
+    </div>
+    <div class="pc-daily">
+      <div class="pc-daily-label">🗣️ Daily</div>
+      <div class="pc-daily-ex">"He didn't just resign — he managed the narrative. The announcement framed it as his decision on his timeline, and it landed completely differently."<span>Discussing a colleague's career move</span></div>
+      <div class="pc-daily-ex">"You need to manage the narrative with the kids before they hear the news from someone else."<span>Conversation about a family situation</span></div>
+    </div>
+    <div class="pc-tip">💡 'Manage the narrative' = control how something is perceived and communicated. One of the most powerful phrases in professional English because it names something real that most people don't articulate.</div>
+  </div>
+</div>
+
+<div class="phrase-card" onclick="toggleCard(this)">
+  <div class="pc-top"><div class="pc-phrase">"We have skin in the game right alongside you."</div><span class="pc-arrow">›</span></div>
+  <div class="pc-body">
+    <div class="pc-when">What it means</div>
+    <div class="pc-def">The bank has a genuine stake in the outcome — not just earning a fee, but taking on real risk or exposure. The phrase directly addresses the client's concern that advisors profit regardless of outcome.</div>
+    <div class="pc-daily">
+      <div class="pc-daily-label">💼 Business</div>
+      <div class="pc-daily-ex">"We have skin in the game right alongside you — we're providing a hard underwrite on this. We're putting our own balance sheet on the line."<span>Pitch closing — underwrite commitment</span></div>
+      <div class="pc-daily-ex">"This isn't a situation where we advise and walk away. We have skin in the game — our own capital is in this fund alongside yours."<span>Fund pitch to LP</span></div>
+    </div>
+    <div class="pc-daily">
+      <div class="pc-daily-label">🗣️ Daily</div>
+      <div class="pc-daily-ex">"I'm not just advising you — I have skin in the game here too. If this goes wrong, it affects my team directly."<span>Reassuring a colleague of your commitment</span></div>
+      <div class="pc-daily-ex">"He has real skin in the game now — he put his own savings into the restaurant, not just his time."<span>Discussing a friend's new business</span></div>
+    </div>
+    <div class="pc-tip">💡 Originally from gambling — you can't win if you haven't bet. In any context it means: my interests are fully aligned with yours because I'm taking the same risk. One of the most credible statements you can make in a pitch.</div>
+  </div>
+</div>
+
+<div class="phrase-card" onclick="toggleCard(this)">
+  <div class="pc-top"><div class="pc-phrase">"This deal is top-of-mind for our senior leadership."</div><span class="pc-arrow">›</span></div>
+  <div class="pc-body">
+    <div class="pc-when">What it means</div>
+    <div class="pc-def">The transaction has the active attention of the most senior people in the organisation — the client is not just a number being handled at the junior level.</div>
+    <div class="pc-daily">
+      <div class="pc-daily-label">💼 Business</div>
+      <div class="pc-daily-ex">"This deal is top-of-mind for our senior leadership — the Head of Asia ECM is personally tracking this alongside me."<span>Pitch — signalling senior attention</span></div>
+      <div class="pc-daily-ex">"I want you to know this mandate is top-of-mind for us at the highest level. You'll have direct access to the team throughout."<span>Onboarding a new client</span></div>
+    </div>
+    <div class="pc-daily">
+      <div class="pc-daily-label">🗣️ Daily</div>
+      <div class="pc-daily-ex">"The school's Ofsted visit is top-of-mind for every teacher right now — you can feel it in the building."<span>Describing a stressful period at work</span></div>
+      <div class="pc-daily-ex">"The trip is top-of-mind for me this week — I keep thinking about what to pack."<span>Casual conversation about an upcoming holiday</span></div>
+    </div>
+    <div class="pc-tip">💡 'Top-of-mind' = the most immediate, active concern — what someone is actively thinking about right now. The phrase tells the client: you are being thought about, not filed away.</div>
+  </div>
+</div>
+
+<div class="phrase-card" onclick="toggleCard(this)">
+  <div class="pc-top"><div class="pc-phrase">"We aren't looking for a quick fee — we want to support your capital structure for the long haul."</div><span class="pc-arrow">›</span></div>
+  <div class="pc-body">
+    <div class="pc-when">What it means</div>
+    <div class="pc-def">Explicitly rejecting the transactional model — the bank wants a relationship across the lifecycle of the client's financing, not just a one-time advisory fee.</div>
+    <div class="pc-daily">
+      <div class="pc-daily-label">💼 Business</div>
+      <div class="pc-daily-ex">"We aren't looking for a quick fee. We want to support your capital structure for the long haul — from this issuance through to the final refinancing."<span>Pitch closing</span></div>
+      <div class="pc-daily-ex">"We're not here for a one-off mandate. We want to be the bank that's with you for the long haul as you scale through the next three capital events."<span>Growth-stage client pitch</span></div>
+    </div>
+    <div class="pc-daily">
+      <div class="pc-daily-label">🗣️ Daily</div>
+      <div class="pc-daily-ex">"I'm not asking to fix this once and move on — I want to help you manage it for the long haul."<span>Offering sustained support to a friend</span></div>
+      <div class="pc-daily-ex">"They aren't looking for a quick sale. They want tenants who'll stay for the long haul and look after the place."<span>Describing a landlord's priorities</span></div>
+    </div>
+    <div class="pc-tip">💡 'Long haul' = the long term, with a sense of endurance and sustained commitment. Naming 'quick fee' directly — then rejecting it — is what makes this phrase land. It shows you know what clients fear.</div>
+  </div>
+</div>
+
+<div class="section-label" style="margin-top:28px">Banks / Syndicate</div>
+
+<div class="phrase-card" onclick="toggleCard(this)">
+  <div class="pc-top"><div class="pc-phrase">"Let's calibrate our views against the recent comps."</div><span class="pc-arrow">›</span></div>
+  <div class="pc-body">
+    <div class="pc-when">What it means</div>
+    <div class="pc-def">Before going to market or to the client, compare your pricing assumptions against recent comparable transactions to make sure your read is accurate.</div>
+    <div class="pc-daily">
+      <div class="pc-daily-label">💼 Business</div>
+      <div class="pc-daily-ex">"Let's calibrate our views against the recent comps to ensure we aren't misreading the appetite before the pricing call."<span>Pre-call prep between co-leads</span></div>
+      <div class="pc-daily-ex">"I want to calibrate our premium assumption against the last three deals — I don't want us going in wide and losing credibility."<span>Internal structuring meeting</span></div>
+    </div>
+    <div class="pc-daily">
+      <div class="pc-daily-label">🗣️ Daily</div>
+      <div class="pc-daily-ex">"Before we set the asking price, let's calibrate against what similar flats on this street have actually sold for."<span>Property discussion</span></div>
+      <div class="pc-daily-ex">"Let me calibrate my expectations before the interview — what are people at that level actually earning right now?"<span>Job search conversation</span></div>
+    </div>
+    <div class="pc-tip">💡 'Calibrate' = adjust your view against a fixed reference point to ensure accuracy. More precise than 'compare' — it implies a methodical correction, not just a casual look.</div>
+  </div>
+</div>
+
+<div class="phrase-card" onclick="toggleCard(this)">
+  <div class="pc-top"><div class="pc-phrase">"We need to speak with one voice."</div><span class="pc-arrow">›</span></div>
+  <div class="pc-body">
+    <div class="pc-when">What it means</div>
+    <div class="pc-def">When multiple banks or parties are presenting to a client together, they must deliver a single, consistent message — no contradictions, no visible disagreements.</div>
+    <div class="pc-daily">
+      <div class="pc-daily-label">💼 Business</div>
+      <div class="pc-daily-ex">"We need to speak with one voice during the pricing call this afternoon — any disagreement between us stays in this room."<span>Pre-call sync with co-lead</span></div>
+      <div class="pc-daily-ex">"I suggest we speak with one voice and propose a range of 25–30%. We've sanity-checked this with our syndicate and it feels like the market-clearing price."<span>Inter-bank alignment</span></div>
+    </div>
+    <div class="pc-daily">
+      <div class="pc-daily-label">🗣️ Daily</div>
+      <div class="pc-daily-ex">"The teachers need to speak with one voice on this policy — if parents hear different things from different staff it creates confusion."<span>School management meeting</span></div>
+      <div class="pc-daily-ex">"Before we talk to my parents about the wedding date, let's make sure we're speaking with one voice."<span>Planning conversation with a partner</span></div>
+    </div>
+    <div class="pc-tip">💡 The rule in syndication: disagreements between banks must be resolved before the client hears anything. The call is not the place to discover you have different views.</div>
+  </div>
+</div>
+
+<div class="phrase-card" onclick="toggleCard(this)">
+  <div class="pc-top"><div class="pc-phrase">"Let's ensure we're aligned on the narrative regarding the use of proceeds."</div><span class="pc-arrow">›</span></div>
+  <div class="pc-body">
+    <div class="pc-when">What it means</div>
+    <div class="pc-def">Before presenting to investors, all banks and the issuer must be telling the exact same story about why the money is being raised and what it will be used for.</div>
+    <div class="pc-daily">
+      <div class="pc-daily-label">💼 Business</div>
+      <div class="pc-daily-ex">"Let's ensure we're aligned on the narrative regarding the use of proceeds before the roadshow — the growth story needs to be consistent across every meeting."<span>Pre-roadshow alignment</span></div>
+      <div class="pc-daily-ex">"Are we aligned on the narrative? Investors will ask about the capex allocation and I want to make sure we're all saying the same thing."<span>Deal preparation</span></div>
+    </div>
+    <div class="pc-daily">
+      <div class="pc-daily-label">🗣️ Daily</div>
+      <div class="pc-daily-ex">"Let's make sure we're aligned on the narrative before the team announcement — I don't want people hearing different versions of why we made this hire."<span>Internal communication planning</span></div>
+      <div class="pc-daily-ex">"Are we aligned on the story we're telling about the renovation? I want to make sure the architect, the builder and us are all saying the same thing to the council."<span>Building project conversation</span></div>
+    </div>
+    <div class="pc-tip">💡 'Aligned on the narrative' = everyone telling the same story consistently. 'Use of proceeds' is a specific CB/bond term for how the money raised will be spent — always a key investor question.</div>
+  </div>
+</div>
+
+<div class="phrase-card" onclick="toggleCard(this)">
+  <div class="pc-top"><div class="pc-phrase">"Let's take this offline and hash it out."</div><span class="pc-arrow">›</span></div>
+  <div class="pc-body">
+    <div class="pc-when">What it means</div>
+    <div class="pc-def">Remove a difficult or circular debate from the current meeting and resolve it privately — rather than letting the disagreement become visible to the client or a wider group.</div>
+    <div class="pc-daily">
+      <div class="pc-daily-label">💼 Business</div>
+      <div class="pc-daily-ex">"I think we're in a bit of a circular debate here. Let's take this offline and have our respective heads of syndicate hash it out."<span>Deadlocked inter-bank meeting</span></div>
+      <div class="pc-daily-ex">"We need to hash out the final terms of the contract before we sign anything — let's schedule an hour before the call."<span>Pre-signing prep</span></div>
+    </div>
+    <div class="pc-daily">
+      <div class="pc-daily-label">🗣️ Daily</div>
+      <div class="pc-daily-ex">"Let's not debate this in front of the whole team — take it offline and hash it out between yourselves."<span>Managing a team disagreement</span></div>
+      <div class="pc-daily-ex">"We need to hash out the guest list before we send anything — there are some complicated family dynamics to work through."<span>Wedding planning</span></div>
+    </div>
+    <div class="pc-tip">💡 'Hash it out' = a detailed, sometimes difficult conversation until a resolution is reached. 'Take it offline' = move it out of the current meeting into a private channel. Both are essential for managing visible conflict professionally.</div>
+  </div>
+</div>
+
+<div class="phrase-card" onclick="toggleCard(this)">
+  <div class="pc-top"><div class="pc-phrase">"Let's strip away the noise — the primary objective is execution certainty."</div><span class="pc-arrow">›</span></div>
+  <div class="pc-body">
+    <div class="pc-when">What it means</div>
+    <div class="pc-def">Cut through the irrelevant detail or marginal debates and refocus on what actually matters for the deal to succeed — in this case, getting it done rather than optimising basis points.</div>
+    <div class="pc-daily">
+      <div class="pc-daily-label">💼 Business</div>
+      <div class="pc-daily-ex">"Let's strip away the noise for a second — the primary objective is execution certainty. If we argue over 5 bps and lose the window, we all lose."<span>Breaking a syndicate deadlock</span></div>
+      <div class="pc-daily-ex">"Strip away the noise on this — the client needs three things: speed, confidentiality, and certainty. Everything else is secondary."<span>Refocusing a project team</span></div>
+    </div>
+    <div class="pc-daily">
+      <div class="pc-daily-label">🗣️ Daily</div>
+      <div class="pc-daily-ex">"Strip away the noise — you got the job, you like the team, and the salary works. Stop overthinking it."<span>Helping a friend make a decision</span></div>
+      <div class="pc-daily-ex">"Let's strip away the noise on this flat. The location is perfect and the price is right — the rest we can fix."<span>Property decision</span></div>
+    </div>
+    <div class="pc-tip">💡 'Strip away the noise' = remove everything irrelevant and focus on the essential signal. Extremely effective for breaking deadlocks because it reframes the debate from 'who is right' to 'what actually matters'.</div>
+  </div>
+</div>
+
+<div class="phrase-card" onclick="toggleCard(this)">
+  <div class="pc-top"><div class="pc-phrase">"If we triangulate the feedback from our respective desks, the sweet spot is around 2.75%."</div><span class="pc-arrow">›</span></div>
+  <div class="pc-body">
+    <div class="pc-when">What it means</div>
+    <div class="pc-def">Combine feedback from multiple independent sources to arrive at a more accurate market-clearing price than any single desk's view could provide alone.</div>
+    <div class="pc-daily">
+      <div class="pc-daily-label">💼 Business</div>
+      <div class="pc-daily-ex">"If we triangulate the feedback from our respective desks, the sweet spot is actually closer to a 2.75% coupon — I suggest we propose a range of 2.50–2.75%."<span>Inter-bank pricing alignment</span></div>
+      <div class="pc-daily-ex">"Let me triangulate across the three accounts I spoke to this morning before we commit to a number."<span>Pre-pricing market check</span></div>
+    </div>
+    <div class="pc-daily">
+      <div class="pc-daily-label">🗣️ Daily</div>
+      <div class="pc-daily-ex">"I triangulated across three estate agents and they all came back with the same range — I'm confident in the valuation now."<span>Property selling decision</span></div>
+      <div class="pc-daily-ex">"I like to triangulate before I make a decision — I ask my doctor, read the research, and talk to someone who's been through it."<span>Making an important personal decision</span></div>
+    </div>
+    <div class="pc-tip">💡 'Triangulate' = use three or more reference points to locate a more accurate answer than any single source allows. The word sounds analytical and rigorous — it elevates a market view from opinion to method.</div>
+  </div>
+</div>
+
+<div class="phrase-card" onclick="toggleCard(this)">
+  <div class="pc-top"><div class="pc-phrase">"We should stress-test the assumption that the market will absorb a 7-year maturity."</div><span class="pc-arrow">›</span></div>
+  <div class="pc-body">
+    <div class="pc-when">What it means</div>
+    <div class="pc-def">Rigorously examine whether a structural assumption about the deal holds under adverse or realistic conditions — rather than accepting it at face value.</div>
+    <div class="pc-daily">
+      <div class="pc-daily-label">💼 Business</div>
+      <div class="pc-daily-ex">"We should stress-test the assumption that the market will absorb a 7-year maturity right now — our desk is seeing more traction in the 5-year space."<span>Challenging a co-lead's structural assumption</span></div>
+      <div class="pc-daily-ex">"Before we go to the client with this, let's stress-test the revenue assumptions in the model — they feel optimistic given the current environment."<span>Pre-pitch internal review</span></div>
+    </div>
+    <div class="pc-daily">
+      <div class="pc-daily-label">🗣️ Daily</div>
+      <div class="pc-daily-ex">"Let's stress-test the plan — what happens if the venue cancels two weeks before? Do we have a backup?"<span>Event planning conversation</span></div>
+      <div class="pc-daily-ex">"I want to stress-test my assumptions about the move before committing — I've only ever visited in summer."<span>Decision about relocating to a new city</span></div>
+    </div>
+    <div class="pc-tip">💡 'Stress-test' = examine how something holds up under pressure or adverse conditions. It doesn't say 'you're wrong' — it says 'let's make sure we're right'. Professional, constructive, and precise.</div>
+  </div>
+</div>
+
+<div class="phrase-card" onclick="toggleCard(this)">
+  <div class="pc-top"><div class="pc-phrase">"Once we've squared away our disparities, we can socialise a consensus view with the CFO."</div><span class="pc-arrow">›</span></div>
+  <div class="pc-body">
+    <div class="pc-when">What it means</div>
+    <div class="pc-def">Once the banks have resolved their internal differences, they can then share a unified position with the client — in an informal, preparatory way before the formal meeting.</div>
+    <div class="pc-daily">
+      <div class="pc-daily-label">💼 Business</div>
+      <div class="pc-daily-ex">"Once we've squared away our disparities, we can socialise a consensus view with the CFO before the formal pricing call."<span>Inter-bank meeting</span></div>
+      <div class="pc-daily-ex">"Let's square away the internal disagreement first — then we present a single view. We never socialise conflicting numbers to the same client."<span>Managing a junior analyst</span></div>
+    </div>
+    <div class="pc-daily">
+      <div class="pc-daily-label">🗣️ Daily</div>
+      <div class="pc-daily-ex">"Once we've squared away the budget, I can start socialising the idea with the rest of the family."<span>Planning a family holiday</span></div>
+      <div class="pc-daily-ex">"I need to square this away with my manager before I socialise it with the wider team."<span>Proposing a new initiative at work</span></div>
+    </div>
+    <div class="pc-tip">💡 Two key phrases: 'square away' = settle and resolve cleanly. 'Socialise' (in business) = share informally to build awareness or buy-in before a formal decision. Both are very high-frequency in professional English.</div>
+  </div>
+</div>
+
+<div class="phrase-card" onclick="toggleCard(this)">
+  <div class="pc-top"><div class="pc-phrase">"We are in lockstep with the co-leads and pacing toward a launch on Thursday."</div><span class="pc-arrow">›</span></div>
+  <div class="pc-body">
+    <div class="pc-when">What it means</div>
+    <div class="pc-def">All banks involved are fully coordinated and moving at the same pace toward a target launch date — no gaps, no misalignment.</div>
+    <div class="pc-daily">
+      <div class="pc-daily-label">💼 Business</div>
+      <div class="pc-daily-ex">"We are in lockstep with the co-leads and pacing toward a launch on Thursday morning — everything is on track."<span>Deal update to the issuer</span></div>
+      <div class="pc-daily-ex">"The legal team and the syndicate are in lockstep on the timeline — we don't foresee any slippage at this stage."<span>Execution update call</span></div>
+    </div>
+    <div class="pc-daily">
+      <div class="pc-daily-label">🗣️ Daily</div>
+      <div class="pc-daily-ex">"The two departments are finally in lockstep on the project — it's been a long time coming."<span>Describing improved internal coordination</span></div>
+      <div class="pc-daily-ex">"We're in lockstep on the renovation plan now — same vision, same budget, same timeline."<span>Couple discussing a home project</span></div>
+    </div>
+    <div class="pc-tip">💡 'Lockstep' = moving in perfect coordination, like soldiers marching in step. 'Pacing toward' = on track, moving at the right speed. Both signal confidence and coordination — very reassuring words to use in a client update.</div>
+  </div>
+</div>
+
+<div class="phrase-card" onclick="toggleCard(this)">
+  <div class="pc-top"><div class="pc-phrase">"Does that align with your read, or do we need to double-click on the peer comps?"</div><span class="pc-arrow">›</span></div>
+  <div class="pc-body">
+    <div class="pc-when">What it means</div>
+    <div class="pc-def">Check whether the other bank agrees with your market read — and if not, suggest drilling deeper into the comparable transactions together to resolve the disagreement.</div>
+    <div class="pc-daily">
+      <div class="pc-daily-label">💼 Business</div>
+      <div class="pc-daily-ex">"I suggest a range of 25–30%. We've sanity-checked this with our syndicate and it feels like the market-clearing price. Does that align with your read, or do we need to double-click on the peer comps again?"<span>Inter-bank alignment before client call</span></div>
+      <div class="pc-daily-ex">"Does that align with your view on demand, or should we double-click on the anchor feedback before we go firm?"<span>Pre-pricing calibration</span></div>
+    </div>
+    <div class="pc-daily">
+      <div class="pc-daily-label">🗣️ Daily</div>
+      <div class="pc-daily-ex">"Does that align with what your doctor said, or do you want to double-click on the second opinion before deciding?"<span>Supporting a friend with a medical decision</span></div>
+      <div class="pc-daily-ex">"Does that align with your read on the neighbourhood, or should we double-click on the school catchment areas before we make an offer?"<span>Property decision</span></div>
+    </div>
+    <div class="pc-tip">💡 'Double-click' (in business English) = go one level deeper into a specific area. From the computer metaphor of clicking to expand detail. 'Align with your read' = match what you are seeing or concluding. Both are very current and natural in finance.</div>
+  </div>
+</div>
+
+</div><!-- end ref -->
+
+<!-- ② DRILL -->
+<div id="m-drill" style="display:none">
+  <div class="prog-row">
+    <span class="prog-text" id="dr-cnt">1 / 15</span>
+    <div class="prog-track"><div class="prog-fill" id="dr-prg" style="width:0%"></div></div>
+    <span class="prog-text" id="dr-lbl">—</span>
+  </div>
+  <div class="drill-card">
+    <div id="dr-sec-tag" class="sec-tag sec-pitch">Pitch</div>
+    <div class="dc-sit" id="dr-sit">—</div>
+    <div class="dc-prompt" id="dr-prompt">—</div>
+  </div>
+  <div class="reveal-box" id="dr-reveal">
+    <div class="rev-label">✓ Model Phrase</div>
+    <div class="rev-phrase" id="dr-phrase">—</div>
+    <div class="rev-ex" id="dr-ex">—</div>
+    <div class="rev-tip" id="dr-tip">—</div>
+    <div class="rate-row">
+      <button class="rate-btn rate-hard" onclick="rateDr('hard')">🔴 Couldn't say it</button>
+      <button class="rate-btn rate-ok" onclick="rateDr('ok')">🟡 Said it, not fluently</button>
+      <button class="rate-btn rate-easy" onclick="rateDr('easy')">🟢 Said it naturally</button>
+    </div>
+  </div>
+  <div class="nav-row">
+    <button class="btn btn-ghost" onclick="drNav(-1)">← Prev</button>
+    <button class="btn btn-gold" id="dr-rev-btn" onclick="revealDr()">Reveal Phrase</button>
+    <button class="btn btn-ghost" onclick="drNav(1)">Next →</button>
+  </div>
+  <div style="text-align:center;margin-top:10px">
+    <button class="btn btn-ghost btn-sm" onclick="shuffleDr()">⇄ Shuffle</button>
+  </div>
+</div>
+
+<!-- ③ CHOICE -->
+<div id="m-choice">
+  <div class="prog-row">
+    <span class="prog-text" id="ch-cnt">1 / 15</span>
+    <div class="prog-track"><div class="prog-fill" id="ch-prg" style="width:0%"></div></div>
+    <span class="score-badge" id="ch-score">Score: 0 / 0</span>
+  </div>
+  <div class="choice-card">
+    <div class="ch-label">📍 What do you say here?</div>
+    <div class="ch-q" id="ch-q">—</div>
+  </div>
+  <div class="ch-opts" id="ch-opts"></div>
+  <div class="ch-fb" id="ch-fb"></div>
+  <div class="nav-row"><button class="btn btn-ghost" id="ch-next" style="display:none" onclick="nextChoice()">Next →</button></div>
+</div>
+
+<!-- ④ ROLEPLAY -->
+<div id="m-roleplay">
+  <div class="prog-row">
+    <span class="prog-text" id="rp-cnt">1 / 5</span>
+    <div class="prog-track"><div class="prog-fill" id="rp-prg" style="width:0%"></div></div>
+    <span class="prog-text" id="rp-lbl">—</span>
+  </div>
+  <div class="rp-scene">
+    <div class="rp-ctx" id="rp-ctx">—</div>
+    <div class="rp-setup" id="rp-setup">—</div>
+    <div class="rp-cue" id="rp-cue">—</div>
+  </div>
+  <textarea class="rp-ta" id="rp-ta" placeholder="Write what you would say — use the target phrases naturally…"></textarea>
+  <div class="nav-row" style="margin-bottom:12px">
+    <button class="btn btn-ghost" onclick="rpNav(-1)">← Prev</button>
+    <button class="btn btn-gold" id="rp-rev-btn" onclick="revealRP()">See Model Response</button>
+    <button class="btn btn-ghost" onclick="rpNav(1)">Next →</button>
+  </div>
+  <div class="rp-reveal" id="rp-reveal">
+    <div class="rp-rev-label">Model Response — target phrases in bold</div>
+    <div class="model-resp" id="rp-model">—</div>
+    <div class="rp-why" id="rp-why">—</div>
+    <div class="rate-row">
+      <button class="rate-btn rate-hard" onclick="rateRP('hard')">🔴 Very different</button>
+      <button class="rate-btn rate-ok" onclick="rateRP('ok')">🟡 Similar but less natural</button>
+      <button class="rate-btn rate-easy" onclick="rateRP('easy')">🟢 Close to model</button>
+    </div>
+  </div>
+</div>
+
+</main>
+<script>
+const DR=[
+  // PITCH
+  {sec:"pitch",phrase:"Our desk is reading the tape in real-time.",sit:"A client asks why they should trust your bank's timing advice over a competitor who is also pitching on this mandate.",prompt:"Claim your real-time market intelligence as a genuine competitive advantage…",ex:"\"Our desk is reading the tape in real-time — we know exactly when the market is receptive and when to hold back.\"",tip:"'Reading the tape' claims live intelligence, not just modelled projections. That's the distinction that matters."},
+  {sec:"pitch",phrase:"We don't just execute — we manage the narrative.",sit:"The CFO says all four banks pitching have strong execution records. He's asking what really differentiates you.",prompt:"Argue that strategic communication around a deal is as valuable as the mechanics…",ex:"\"We don't just execute — we manage the narrative. We ensure the equity story is framed in a way that resonates with both credit and equity investors simultaneously.\"",tip:"Name what others don't do, then show you do it. The contrast 'don't just X — we Y' is one of the most effective pitch structures."},
+  {sec:"pitch",phrase:"We have skin in the game right alongside you.",sit:"The client is worried about whether the bank will stay fully committed throughout the execution — or walk away once the fee is secured.",prompt:"Signal shared risk and fully aligned interests — your capital is on the line too…",ex:"\"We have skin in the game right alongside you. We're prepared to hard-underwrite this transaction — our own balance sheet is on the line.\"",tip:"The hard underwrite is the most powerful form of this statement. It's not just a phrase — it's a claim backed by real commitment."},
+  {sec:"pitch",phrase:"This deal is top-of-mind for our senior leadership.",sit:"The client has dealt with banks before where junior teams did the pitching and senior people disappeared after mandate.",prompt:"Reassure the client that the most senior people in your organisation are actively focused on this transaction…",ex:"\"This deal is top-of-mind for our senior leadership — the Head of Asia ECM is personally tracking this alongside our team.\"",tip:"Always make it specific. 'Senior leadership' alone is vague. Name the person or title to make it credible."},
+  {sec:"pitch",phrase:"We aren't looking for a quick fee — we want to support you for the long haul.",sit:"You're closing a pitch. The client has been burned before by banks who over-promised and under-delivered after winning the mandate.",prompt:"Close by explicitly rejecting the transactional model — paint a picture of the full relationship…",ex:"\"We aren't looking for a quick fee. We want to support your capital structure for the long haul — from this issuance through to the final refinancing.\"",tip:"Naming 'quick fee' and rejecting it shows you know exactly what clients fear. The specificity of 'from this issuance through to the final refinancing' is what makes it credible rather than generic."},
+  // BANKS
+  {sec:"banks",phrase:"Let's calibrate our views against the recent comps.",sit:"You and a co-lead bank are about to call the client to discuss pricing. You're not sure your views are aligned.",prompt:"Propose aligning your market assumptions against comparable transactions before going to the client…",ex:"\"Before we dial in, let's calibrate our views against the recent comps — I want to make sure we aren't misreading the appetite.\"",tip:"'Calibrate' implies methodical correction against a reference point — more precise and professional than 'compare notes'."},
+  {sec:"banks",phrase:"We need to speak with one voice.",sit:"A pre-call meeting reveals a clear disagreement between the two co-lead banks on the conversion premium range. The client call starts in 20 minutes.",prompt:"Assert that the disagreement must be resolved before the client call — no visible division…",ex:"\"We need to speak with one voice on this call — any disagreement between us stays in this room.\"",tip:"The rule is simple: clients must never see banks disagree. This phrase closes the discussion and forces resolution."},
+  {sec:"banks",phrase:"Let's ensure we're aligned on the narrative regarding the use of proceeds.",sit:"Pre-roadshow meeting. You've noticed the issuer's CFO and the co-lead are describing the use of proceeds slightly differently in different conversations.",prompt:"Flag the narrative inconsistency and propose alignment before it reaches investors…",ex:"\"Let's ensure we're aligned on the narrative regarding the use of proceeds — investors will probe this and we need one consistent answer.\"",tip:"'Aligned on the narrative' = everyone telling the same story. 'Use of proceeds' is always a key investor question on any capital raise."},
+  {sec:"banks",phrase:"Let's take this offline and hash it out.",sit:"A debate in the joint bank meeting about deal structure has been going in circles for 25 minutes. It's becoming counterproductive.",prompt:"Propose removing the deadlocked discussion from the meeting and resolving it bilaterally…",ex:"\"I think we're going in circles here — let's take this offline and have our heads of syndicate hash it out before the afternoon call.\"",tip:"'Hash it out' signals genuine effort to resolve — not avoid. 'Take offline' removes the audience. Both together show professionalism, not weakness."},
+  {sec:"banks",phrase:"Let's strip away the noise — execution certainty is what matters.",sit:"Co-leads are stuck arguing over 10 basis points on the coupon while the market window is narrowing.",prompt:"Forcefully redirect the group to what actually matters — getting the deal done…",ex:"\"Let's strip away the noise for a second — the primary objective is execution certainty. If we lose the window arguing over 10 bps, we all lose.\"",tip:"'We all lose' is the key phrase — it makes the stakes collective, not competitive. It reframes the debate from 'who is right' to 'what matters'."},
+  {sec:"banks",phrase:"If we triangulate the feedback, the sweet spot is around 2.75%.",sit:"Two banks have slightly different market reads. You want to synthesise both into a single recommendation.",prompt:"Combine both desks' feedback methodically to arrive at a shared market-clearing price…",ex:"\"If we triangulate the feedback from our respective desks, the sweet spot is actually closer to 2.75% — I suggest we propose a range of 2.50–2.75%.\"",tip:"'Triangulate' makes the process sound rigorous and analytical. 'Sweet spot' anchors the recommendation as balanced — not one side winning."},
+  {sec:"banks",phrase:"We should stress-test the assumption on maturity.",sit:"Your co-lead is proposing a 7-year maturity but your desk's investor feedback suggests the 5-year market is much stronger right now.",prompt:"Challenge a structural assumption diplomatically using a rigorous analytical frame…",ex:"\"We should stress-test the assumption that the market will absorb a 7-year maturity — our desk is seeing significantly more traction in the 5-year space.\"",tip:"'Stress-test the assumption' is more diplomatic than 'I disagree'. It invites analysis, not argument."},
+  {sec:"banks",phrase:"Once we've squared away our disparities, we can socialise a consensus view with the CFO.",sit:"Two banks are still 15 bps apart on the coupon. The CFO call is tomorrow morning.",prompt:"Propose a sequenced approach — resolve internally first, then present a single view to the client…",ex:"\"Once we've squared away our disparities this afternoon, we can socialise a consensus view with the CFO first thing tomorrow.\"",tip:"'Squared away' = resolved and clean. 'Socialise a consensus view' = share informally to prepare the client before the formal presentation. The sequence matters."},
+  {sec:"banks",phrase:"We're in lockstep with the co-leads and pacing toward a launch Thursday.",sit:"The issuer CFO calls you for a deal update. They're nervous about the timeline and want reassurance.",prompt:"Give a confident, specific status update that signals full coordination and on-track execution…",ex:"\"The deal is tracking well. We've squared away the marketing materials, the investor list is solid. We are in lockstep with the co-leads and pacing toward a launch on Thursday morning.\"",tip:"'Lockstep' and 'pacing toward' together paint a picture of coordinated, confident momentum. Pair them with a specific date — vague reassurance doesn't land."},
+  {sec:"banks",phrase:"Does that align with your read, or do we need to double-click on the peer comps?",sit:"You've presented your view on the conversion premium to the co-lead. You want to check alignment before going to the client.",prompt:"Check whether the other bank agrees — and offer to go deeper into the data if there's any doubt…",ex:"\"I suggest a range of 25–30%. We've sanity-checked this with our syndicate and it feels like the market-clearing price. Does that align with your read, or do we need to double-click on the peer comps?\"",tip:"'Double-click' = go one level deeper. 'Align with your read' = match what you are seeing. Together they turn a potential disagreement into a collaborative process."}
+];
+
+const RP=[
+  {sec:"Pitch",ctx:"Competitive pitch — the CFO asks directly what makes you different",setup:"You're in a four-bank pitch. The CFO has just said: 'You all have strong execution records and similar relationships. The fees are similar. Give me a reason to pick you.'",cue:"CFO: \"Honestly, I've sat through three of these today. What actually makes you different?\"",model:"Three things, and I'll be direct. First, <b>our desk is reading the tape in real-time</b> — we have live flow from the investor base telling us exactly when this market is open and when to hold. Timing on a CB is everything, and that intelligence is what protects your pricing. Second, <b>we don't just execute — we manage the narrative</b>. We ensure the equity story resonates with credit and equity investors simultaneously, which most banks don't do well and which matters enormously for where the CB prices relative to your stock. And third — <b>we have skin in the game right alongside you</b>. We are prepared to hard-underwrite this transaction. Our own balance sheet is on the line. That is how confident we are in our pricing, and it's what separates us from a bank that advises and walks away.",why:"Three pitch phrases delivered as a clean structure. Each answers a different client fear: intelligence (tape reading), strategy (narrative), alignment (skin in the game). The hard underwrite as the closing point is the most powerful credibility statement available — it turns words into commitment."},
+  {sec:"Pitch",ctx:"Closing the pitch — repositioning for the long-term relationship",setup:"The pitch has gone well. The client seems impressed but non-committal. You sense they're worried about over-promising — they've been burned before by banks who disappear after mandate.",cue:"Client: \"Every bank we speak to says they're committed for the long term. What's different about you?\"",model:"You're right to push on that — it's a fair challenge. Here's what I'd say: <b>this deal is top-of-mind for our senior leadership</b>, not just the origination team. The Head of Asia ECM will be on every key call throughout execution — that's not something we offer to every client. And more broadly — <b>we aren't looking for a quick fee here</b>. We want to support your capital structure <b>for the long haul</b>, from this CB through to the refinancing and whatever comes after that. If we do this well, you won't need to run another competitive process for your next transaction. That's the relationship we're trying to build.",why:"Addressing the scepticism head-on ('you're right to push on that') makes the response far more credible than defending the claim. Senior leadership visibility is made specific (naming the Head of Asia ECM). 'Long haul' is paired with a concrete scope — 'from this CB through to the refinancing' — which is what turns a platitude into a commitment."},
+  {sec:"Banks",ctx:"Pre-call alignment — 20 minutes before the joint pricing call with the issuer",setup:"You and the co-lead bank have been going back and forth by phone. Your desks are 15 bps apart on the coupon. The client call starts in 20 minutes.",cue:"Co-lead colleague: \"Look, I think we just go in with our respective views and let the client decide.\"",model:"I hear you — but I don't think that serves either of us well. <b>We need to speak with one voice on this call.</b> If we go in with competing numbers, we undermine each other and we give the client a reason to play us off against each other. That's bad for the deal and bad for both our relationships with them long term. Let's take five minutes now — <b>let's triangulate the feedback from our respective desks</b>. If your book is seeing 2.50% and mine is at 2.65%, the honest answer is probably a range of 2.50–2.75% with 2.625% as the midpoint. <b>That's the sweet spot</b>. We go in with one range, one voice, and we let the market tell us where it clears.",why:"Rejecting the co-lead's suggestion with a clear argument (it undermines both banks) rather than just asserting authority. Triangulate + sweet spot + speak with one voice — three syndicate phrases used to build a logical case, not just to sound fluent."},
+  {sec:"Banks",ctx:"Deadlocked syndicate meeting — breaking the circular debate",setup:"The two co-lead banks have been debating the conversion premium for 40 minutes. The discussion is circular. The market window may close by end of week.",cue:"[The debate has stalled again on the same point for the third time.]",model:"I'm going to pause us here. <b>Let's strip away the noise for a second.</b> We have been on the same 5-bps difference for forty minutes, and the market window we're trying to hit is closing. The primary objective is <b>execution certainty</b> — not optimising the premium to the last basis point. If we lose the window, neither of us earns a fee and the client gets nothing. I suggest we <b>take this offline</b> right now — <b>have our respective heads of syndicate hash it out</b> in the next hour — and reconvene at 4 PM with a final agreed range to present to the CFO. Does that work?",why:"'Strip away the noise' reframes the whole debate in three words. The argument that follows ('neither of us earns a fee') makes the stakes collective rather than competitive. The proposed solution is specific and time-bound — which is what actually breaks deadlocks."},
+  {sec:"Banks",ctx:"Client update call — reassuring a nervous issuer on execution progress",setup:"Day 3 of the execution process. The issuer CFO calls unexpectedly. There was a small issue with external counsel earlier this week and they've heard something through the grapevine.",cue:"CFO: \"I'm hearing there was some kind of problem with the legal documentation. Where do we actually stand?\"",model:"Thank you for calling directly — let me give you the full picture. We did <b>hit a minor snag</b> with external counsel on the local tax jurisdiction language earlier this week. I want to be transparent: it was a real issue and we took it seriously. We've since <b>squared it away</b> — we pivoted our external counsel strategy, brought in a specialist, and we expect a watertight opinion by Tuesday. Aside from that, the deal is tracking well. The marketing materials are locked, the backbone of the investor list is solid, and we are <b>in lockstep with the co-leads</b>. We are <b>pacing toward</b> a launch on Thursday morning as planned. Nothing about that timeline has changed.",why:"Acknowledging the snag directly rather than deflecting — this is what builds trust in execution. 'Squared it away' signals resolution. 'In lockstep... pacing toward Thursday' closes on coordinated confidence. The structure: acknowledge → resolve → status → timeline is the professional update formula."}
+];
+
+function toggleCard(el){el.classList.toggle('open')}
+function switchTab(t,btn){['ref','drill','choice','roleplay'].forEach(id=>{const el=document.getElementById('m-'+id);if(el)el.style.display='none'});document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));document.getElementById('m-'+t).style.display='block';btn.classList.add('active');if(t==='choice')renderChoice();if(t==='roleplay')renderRP();if(t==='drill')renderDr()}
+
+let drIdx=0,drOrder=DR.map((_,i)=>i),chIdx=0,chOrder=DR.map((_,i)=>i),chScore=0,chAnswered=false,rpIdx=0,done=0,fluent=0;
+
+function renderDr(){const d=DR[drOrder[drIdx]];document.getElementById('dr-cnt').textContent=`${drIdx+1} / ${DR.length}`;document.getElementById('dr-prg').style.width=`${(drIdx/DR.length)*100}%`;document.getElementById('dr-lbl').textContent=d.phrase.substring(0,35)+'…';const tag=document.getElementById('dr-sec-tag');tag.textContent=d.sec==='pitch'?'📊 Pitch':'🏦 Banks / Syndicate';tag.className='sec-tag '+(d.sec==='pitch'?'sec-pitch':'sec-banks');document.getElementById('dr-sit').textContent=d.sit;document.getElementById('dr-prompt').textContent=d.prompt;document.getElementById('dr-phrase').textContent=d.phrase;document.getElementById('dr-ex').textContent=d.ex;document.getElementById('dr-tip').textContent=d.tip;document.getElementById('dr-reveal').classList.remove('show');document.getElementById('dr-rev-btn').style.display='inline-block'}
+function revealDr(){document.getElementById('dr-reveal').classList.add('show');document.getElementById('dr-rev-btn').style.display='none'}
+function rateDr(r){done++;if(r==='easy')fluent++;updateStats();drNav(1)}
+function drNav(d){drIdx=(drIdx+d+DR.length)%DR.length;renderDr()}
+function shuffleDr(){for(let i=drOrder.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[drOrder[i],drOrder[j]]=[drOrder[j],drOrder[i]]}drIdx=0;renderDr()}
+
+function renderChoice(){const d=DR[chOrder[chIdx]];document.getElementById('ch-cnt').textContent=`${chIdx+1} / ${DR.length}`;document.getElementById('ch-prg').style.width=`${(chIdx/DR.length)*100}%`;document.getElementById('ch-q').textContent=d.sit;chAnswered=false;document.getElementById('ch-fb').className='ch-fb';document.getElementById('ch-next').style.display='none';
+const wrongs=[DR[(chOrder[chIdx]+4)%DR.length].phrase,DR[(chOrder[chIdx]+8)%DR.length].phrase,DR[(chOrder[chIdx]+11)%DR.length].phrase];
+const opts=[d.phrase,...wrongs].sort(()=>Math.random()-.5);const cont=document.getElementById('ch-opts');cont.innerHTML='';opts.forEach(o=>{const btn=document.createElement('button');btn.className='ch-opt';const disp=o.length>140?o.substring(0,140)+'…':o;btn.textContent=disp;btn.onclick=()=>pickChoice(btn,o===d.phrase,d.phrase);cont.appendChild(btn)})}
+function pickChoice(btn,correct,ct){if(chAnswered)return;chAnswered=true;document.querySelectorAll('.ch-opt').forEach(b=>{b.disabled=true;const full=ct.length>140?ct.substring(0,140)+'…':ct;if(b.textContent===ct||b.textContent===full)b.classList.add('show-correct')});if(correct){btn.classList.add('correct');chScore++}else btn.classList.add('wrong');const fb=document.getElementById('ch-fb');fb.className='ch-fb show '+(correct?'ok':'no');fb.textContent=correct?'✓ Exactly right.':'✗ Not quite. The correct phrase is highlighted in green above.';document.getElementById('ch-score').textContent=`Score: ${chScore} / ${chIdx+1}`;document.getElementById('ch-next').style.display='inline-block'}
+function nextChoice(){chIdx=(chIdx+1)%DR.length;renderChoice()}
+
+function renderRP(){const r=RP[rpIdx];document.getElementById('rp-cnt').textContent=`${rpIdx+1} / ${RP.length}`;document.getElementById('rp-prg').style.width=`${(rpIdx/RP.length)*100}%`;document.getElementById('rp-lbl').textContent=r.sec;document.getElementById('rp-ctx').textContent=r.ctx;document.getElementById('rp-setup').textContent=r.setup;document.getElementById('rp-cue').textContent=r.cue;document.getElementById('rp-ta').value='';document.getElementById('rp-reveal').classList.remove('show');document.getElementById('rp-rev-btn').style.display='inline-block';document.getElementById('rp-model').innerHTML=r.model;document.getElementById('rp-why').textContent=r.why}
+function revealRP(){document.getElementById('rp-reveal').classList.add('show');document.getElementById('rp-rev-btn').style.display='none'}
+function rateRP(r){done++;if(r==='easy')fluent++;updateStats();rpNav(1)}
+function rpNav(d){rpIdx=(rpIdx+d+RP.length)%RP.length;renderRP()}
+function updateStats(){document.getElementById('s-done').textContent=done;document.getElementById('s-fluent').textContent=fluent}
+
+document.getElementById('m-drill').style.display='none';
+document.getElementById('m-choice').style.display='none';
+document.getElementById('m-roleplay').style.display='none';
+renderDr();
+</script>
+</body>
+</html>

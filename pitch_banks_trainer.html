@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Market Phrases — Trainer</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f5f5f5;
+  --surface: #ffffff;
+  --surface2: #ebebeb;
+  --border: #dcdcdc;
+  --ink: #1c1c2e;
+  --muted: #7a7f94;
+  --gold: #b8892a;
+  --gold-bg: #fdf6e3;
+  --green: #1a7a4a;
+  --green-bg: #edf7f1;
+  --red: #c0392b;
+  --red-bg: #fdf0ee;
+  --blue: #2060a8;
+  --blue-bg: #edf3fd;
+  --accent: #7c4dbd;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; }
+
+header {
+  background: var(--ink); color: #f4efe4;
+  padding: 17px 32px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 3px solid var(--gold);
+}
+.header-title { font-family: 'Lora', serif; font-size: 1.35rem; }
+.header-title em { color: #d4aa50; }
+.header-meta { font-family: 'DM Mono', monospace; font-size: 0.68rem; opacity: 0.7; }
+.header-meta strong { color: #d4aa50; }
+
+.tabs {
+  display: flex; background: var(--surface2);
+  border-bottom: 2px solid var(--border);
+  padding: 0 32px;
+}
+.tab {
+  padding: 13px 22px;
+  font-family: 'DM Mono', monospace; font-size: 0.7rem;
+  letter-spacing: 0.07em; text-transform: uppercase;
+  cursor: pointer; border: none; background: transparent;
+  color: var(--muted); border-bottom: 2px solid transparent;
+  margin-bottom: -2px; white-space: nowrap; transition: all 0.18s;
+}
+.tab.active { color: var(--gold); border-bottom-color: var(--gold); font-weight: 600; }
+.tab:hover:not(.active) { color: var(--ink); }
+
+main { max-width: 760px; margin: 0 auto; padding: 28px 32px; }
+
+.prog-row { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; }
+.prog-text { font-family: 'DM Mono', monospace; font-size: 0.68rem; color: var(--muted); white-space: nowrap; }
+.prog-track { flex: 1; height: 3px; background: var(--border); border-radius: 2px; }
+.prog-fill { height: 100%; background: var(--gold); border-radius: 2px; transition: width 0.4s; }
+
+.situation-card {
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: 8px; padding: 28px 32px; margin-bottom: 16px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.06); position: relative; overflow: hidden;
+}
+.situation-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--gold), #d4aa50);
+}
+.sc-label { font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; }
+.sc-situation { font-size: 0.97rem; line-height: 1.75; color: var(--muted); margin-bottom: 10px; }
+.sc-prompt { font-family: 'Lora', serif; font-style: italic; font-size: 1.18rem; color: var(--ink); line-height: 1.55; }
+
+.reveal-box {
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: 8px; padding: 24px 28px; margin-bottom: 16px; display: none;
+}
+.reveal-box.show { display: block; }
+.reveal-label { font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--green); margin-bottom: 12px; }
+.reveal-phrase { font-family: 'Lora', serif; font-size: 1.5rem; font-weight: 600; color: var(--ink); margin-bottom: 10px; line-height: 1.3; }
+.reveal-example { font-family: 'Lora', serif; font-style: italic; font-size: 0.9rem; color: var(--muted); border-left: 2px solid var(--gold); padding-left: 14px; line-height: 1.65; margin-bottom: 12px; }
+.reveal-tip { font-size: 0.82rem; color: var(--blue); background: var(--blue-bg); padding: 10px 14px; border-radius: 5px; line-height: 1.55; }
+
+.rate-row { display: flex; gap: 9px; margin-top: 14px; }
+.rate-btn { flex: 1; padding: 10px; border-radius: 5px; border: 1px solid; font-family: 'DM Mono', monospace; font-size: 0.66rem; letter-spacing: 0.04em; text-transform: uppercase; cursor: pointer; transition: all 0.15s; }
+.rate-hard { border-color: var(--red); color: var(--red); background: transparent; }
+.rate-hard:hover { background: var(--red-bg); }
+.rate-ok { border-color: var(--gold); color: var(--gold); background: transparent; }
+.rate-ok:hover { background: var(--gold-bg); }
+.rate-easy { border-color: var(--green); color: var(--green); background: transparent; }
+.rate-easy:hover { background: var(--green-bg); }
+
+.nav-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.btn { padding: 9px 22px; border-radius: 5px; border: 1px solid; font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 0.05em; text-transform: uppercase; cursor: pointer; transition: all 0.15s; }
+.btn-ghost { background: transparent; color: var(--muted); border-color: var(--border); }
+.btn-ghost:hover { color: var(--ink); border-color: var(--muted); }
+.btn-gold { background: var(--gold); color: white; border-color: var(--gold); }
+.btn-gold:hover { opacity: 0.88; }
+.btn-sm { padding: 6px 14px; font-size: 0.62rem; }
+
+#m-choice { display: none; }
+.choice-card {
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: 8px; padding: 24px 28px; margin-bottom: 16px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+}
+.choice-label { font-family: 'DM Mono', monospace; font-size: 0.62rem; color: var(--gold); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+.choice-q { font-size: 0.97rem; line-height: 1.7; color: var(--ink); }
+.choice-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.choice-opt {
+  padding: 13px 16px; border: 1.5px solid var(--border); border-radius: 6px;
+  background: var(--surface); font-size: 0.85rem; line-height: 1.5;
+  cursor: pointer; text-align: left; font-family: 'DM Sans', sans-serif;
+  transition: all 0.15s; color: var(--ink);
+}
+.choice-opt:hover:not(:disabled) { border-color: var(--gold); background: var(--gold-bg); }
+.choice-opt.correct { border-color: var(--green); background: var(--green-bg); color: var(--green); font-weight: 600; }
+.choice-opt.wrong { border-color: var(--red); background: var(--red-bg); color: var(--red); }
+.choice-opt.reveal-correct { border-color: var(--green); background: var(--green-bg); }
+.choice-fb { padding: 11px 14px; border-radius: 5px; font-size: 0.84rem; line-height: 1.6; display: none; margin-bottom: 12px; }
+.choice-fb.show { display: block; }
+.choice-fb.ok { background: var(--green-bg); border-left: 3px solid var(--green); color: var(--green); }
+.choice-fb.no { background: var(--red-bg); border-left: 3px solid var(--red); color: var(--red); }
+.score-badge { font-family: 'DM Mono', monospace; font-size: 0.68rem; color: var(--muted); }
+
+#m-roleplay { display: none; }
+.rp-scene {
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: 8px; padding: 24px 28px; margin-bottom: 14px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+}
+.rp-context { font-family: 'DM Mono', monospace; font-size: 0.62rem; color: var(--accent); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 7px; }
+.rp-setup { font-size: 0.88rem; color: var(--muted); line-height: 1.65; margin-bottom: 12px; font-style: italic; }
+.rp-cue { background: var(--surface2); border-left: 3px solid var(--accent); padding: 12px 16px; border-radius: 0 6px 6px 0; font-size: 0.95rem; line-height: 1.65; color: var(--ink); }
+.rp-textarea {
+  width: 100%; min-height: 88px; padding: 13px 15px;
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: 6px; color: var(--ink); font-size: 0.93rem; line-height: 1.65;
+  font-family: 'DM Sans', sans-serif; resize: vertical; outline: none;
+  margin-bottom: 10px; transition: border 0.2s;
+}
+.rp-textarea:focus { border-color: var(--accent); }
+.rp-reveal { background: var(--surface); border: 1.5px solid var(--border); border-radius: 8px; padding: 20px 24px; display: none; margin-bottom: 14px; }
+.rp-reveal.show { display: block; }
+.rp-reveal-label { font-family: 'DM Mono', monospace; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--gold); margin-bottom: 10px; }
+.model-resp { font-family: 'Lora', serif; font-size: 1.05rem; line-height: 1.8; color: var(--ink); margin-bottom: 10px; }
+.rp-why { font-size: 0.8rem; color: var(--muted); line-height: 1.6; background: var(--blue-bg); padding: 9px 13px; border-radius: 5px; }
+
+#m-browse { display: none; }
+.br-search {
+  width: 100%; padding: 11px 15px; font-size: 0.88rem; font-family: 'DM Sans', sans-serif;
+  border: 1.5px solid var(--border); border-radius: 6px; background: var(--surface);
+  color: var(--ink); outline: none; margin-bottom: 14px; transition: border 0.2s;
+}
+.br-search:focus { border-color: var(--gold); }
+.br-count { font-family: 'DM Mono', monospace; font-size: 0.68rem; color: var(--muted); margin-bottom: 10px; }
+.br-table { border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+.br-item { padding: 14px 18px; background: var(--surface); border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.12s; }
+.br-item:last-child { border-bottom: none; }
+.br-item:hover { background: var(--surface2); }
+.bi-phrase { font-family: 'Lora', serif; font-weight: 600; font-size: 0.95rem; color: var(--ink); }
+.bi-ex { font-family: 'Lora', serif; font-style: italic; font-size: 0.8rem; color: var(--muted); margin-top: 3px; line-height: 1.5; }
+.bi-exp { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+.bi-exp.open { display: block; }
+.bi-def { font-size: 0.84rem; color: var(--ink); line-height: 1.6; margin-bottom: 8px; }
+.bi-tip { font-size: 0.78rem; color: var(--blue); background: var(--blue-bg); padding: 8px 12px; border-radius: 4px; line-height: 1.5; }
+
+@media(max-width:580px){
+  main { padding: 16px; }
+  header, .tabs { padding-left: 16px; padding-right: 16px; }
+  .choice-opts { grid-template-columns: 1fr; }
+  .rate-row { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-title">Market <em>Phrases</em></div>
+  <div class="header-meta">Done: <strong id="s-done">0</strong> &nbsp;|&nbsp; Fluent: <strong id="s-fluent">0</strong></div>
+</header>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('speak',this)">① Speaking Drill</button>
+  <button class="tab" onclick="switchTab('choice',this)">② Right Phrase?</button>
+  <button class="tab" onclick="switchTab('roleplay',this)">③ Role-Play</button>
+  <button class="tab" onclick="switchTab('browse',this)">④ Browse All</button>
+</div>
+
+<main>
+
+<!-- ① SPEAKING DRILL -->
+<div id="m-speak">
+  <div class="prog-row">
+    <span class="prog-text" id="sp-cnt">1 / 18</span>
+    <div class="prog-track"><div class="prog-fill" id="sp-prg" style="width:0%"></div></div>
+    <span class="prog-text" id="sp-lbl">—</span>
+  </div>
+  <div class="situation-card">
+    <div class="sc-label">🎯 Situation — say a natural response out loud first</div>
+    <div class="sc-situation" id="sp-sit">—</div>
+    <div class="sc-prompt" id="sp-prompt">—</div>
+  </div>
+  <div class="reveal-box" id="sp-reveal">
+    <div class="reveal-label">✓ Model Phrase</div>
+    <div class="reveal-phrase" id="sp-phrase">—</div>
+    <div class="reveal-example" id="sp-ex">—</div>
+    <div class="reveal-tip" id="sp-tip">—</div>
+    <div class="rate-row">
+      <button class="rate-btn rate-hard" onclick="rateSp('hard')">🔴 Couldn't say it</button>
+      <button class="rate-btn rate-ok" onclick="rateSp('ok')">🟡 Said it, not fluently</button>
+      <button class="rate-btn rate-easy" onclick="rateSp('easy')">🟢 Said it naturally</button>
+    </div>
+  </div>
+  <div class="nav-row">
+    <button class="btn btn-ghost" onclick="spNav(-1)">← Prev</button>
+    <button class="btn btn-gold" id="sp-rev-btn" onclick="revealSp()">Reveal Phrase</button>
+    <button class="btn btn-ghost" onclick="spNav(1)">Next →</button>
+  </div>
+  <div style="text-align:center;margin-top:10px">
+    <button class="btn btn-ghost btn-sm" onclick="shuffleSp()">⇄ Shuffle order</button>
+  </div>
+</div>
+
+<!-- ② RIGHT PHRASE? -->
+<div id="m-choice">
+  <div class="prog-row">
+    <span class="prog-text" id="ch-cnt">1 / 18</span>
+    <div class="prog-track"><div class="prog-fill" id="ch-prg" style="width:0%"></div></div>
+    <span class="score-badge" id="ch-score">Score: 0 / 0</span>
+  </div>
+  <div class="choice-card">
+    <div class="choice-label">📍 Which phrase fits this moment?</div>
+    <div class="choice-q" id="ch-q">—</div>
+  </div>
+  <div class="choice-opts" id="ch-opts"></div>
+  <div class="choice-fb" id="ch-fb"></div>
+  <div class="nav-row">
+    <button class="btn btn-ghost" id="ch-next" style="display:none" onclick="nextChoice()">Next →</button>
+  </div>
+</div>
+
+<!-- ③ ROLE-PLAY -->
+<div id="m-roleplay">
+  <div class="prog-row">
+    <span class="prog-text" id="rp-cnt">1 / 18</span>
+    <div class="prog-track"><div class="prog-fill" id="rp-prg" style="width:0%"></div></div>
+    <span class="prog-text" id="rp-lbl">—</span>
+  </div>
+  <div class="rp-scene">
+    <div class="rp-context" id="rp-ctx">—</div>
+    <div class="rp-setup" id="rp-setup">—</div>
+    <div class="rp-cue" id="rp-cue">—</div>
+  </div>
+  <textarea class="rp-textarea" id="rp-ta" placeholder="Write what you would say in this situation…"></textarea>
+  <div class="nav-row" style="margin-bottom:12px">
+    <button class="btn btn-ghost" onclick="rpNav(-1)">← Prev</button>
+    <button class="btn btn-gold" id="rp-rev-btn" onclick="revealRP()">See Model Response</button>
+    <button class="btn btn-ghost" onclick="rpNav(1)">Next →</button>
+  </div>
+  <div class="rp-reveal" id="rp-reveal">
+    <div class="rp-reveal-label">Model Response — key phrases highlighted</div>
+    <div class="model-resp" id="rp-model">—</div>
+    <div class="rp-why" id="rp-why">—</div>
+    <div class="rate-row">
+      <button class="rate-btn rate-hard" onclick="rateRP('hard')">🔴 Very different</button>
+      <button class="rate-btn rate-ok" onclick="rateRP('ok')">🟡 Similar but less natural</button>
+      <button class="rate-btn rate-easy" onclick="rateRP('easy')">🟢 Close to model</button>
+    </div>
+  </div>
+</div>
+
+<!-- ④ BROWSE -->
+<div id="m-browse">
+  <input class="br-search" type="text" id="br-q" placeholder="Search phrases, meanings, examples…" oninput="renderBrowse(this.value)">
+  <div class="br-count" id="br-count"></div>
+  <div class="br-table" id="br-list"></div>
+</div>
+
+</main>
+
+<script>
+const P = [
+  {
+    phrase: "Rip higher",
+    def: "A price increases extremely fast and with great force — a sudden, violent upward move that often catches people by surprise. Much stronger than 'rise' or 'go up'.",
+    sit: "The Federal Reserve has just announced an unexpected rate cut and markets are reacting instantly.",
+    prompt: "Describe a market moving upward with sudden, powerful force…",
+    ex: "\"As soon as the Fed announced the rate cut, the tech sector began to rip higher, gaining 4% in a single afternoon.\"",
+    tip: "Used for moves that are fast and forceful — not gradual climbs. The energy of the word 'rip' is the point. Often paired with a specific percentage to give it weight.",
+    cq: "The Fed just cut rates unexpectedly. Tech stocks are surging violently. You call your client:",
+    cc: "Tech is ripping higher right now — up nearly 4% in the last hour. We may want to revisit our underweight position.",
+    cw: ["Tech stocks are going up very quickly after the Fed announcement.", "The market has reacted very positively to the rate cut today.", "Tech is rising fast — we're seeing strong gains across the sector."],
+    ctx: "Client call — immediately after a surprise Fed rate cut",
+    setup: "The Fed cut rates by 50bps without warning. Tech stocks have surged violently within minutes.",
+    cue: "Client: \"What's happening out there? My portfolio is moving.\"",
+    model: "The Fed surprised the market with a 50bps cut — that's what you're feeling. Tech is <b>ripping higher</b>, up nearly 4% in under an hour. Growth names are leading the move. <b>This is the kind of fast move where the first 30 minutes matters most</b> — I'd suggest we talk through your positioning before the momentum fades.",
+    why: "'The first 30 minutes matters most' creates urgency without panic. It gives the client a reason to act now without feeling pressured — the time pressure comes from the market, not from you."
+  },
+  {
+    phrase: "Mooning / Going to the moon",
+    def: "A price is rising so fast and dramatically it seems to be leaving the atmosphere entirely. Common in crypto and retail trading. More informal and colourful than 'rip higher'.",
+    sit: "A biotech stock has just announced a breakthrough trial result and the price has gone vertical.",
+    prompt: "Describe a price move so extreme it almost defies description — use vivid, high-energy language…",
+    ex: "\"The stock started mooning immediately after the positive trial results were released.\"",
+    tip: "Use in informal or enthusiastic contexts — with clients you know well, in internal team discussions, or when describing retail market behaviour. Not for formal client reports.",
+    cq: "A small-cap biotech you've been tracking just released breakthrough trial data. The stock is up 180%. You message a colleague:",
+    cc: "Did you see BioPharma X? That thing is absolutely mooning — up 180% in the first hour. Trial data must have been off the charts.",
+    cw: ["BioPharma X has gone up enormously today after the trial results.", "The stock is increasing very rapidly — the results must have been very positive.", "BioPharma X is having an extraordinary day in the market today."],
+    ctx: "Internal team chat — biotech stock event",
+    setup: "A biotech you've been watching released Phase 3 trial data at 8 AM. The stock opened up 180%.",
+    cue: "Colleague (on chat): \"What's happening with BioPharma X??\"",
+    model: "It's <b>absolutely mooning</b> — Phase 3 data was a full response rate of 94%, which is unheard of in this indication. The short interest was also enormous, so you're getting a brutal squeeze on top of the fundamental move. <b>This thing could genuinely go to the moon before the shorts cover.</b> I'd watch the 2 PM options expiry closely.",
+    why: "'A brutal squeeze on top of the fundamental move' is the kind of specific, layered analysis that distinguishes a professional from a spectator. It explains why the move is even bigger than the data alone would justify."
+  },
+  {
+    phrase: "Melt-up",
+    def: "A dramatic, unexpected surge in asset prices driven by FOMO (fear of missing out) rather than improving fundamentals. Investors pile in not because things are good, but because they're afraid of being left behind.",
+    sit: "Markets have been rising steadily for months with no fundamental catalyst — it appears to be sentiment-driven.",
+    prompt: "Describe a market rally that is being driven by fear of missing out rather than genuine economic strength…",
+    ex: "\"The market is in a total melt-up phase — everyone is buying because they're afraid of being left behind.\"",
+    tip: "Implies a warning as much as a description — melt-ups are exciting but dangerous. They end suddenly. Use it to signal you're aware the move may not be sustainable.",
+    cq: "Equities have rallied 25% this year with no meaningful earnings growth to justify it. A client asks your view:",
+    cc: "Honestly, this has the hallmarks of a melt-up — the move is being driven by positioning and FOMO, not fundamentals. We're cautious.",
+    cw: ["The market has risen a lot this year without clear justification from the economic data.", "Stocks are up significantly but we're not sure the earnings support these levels.", "The rally feels more like sentiment than substance to us right now."],
+    ctx: "Quarterly strategy call with a fund manager client",
+    setup: "Equities are up 25% YTD. P/E ratios are stretched. Earnings growth is flat. The client wants your honest read.",
+    cue: "Client: \"Markets keep going up — are you getting more constructive?\"",
+    model: "We're actually increasingly cautious. This has the classic hallmarks of a <b>melt-up</b> — positioning is extended, retail flows are surging, and the move is being driven by <b>FOMO rather than any fundamental improvement</b> in earnings or growth. These moves can run further than you'd expect, but they also end abruptly. <b>We'd rather be slightly early in reducing risk than perfectly timed and wrong.</b>",
+    why: "'We'd rather be slightly early in reducing risk than perfectly timed and wrong' is a sophisticated risk management philosophy stated simply. It justifies a cautious position without sounding defensive."
+  },
+  {
+    phrase: "Tank / Plunge / Plummet",
+    def: "A price falls sharply and suddenly. 'Tank' is the most informal and emphatic; 'plunge' is vivid and fast; 'plummet' suggests a heavy free-fall. All three are stronger than 'fall' or 'drop'.",
+    sit: "A company has just released a profit warning after market close and its shares are collapsing in after-hours trading.",
+    prompt: "Describe a price falling sharply and suddenly after bad news — use a vivid, high-impact word…",
+    ex: "\"The tech giant's shares tanked nearly 15% in after-hours trading following a disappointing earnings forecast.\"",
+    tip: "'Tank' is the most informal and punchy. 'Plummet' sounds heavier and more inevitable. 'Plunge' is fast and dramatic. Choose based on the speed and severity of the move. All three are perfectly professional in market commentary.",
+    cq: "A company just issued a profit warning after market close — earnings will miss by 30%. Their shares are down 18% in after-hours. You update a client:",
+    cc: "RetailCo just issued a profit warning — earnings miss of 30%. The stock has tanked 18% in after-hours. We may need to revisit the position.",
+    cw: ["The company announced bad earnings and the stock has gone down significantly.", "RetailCo had very disappointing results and the share price has fallen a lot.", "The stock is down 18% after the earnings miss was announced after close."],
+    ctx: "After-hours client alert — profit warning",
+    setup: "It's 6 PM. RetailCo has just issued a profit warning. Their shares are collapsing in after-hours trading.",
+    cue: "Client: \"I just saw an alert — what happened with RetailCo?\"",
+    model: "They issued a profit warning after the bell — earnings will miss consensus by around 30%, citing weak consumer demand and margin pressure from freight costs. The stock has <b>tanked 18%</b> in after-hours. <b>Given your position size, I'd suggest we talk through whether to exit at the open or hold through the volatility</b> — tomorrow morning's management call may give us more clarity on whether this is structural or a one-quarter issue.",
+    why: "Offering a clear binary choice — exit at open or hold — is exactly what a client needs in a stressful moment. Don't present a problem without at least framing the decision they face."
+  },
+  {
+    phrase: "Pullback / Retracement / Correction",
+    def: "A pullback or retracement is a small, temporary dip after a period of growth — healthy and expected. A correction is a decline of 10% or more, implying prices were 'wrong' and are returning to a realistic level.",
+    sit: "Markets have fallen 6% from recent highs after a long rally. Clients are concerned but you want to contextualise the move.",
+    prompt: "Reassure a client that a moderate market decline is normal and expected after a strong rally…",
+    ex: "\"After hitting record highs, the stock experienced a minor pullback as investors took profits.\"",
+    tip: "The word you choose signals your severity assessment. 'Pullback' = minor, healthy. 'Retracement' = technical, expected. 'Correction' = more serious, 10%+. Use them precisely — they carry different implications for clients.",
+    cq: "Markets are down 6% from their peak. A nervous client calls asking if they should sell everything. You respond:",
+    cc: "This is a healthy pullback after a very strong run — a 6% retracement from record highs is well within normal range. We'd be cautious about selling into this.",
+    cw: ["The market has gone down a bit from where it was but this is fairly normal.", "Don't worry too much — some decline after a big rally is not unusual at all.", "Markets have dropped 6% but they were quite high before so this isn't too surprising."],
+    ctx: "Client reassurance call — markets down 6% from highs",
+    setup: "After a 28% rally YTD, markets have pulled back 6% over two weeks. A client is panicking.",
+    cue: "Client: \"Markets are falling — should I be moving to cash?\"",
+    model: "I'd encourage you to keep perspective. A <b>6% pullback</b> after a 28% rally is not a crisis — it's healthy digestion. We're not seeing the credit stress or liquidity signals that precede a genuine sell-off. <b>This looks more like a retracement</b> to us than the beginning of something structural. <b>Selling into a pullback like this historically tends to crystallise losses at exactly the wrong moment.</b> Let's talk through your time horizon before making any moves.",
+    why: "'Selling into a pullback historically tends to crystallise losses at exactly the wrong moment' is a calm, evidence-based counter to panic selling. It uses the word 'historically' to invoke data without citing a specific number."
+  },
+  {
+    phrase: "Running out of steam",
+    def: "A rally, project, or momentum that started strong is now slowing down and may not reach its destination without a new catalyst. Like a steam engine losing pressure.",
+    sit: "A convertible bond order book built quickly at launch but growth has slowed significantly after two days of roadshow.",
+    prompt: "Flag that momentum in a deal or market move is fading and may need a catalyst to continue…",
+    ex: "\"The equity story has been strong, but the rally is running out of steam — we should launch now to lock in these levels.\"",
+    tip: "Implies urgency — if something is running out of steam, action is needed now before it stops entirely. Always follow with what you think the next catalyst needs to be, or a recommendation to act.",
+    cq: "The IPO order book covered 2x on day one but hasn't moved in 36 hours. Pricing is tomorrow. You advise the issuer:",
+    cc: "The book is running out of steam — we covered quickly but momentum has stalled. I'd suggest we price at the midpoint tonight and close it out rather than risk the window.",
+    cw: ["The book hasn't been growing for the last day and a half and we're concerned.", "We had a good start but things have slowed down considerably since day one.", "Interest in the deal has dropped off since the initial excitement on the first day."],
+    ctx: "IPO pricing discussion — day two of bookbuilding",
+    setup: "The IPO covered 2x in the first 12 hours, but the book has been static for 36 hours. Pricing is tomorrow morning.",
+    cue: "CFO: \"The book covered fast — why are you recommending we price tonight?\"",
+    model: "Because the momentum has <b>run out of steam</b>. We covered 2x early, which is great, but the book hasn't grown in 36 hours — which tells us the remaining demand is either hesitant or price-sensitive. <b>If we wait, we risk the window shifting on us</b> — rates, sentiment, a competitor announcement. Pricing at the midpoint tonight locks in a clean, well-covered book. <b>A deal that closes well is worth more than a deal that stretches and stumbles.</b>",
+    why: "'A deal that closes well is worth more than a deal that stretches and stumbles' is a memorable, principle-based argument. It reframes the decision from maximising price to maximising execution quality."
+  },
+  {
+    phrase: "Turning the corner",
+    def: "The worst part of a crisis, decline, or difficult period is over and things are finally beginning to improve — like a car finally making the turn after a long straight.",
+    sit: "A company has posted three consecutive quarters of losses but the latest data shows the first signs of recovery.",
+    prompt: "Signal that a period of difficulty appears to be ending and improvement is beginning…",
+    ex: "\"The economy is turning the corner as inflation begins to cool down.\"",
+    tip: "Optimistic but measured — it says improvement has started, not that everything is fine. Don't use it too early or it sounds like wishful thinking. Best paired with a specific data point that justifies the call.",
+    cq: "After three difficult quarters, a company's latest results show margin improvement and positive free cash flow for the first time. You say:",
+    cc: "I think we're finally seeing this business turn the corner — positive free cash flow for the first time in nine months is a meaningful signal.",
+    cw: ["Things seem to be getting better for this company after a difficult period.", "The latest results suggest the worst may be behind them now.", "There are signs of improvement in the most recent quarterly numbers."],
+    ctx: "Earnings review call with an investor client",
+    setup: "A company you cover has had three loss-making quarters. Q4 results just showed positive FCF and margin expansion for the first time.",
+    cue: "Investor: \"Is this recovery real or is it just one good quarter?\"",
+    model: "I think it's real. <b>The business is turning the corner</b> — and this isn't just one number. We're seeing margin expansion, positive free cash flow, and order intake up 12% year-on-year. Three consecutive quarters of improvement across all three metrics is not a coincidence. <b>The question now isn't whether the recovery is real — it's whether the current valuation reflects it.</b> We don't think it does yet.",
+    why: "'The question now isn't whether the recovery is real — it's whether the valuation reflects it' is a classic analyst pivot. It closes one debate and opens the more commercially important one."
+  },
+  {
+    phrase: "Dead cat bounce",
+    def: "A small, temporary recovery in a sharply declining asset — not a genuine reversal. Even a dead cat will bounce if it falls from high enough. A warning not to mistake a brief recovery for a real turnaround.",
+    sit: "A stock that has fallen 40% has just recovered 8% in a single day. You suspect this is temporary.",
+    prompt: "Warn a client not to be fooled by a brief recovery in a stock that is still fundamentally broken…",
+    ex: "\"Analysts are worried the recent rally is a dead cat bounce rather than a true recovery.\"",
+    tip: "A cautionary phrase — use it to prevent premature optimism. Always explain what would make you change your view and call it a genuine recovery instead of a bounce.",
+    cq: "A beaten-down retailer is up 9% today with no new news. You're sceptical. A client asks if it's time to buy:",
+    cc: "I'd be careful — this looks like a dead cat bounce to me. There's no new fundamental catalyst and the underlying business issues haven't changed.",
+    cw: ["I'm not sure this recovery is the real thing — the company still has the same problems.", "The stock is bouncing but I don't think the business has actually improved.", "It's gone up today but without any real reason to be more optimistic about the company."],
+    ctx: "Client call — beaten-down retailer bouncing with no news",
+    setup: "A retailer down 45% YTD has bounced 9% today. No news has been released. The company's fundamentals are unchanged.",
+    cue: "Client: \"RetailCo is up 9% today — is this the entry point?\"",
+    model: "I'd be cautious. This has the hallmarks of a <b>dead cat bounce</b> — there's no new fundamental catalyst, no management update, and the short interest is still very high. <b>When a heavily shorted stock bounces with no news, it usually means short-covering, not conviction buying.</b> The underlying issues — margin compression and the lease liabilities — haven't been addressed. I'd want to see a credible turnaround plan before calling this a genuine recovery.",
+    why: "'Short-covering, not conviction buying' is a precise distinction that immediately tells the client what kind of buyers are driving the move — and why it doesn't mean what they hope it means."
+  },
+  {
+    phrase: "Bottoming out",
+    def: "The moment when a declining price or trend stops falling and reaches its lowest point before beginning to recover. The floor has been found.",
+    sit: "Consumer confidence data has been declining for six months but the latest reading shows the first stabilisation.",
+    prompt: "Identify the moment when a decline appears to have reached its lowest point and stabilisation is beginning…",
+    ex: "\"Consumer confidence seems to have bottomed out in June and is now on the rise.\"",
+    tip: "More confident than 'may have found a floor'. It implies the low point has been reached — but be careful not to call it too early. Best paired with data that supports the view.",
+    cq: "Credit spreads have widened for four months but have been flat for two weeks. You update your macro view:",
+    cc: "Credit spreads appear to be bottoming out — four months of widening followed by two weeks of stabilisation is a pattern we've seen before at inflection points.",
+    cw: ["It looks like credit spreads might have stopped getting worse for now.", "The widening in credit seems to have paused recently which could be a positive sign.", "Credit spreads haven't moved much in the last couple of weeks after a difficult period."],
+    ctx: "Weekly macro strategy note — credit markets",
+    setup: "Credit spreads widened sharply for four months. They've been stable for two weeks.",
+    cue: "Portfolio manager: \"Are credit spreads telling us anything useful right now?\"",
+    model: "We think they may be <b>bottoming out</b>. Four months of widening, followed by two weeks of stability, is consistent with the pattern we've seen at prior inflection points in 2016 and 2019. <b>We're not calling a full recovery yet</b> — we'd want to see actual tightening for at least a week before getting more constructive. But the stabilisation is encouraging. <b>We're watching the high-yield new issue market as the cleanest leading indicator — if that reopens, spreads will follow.</b>",
+    why: "Referencing '2016 and 2019' as comparisons adds credibility. Then immediately hedging — 'we're not calling a full recovery yet' — shows intellectual honesty. The leading indicator call at the end gives the PM something concrete to watch."
+  },
+  {
+    phrase: "Eye-watering",
+    def: "So extreme in scale — usually in cost, price, or loss — that it causes a visceral reaction. In finance, almost always means shockingly expensive or shockingly large.",
+    sit: "A major tech acquisition has been announced at a valuation that seems extraordinarily high by any measure.",
+    prompt: "Describe a number or price that is so large it's almost difficult to process…",
+    ex: "\"The star athlete signed a contract for an eye-watering sum of $200 million over three years.\"",
+    tip: "More vivid and human than 'very large' or 'significant'. It signals that the number provokes a genuine physical reaction — disbelief, shock, admiration. Use it when you want to flag something extraordinary without editorialising further.",
+    cq: "A tech giant has just agreed to acquire a startup for $28 billion — 40x revenue. You comment on the deal:",
+    cc: "Forty times revenue is an eye-watering multiple — even by today's standards. The strategic rationale had better be exceptional.",
+    cw: ["That is a very expensive acquisition by any reasonable measure you could apply.", "The price they've paid for this company is extremely high compared to its revenues.", "Forty times revenue is a lot to pay — the multiple is very stretched."],
+    ctx: "M&A commentary — large tech acquisition announcement",
+    setup: "A $28bn acquisition at 40x revenue has just been announced. The market is divided on whether it's brilliant or reckless.",
+    cue: "Colleague: \"What's your take on the TechCo acquisition?\"",
+    model: "It's an <b>eye-watering</b> multiple — 40x revenue makes this one of the most expensive software acquisitions on record. The strategic logic is clear: they're buying a dominant position in a fast-growing category rather than building it themselves. <b>But at this price, they've essentially paid for ten years of future growth upfront.</b> If the category grows as expected, it's a bargain. If it doesn't, it's a very expensive lesson.",
+    why: "'They've paid for ten years of future growth upfront' is a brilliant way to contextualise a large multiple. It reframes the valuation as a bet on the future rather than a price on the present — which is exactly how these deals should be evaluated."
+  },
+  {
+    phrase: "Negate",
+    def: "To cancel out, nullify, or make something ineffective — like a mathematical minus sign that brings a plus back to zero. The gain or benefit is eliminated by an opposing force.",
+    sit: "A strong trading gain has been completely wiped out by transaction costs and currency movements.",
+    prompt: "Explain that a positive outcome has been cancelled out by an opposing factor…",
+    ex: "\"The high transaction fees negate the small gains we made on the stock price.\"",
+    tip: "More precise and authoritative than 'cancel out' or 'wipe out'. Use it when one factor completely neutralises another. Very common in risk management, cost analysis, and hedging discussions.",
+    cq: "Your fund made a 2% gain on a position but currency movement and fees brought the net return to zero. You explain:",
+    cc: "The currency move and transaction costs completely negated the trading gain — we ended up flat on a position that looked profitable at the gross level.",
+    cw: ["The currency movement and costs cancelled out all the money we made on the trade.", "After fees and FX, the gain we made on the stock was completely wiped out.", "We made 2% on the position but ended up with nothing after costs and currency."],
+    ctx: "Post-trade review — FX and fee drag",
+    setup: "A position returned 2% gross. A 1.5% adverse currency move and 0.5% in transaction costs left the net return at zero.",
+    cue: "MD: \"I thought we made money on that position — what happened to the P&L?\"",
+    model: "We did make money at the gross level — 2% on the position. But the currency move <b>negated</b> approximately half of that, and transaction costs accounted for the rest. <b>The net return was effectively zero.</b> It highlights a structural issue we need to address: if we're taking unhedged FX exposure on positions this size, currency movements will regularly <b>negate</b> what would otherwise be strong trading outcomes.",
+    why: "Using 'negate' twice — first to describe what happened, then to frame the structural risk — models how a native speaker would use the word across a brief piece of analytical speech."
+  },
+  {
+    phrase: "Militate against",
+    def: "A fact or circumstance acts as a powerful reason or force working against something happening. Stronger than 'work against' — it implies significant weight or pressure.",
+    sit: "You're advising a company not to issue bonds right now because the current rate environment makes it a poor decision.",
+    prompt: "Identify a specific factor that creates a strong, compelling reason not to do something…",
+    ex: "\"The current high interest rates militate against taking on more corporate debt at this time.\"",
+    tip: "More sophisticated than 'makes it difficult' or 'argues against'. It implies the opposing force is substantial — not just an inconvenience, but a genuine obstacle. Very effective in formal risk assessments.",
+    cq: "A client wants to issue a high-yield bond this week despite very wide spreads. You advise them:",
+    cc: "The current spread environment strongly militates against issuing this week — the all-in cost would be 200bps wider than three months ago.",
+    cw: ["This is not a good time to issue because spreads are very wide right now.", "Issuing this week would be expensive given how wide credit spreads currently are.", "The market conditions are working against an issuance right now."],
+    ctx: "Client advisory call — bond issuance timing",
+    setup: "A BB-rated issuer wants to issue a high-yield bond. Credit spreads are 200bps wider than they were three months ago.",
+    cue: "CFO: \"We need liquidity. Can we go to market this week?\"",
+    model: "I understand the liquidity need — but I have to be direct. The current spread environment <b>militates strongly against</b> issuing this week. At current levels, your all-in cost would be approximately 200bps above what you'd have paid in Q1 — that's a material difference on a five-year instrument. <b>Unless the liquidity need is genuinely urgent, waiting four to six weeks could save you tens of millions in interest over the life of the bond.</b> Can we explore bridge options in the meantime?",
+    why: "Converting 'wide spreads' into 'tens of millions in interest over the life of the bond' makes the abstract concrete and the financial consequence visceral. Always translate market conditions into what they actually cost the client."
+  },
+  {
+    phrase: "Akin to",
+    def: "Similar to, or sharing the same fundamental nature as. More sophisticated and precise than 'like' or 'similar to' — it implies a deeper structural or qualitative resemblance.",
+    sit: "You're comparing a current market situation to a historical precedent that the client will recognise.",
+    prompt: "Draw a sophisticated comparison between the current situation and a historical or conceptual parallel…",
+    ex: "\"Their investment philosophies are very much akin to one another — they are clearly cut from the same cloth.\"",
+    tip: "Use when you want to draw a precise analogy without overstating it. 'Akin to' is more measured than 'identical to' — it says the resemblance is significant but not exact. Excellent in historical market comparisons.",
+    cq: "The current AI investment frenzy is drawing comparisons to the dot-com era. A client asks your view:",
+    cc: "In some ways the current AI enthusiasm is akin to 1999 — the underlying technology is real, but valuations have run well ahead of near-term fundamentals.",
+    cw: ["The AI rally reminds me quite a lot of the dot-com bubble we saw in 1999.", "What's happening in AI stocks now is very similar to the late 1990s tech boom.", "The excitement around AI today is comparable to what we saw with internet stocks in 1999."],
+    ctx: "Client strategy discussion — AI valuations",
+    setup: "AI stocks have surged 80% on average this year. The client is asking whether the excitement is justified.",
+    cue: "Client: \"Is this the dot-com bubble all over again?\"",
+    model: "It's a fair question — and in some respects the current environment is <b>akin to</b> 1999. The enthusiasm is real, the technology is genuinely transformative, and valuations have run ahead of near-term earnings. <b>But there's a key difference:</b> in 1999, most of these companies had no revenue. Today's AI leaders are generating billions in cash flow. <b>The risk isn't that the technology is fake — it's that the multiple assumes perfection.</b>",
+    why: "'The multiple assumes perfection' is a precise and memorable summary of valuation risk. It tells the client exactly what the bear case is in four words."
+  },
+  {
+    phrase: "Doubling down",
+    def: "Committing even more heavily to a strategy, position, or belief — especially when it is being challenged or when early results have been disappointing.",
+    sit: "A company has had a failed product launch but instead of retreating, the CEO is increasing the marketing budget.",
+    prompt: "Describe someone increasing their commitment to a strategy despite pushback or early setbacks…",
+    ex: "\"The product launch failed, but the CEO is doubling down by increasing the marketing budget.\"",
+    tip: "Can be admirable (showing conviction) or reckless (ignoring evidence). Context determines which. Use it neutrally and let the listener decide. Often signals a high-conviction, high-risk moment.",
+    cq: "Your fund has a losing long position in a stock down 20% but your thesis is unchanged. You're adding to the position. You explain to the risk committee:",
+    cc: "We're doubling down on the position — the thesis is intact, the weakness is macro not fundamental, and the discount to intrinsic value has widened significantly.",
+    cw: ["We're adding more to the position because we still believe in the investment case.", "We think the stock is even cheaper now so we're buying more of it.", "Our view hasn't changed so we're increasing our exposure to this name."],
+    ctx: "Risk committee — defending a losing position",
+    setup: "A long equity position is down 20% due to macro selling in the sector. Your fundamental thesis is unchanged.",
+    cue: "Risk committee chair: \"The position is down 20% — are you reducing?\"",
+    model: "We're actually <b>doubling down</b>. The 20% decline is entirely sector-driven — there's been no change in the company's fundamentals, earnings guidance, or competitive position. <b>The macro selling has created a significant discount to what we believe is intrinsic value.</b> We've stress-tested the downside and we're comfortable with the sizing. This is exactly the type of dislocation our strategy is designed to exploit.",
+    why: "'This is exactly the type of dislocation our strategy is designed to exploit' is a confident, coherent answer that connects the specific decision to the broader investment philosophy. It says: this isn't stubbornness, it's the plan working as intended."
+  },
+  {
+    phrase: "Bread and butter",
+    def: "The main, most reliable source of income or the core, most essential part of a business or strategy. The thing that keeps everything else running.",
+    sit: "A bank is considering expanding into complex structured products while its core lending business is under pressure.",
+    prompt: "Argue that an organisation should protect and focus on its core, most reliable business before chasing new opportunities…",
+    ex: "\"Delta neutral hedging is the bread and butter of convertible arbitrage funds.\"",
+    tip: "Use it to identify what an organisation does best and most reliably. It implies everything else is secondary. Very effective when arguing against overexpansion or distraction from core competencies.",
+    cq: "Your bank's leadership wants to expand into crypto trading while corporate lending revenues are falling. You push back:",
+    cc: "Corporate lending is our bread and butter — if that's under pressure, we need to fix it before we start chasing new business lines we don't fully understand.",
+    cw: ["We should focus on our main business area before trying to expand into new things.", "Corporate lending is the core of what we do and it should be the priority right now.", "We shouldn't be distracted by new opportunities when our core business needs attention."],
+    ctx: "Internal strategy debate — resource allocation",
+    setup: "Corporate lending margins are compressed. Leadership wants to allocate capital to a new crypto trading desk.",
+    cue: "CEO: \"We need new revenue streams — what do you think about the crypto desk proposal?\"",
+    model: "I'd want to understand why we're considering building a crypto desk before we've fixed the margin compression in corporate lending. <b>Lending is our bread and butter</b> — it's what our clients come to us for and where our relationship capital sits. <b>Chasing a new business line while the core is under pressure tends to create two problems instead of solving one.</b> I'd rather deploy that capital into restoring lending margins first.",
+    why: "'Chasing a new business line while the core is under pressure tends to create two problems instead of solving one' is a sharp strategic insight. It's memorable, logical, and gives the CEO a concrete reason to reconsider — not just a preference."
+  },
+  {
+    phrase: "Footing the bill",
+    def: "To pay for something — especially something expensive, unexpected, or that others benefit from. Often implies the payer bears a cost they didn't fully choose.",
+    sit: "A government bailout has been announced and taxpayers will ultimately bear the cost.",
+    prompt: "Describe who is ultimately bearing the financial cost of something expensive…",
+    ex: "\"My parents are footing the bill for my wedding, which is incredibly generous of them.\"",
+    tip: "More colourful and human than 'paying for' or 'bearing the cost'. It often implies the payer has been put in this position — sometimes willingly, sometimes not. Use it to highlight the human dimension of a financial decision.",
+    cq: "A major bank has been bailed out by the government. You comment on who ultimately bears the cost:",
+    cc: "When the government steps in to bail out a systemically important bank, it's ultimately the taxpayer who ends up footing the bill.",
+    cw: ["The cost of the bank bailout will ultimately be paid by the taxpayers of this country.", "It is the public who will have to pay for the government's decision to rescue the bank.", "Taxpayers are the ones who will bear the financial cost of this bailout in the end."],
+    ctx: "Financial journalism or client commentary — bank bailout",
+    setup: "A major bank has just received a government bailout worth £40bn.",
+    cue: "Client: \"Who actually pays for a bailout like this?\"",
+    model: "Ultimately, it's the taxpayer <b>footing the bill</b>. The government funds the bailout through debt issuance, which either gets repaid through future tax revenues or inflated away over time. <b>In theory, if the bailout works and the bank recovers, the government may recoup its investment</b> — as happened partially with RBS. But the risk, the waiting, and the opportunity cost of that capital are all borne by the public. It's rarely a clean outcome.",
+    why: "Referencing RBS as a historical precedent makes the abstract concrete and shows the client you know your history. 'The risk, the waiting, and the opportunity cost' breaks down the burden into three components — which is clearer than a single vague statement."
+  },
+  {
+    phrase: "Revitalise / Revive / Pivot",
+    def: "Revitalise: to restore energy and strength to something that has declined. Revive: to bring something back after it has stopped or nearly failed. Pivot: to change direction deliberately and decisively.",
+    sit: "A struggling retail brand is considering a major strategic overhaul to regain relevance in a changed market.",
+    prompt: "Describe a deliberate strategic change designed to restore growth or relevance after a period of decline…",
+    ex: "\"The government is introducing tax breaks to revitalise the manufacturing sector.\" / \"I pivoted into a completely new career and never looked back.\"",
+    tip: "Choose the right word: revitalise suggests restoring what was there. Revive suggests bringing something back from near-death. Pivot is a sharp, deliberate change of direction — often used when the old direction was wrong, not just slow.",
+    cq: "A legacy retail brand has been losing market share to online competitors for five years. The new CEO has a radical new plan. You describe it:",
+    cc: "The new CEO is pivoting the business from a bricks-and-mortar model to a digital-first platform — it's a full strategic reinvention, not just a refresh.",
+    cw: ["The new CEO is changing the company's strategy significantly to focus more on online.", "They're moving away from physical stores and focusing on their digital business instead.", "The company is making a major strategic shift toward e-commerce under the new leadership."],
+    ctx: "Analyst note on a retail sector transformation",
+    setup: "A legacy department store chain has appointed a new CEO from a tech background. The strategic review is complete.",
+    cue: "Investor: \"What's the new CEO's actual plan?\"",
+    model: "It's a genuine <b>pivot</b> — not a revamp. She's closing 40% of the store estate, <b>revitalising</b> the remaining flagship locations as experience destinations, and rebuilding the digital infrastructure from scratch. <b>This isn't a company trying to survive — it's a company trying to reinvent itself</b>, and the distinction matters for how you value it. The question is whether the market will give her 18 months to prove the thesis.",
+    why: "Distinguishing between 'surviving' and 'reinventing' is an important analytical point. It tells the investor what the correct valuation framework is — not a distressed asset multiple, but a transformation story multiple. The framing changes the number."
+  },
+  {
+    phrase: "AI tailwind / Rising tide / Arms race",
+    def: "Three vivid market metaphors: AI tailwind = AI is providing a background boost to companies even if they aren't pure AI plays. Rising tide = broad market lift benefiting everyone in the sector. Arms race = competitive escalation where all players must keep spending or fall behind.",
+    sit: "A non-tech client asks why their software company is benefiting from the AI boom despite not being an AI company.",
+    prompt: "Explain how the broader AI investment wave is benefiting companies across the market, not just pure AI players…",
+    ex: "\"Even non-tech companies are benefiting from the AI tailwind as they automate back-office functions.\" / \"It's been a rising tide lifting all boats.\" / \"There's an AI arms race and companies are spending billions just to keep up.\"",
+    tip: "These three phrases work together to build a complete picture: the tailwind explains why everyone benefits, the rising tide explains the breadth, and the arms race explains the competitive dynamic driving the spending. Use them in combination for maximum impact.",
+    cq: "A client asks why their industrial software holding has risen 35% despite having no AI product. You explain:",
+    cc: "They're benefiting from the AI tailwind — the market is repricing any company that can credibly claim AI will improve its margins, even if they're not a pure-play.",
+    cw: ["The AI excitement is helping companies like this even if they don't have an actual AI product.", "The market is being generous to any company associated with AI right now.", "Investors are assuming AI will benefit this company even if it's not directly in AI."],
+    ctx: "Client portfolio review — explaining AI sector repricing",
+    setup: "An industrial software company in a client's portfolio has risen 35% YTD. It has no AI product but uses automation extensively.",
+    cue: "Client: \"I don't understand why this holding is up 35% — they're not an AI company.\"",
+    model: "They're riding the <b>AI tailwind</b> without being a pure-play. The market is repricing any company that can credibly demonstrate AI will expand their margins — and this one has a compelling story on automation. <b>It's been a rising tide lifting all boats</b> in the software space. The risk is that <b>as the AI arms race intensifies</b>, the market will start distinguishing between companies that are genuinely transforming and those that are just benefiting from the sentiment. <b>This one needs to show results by next year or the premium will fade.</b>",
+    why: "Using all three phrases in sequence — tailwind, rising tide, arms race — builds a complete analytical narrative in just a few sentences. Each phrase adds a different dimension: cause, breadth, and competitive risk. The warning at the end ('needs to show results') is what separates an analyst from a cheerleader."
+  }
+];
+
+// ─── STATE ───────────────────────────────────
+let spIdx = 0, spOrder = P.map((_,i)=>i);
+let chIdx = 0, chOrder = P.map((_,i)=>i), chScore = 0, chAnswered = false;
+let rpIdx = 0, rpOrder = P.map((_,i)=>i);
+let done = 0, fluent = 0;
+
+// ─── TABS ────────────────────────────────────
+function switchTab(t, btn) {
+  ['speak','choice','roleplay','browse'].forEach(id => {
+    document.getElementById('m-'+id).style.display = 'none';
+  });
+  document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('m-'+t).style.display = 'block';
+  btn.classList.add('active');
+  if (t==='choice') renderChoice();
+  if (t==='roleplay') renderRP();
+  if (t==='browse') renderBrowse('');
+}
+
+// ─── SPEAKING DRILL ──────────────────────────
+function renderSp() {
+  const p = P[spOrder[spIdx]];
+  document.getElementById('sp-cnt').textContent = `${spIdx+1} / ${P.length}`;
+  document.getElementById('sp-prg').style.width = `${(spIdx/P.length)*100}%`;
+  document.getElementById('sp-lbl').textContent = p.phrase;
+  document.getElementById('sp-sit').textContent = p.sit;
+  document.getElementById('sp-prompt').textContent = p.prompt;
+  document.getElementById('sp-phrase').textContent = p.phrase;
+  document.getElementById('sp-ex').textContent = p.ex;
+  document.getElementById('sp-tip').textContent = p.tip;
+  document.getElementById('sp-reveal').classList.remove('show');
+  document.getElementById('sp-rev-btn').style.display = 'inline-block';
+}
+function revealSp() {
+  document.getElementById('sp-reveal').classList.add('show');
+  document.getElementById('sp-rev-btn').style.display = 'none';
+}
+function rateSp(r) {
+  done++; if (r==='easy') fluent++;
+  updateStats(); spNav(1);
+}
+function spNav(d) {
+  spIdx = (spIdx+d+P.length) % P.length; renderSp();
+}
+function shuffleSp() {
+  for (let i=spOrder.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[spOrder[i],spOrder[j]]=[spOrder[j],spOrder[i]];}
+  spIdx=0; renderSp();
+}
+
+// ─── CHOICE ──────────────────────────────────
+function renderChoice() {
+  const p = P[chOrder[chIdx]];
+  document.getElementById('ch-cnt').textContent = `${chIdx+1} / ${P.length}`;
+  document.getElementById('ch-prg').style.width = `${(chIdx/P.length)*100}%`;
+  document.getElementById('ch-q').textContent = p.cq;
+  document.getElementById('ch-fb').className = 'choice-fb';
+  document.getElementById('ch-next').style.display = 'none';
+  chAnswered = false;
+  const opts = [p.cc, ...p.cw].sort(()=>Math.random()-0.5);
+  const cont = document.getElementById('ch-opts');
+  cont.innerHTML = '';
+  opts.forEach(o => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-opt';
+    btn.textContent = o;
+    btn.onclick = () => pickChoice(btn, o===p.cc, p.cc);
+    cont.appendChild(btn);
+  });
+}
+function pickChoice(btn, correct, correctText) {
+  if (chAnswered) return;
+  chAnswered = true;
+  document.querySelectorAll('.choice-opt').forEach(b => {
+    b.disabled = true;
+    if (b.textContent===correctText) b.classList.add('reveal-correct');
+  });
+  if (correct) { btn.classList.add('correct'); chScore++; }
+  else btn.classList.add('wrong');
+  const fb = document.getElementById('ch-fb');
+  fb.className = 'choice-fb show '+(correct?'ok':'no');
+  fb.textContent = correct
+    ? '✓ Exactly right. This is the most natural way to say it in English.'
+    : `✗ Not quite. The most natural phrase is: "${correctText}"`;
+  document.getElementById('ch-score').textContent = `Score: ${chScore} / ${chIdx+1}`;
+  document.getElementById('ch-next').style.display = 'inline-block';
+}
+function nextChoice() { chIdx=(chIdx+1)%P.length; renderChoice(); }
+
+// ─── ROLE-PLAY ───────────────────────────────
+function renderRP() {
+  const p = P[rpOrder[rpIdx]];
+  document.getElementById('rp-cnt').textContent = `${rpIdx+1} / ${P.length}`;
+  document.getElementById('rp-prg').style.width = `${(rpIdx/P.length)*100}%`;
+  document.getElementById('rp-lbl').textContent = p.phrase;
+  document.getElementById('rp-ctx').textContent = p.ctx;
+  document.getElementById('rp-setup').textContent = p.setup;
+  document.getElementById('rp-cue').textContent = p.cue;
+  document.getElementById('rp-ta').value = '';
+  document.getElementById('rp-reveal').classList.remove('show');
+  document.getElementById('rp-rev-btn').style.display = 'inline-block';
+  document.getElementById('rp-model').innerHTML = p.model;
+  document.getElementById('rp-why').textContent = p.why;
+}
+function revealRP() {
+  document.getElementById('rp-reveal').classList.add('show');
+  document.getElementById('rp-rev-btn').style.display = 'none';
+}
+function rateRP(r) {
+  done++; if (r==='easy') fluent++;
+  updateStats(); rpNav(1);
+}
+function rpNav(d) { rpIdx=(rpIdx+d+P.length)%P.length; renderRP(); }
+
+// ─── BROWSE ──────────────────────────────────
+function renderBrowse(q) {
+  const lower = q.toLowerCase();
+  const filtered = P.filter(p =>
+    p.phrase.toLowerCase().includes(lower) ||
+    p.def.toLowerCase().includes(lower) ||
+    p.ex.toLowerCase().includes(lower) ||
+    p.tip.toLowerCase().includes(lower)
+  );
+  document.getElementById('br-count').textContent = `Showing ${filtered.length} of ${P.length} phrases`;
+  const list = document.getElementById('br-list');
+  list.innerHTML = '';
+  filtered.forEach((p,i) => {
+    const item = document.createElement('div');
+    item.className = 'br-item';
+    item.innerHTML = `
+      <div class="bi-phrase">${p.phrase}</div>
+      <div class="bi-ex">${p.ex}</div>
+      <div class="bi-exp" id="bi-exp-${i}">
+        <div class="bi-def">${p.def}</div>
+        <div class="bi-tip" style="margin-top:8px">💡 ${p.tip}</div>
+      </div>`;
+    item.onclick = () => document.getElementById(`bi-exp-${i}`).classList.toggle('open');
+    list.appendChild(item);
+  });
+}
+
+// ─── STATS ───────────────────────────────────
+function updateStats() {
+  document.getElementById('s-done').textContent = done;
+  document.getElementById('s-fluent').textContent = fluent;
+}
+
+// ─── INIT ────────────────────────────────────
+renderSp();
+</script>
+</body>
+</html>

@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Problem-Solving Phrases — Trainer</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f5f5f5;
+  --surface: #ffffff;
+  --surface2: #ebebeb;
+  --border: #dcdcdc;
+  --ink: #1c1c2e;
+  --muted: #7a7f94;
+  --gold: #b8892a;
+  --gold-bg: #fdf6e3;
+  --green: #1a7a4a;
+  --green-bg: #edf7f1;
+  --red: #c0392b;
+  --red-bg: #fdf0ee;
+  --blue: #2060a8;
+  --blue-bg: #edf3fd;
+  --accent: #7c4dbd;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; }
+
+header {
+  background: var(--ink); color: #f4efe4;
+  padding: 17px 32px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 3px solid var(--gold);
+}
+.header-title { font-family: 'Lora', serif; font-size: 1.35rem; }
+.header-title em { color: #d4aa50; }
+.header-meta { font-family: 'DM Mono', monospace; font-size: 0.68rem; opacity: 0.7; }
+.header-meta strong { color: #d4aa50; }
+
+.tabs {
+  display: flex; background: var(--surface2);
+  border-bottom: 2px solid var(--border);
+  padding: 0 32px;
+}
+.tab {
+  padding: 13px 22px;
+  font-family: 'DM Mono', monospace; font-size: 0.7rem;
+  letter-spacing: 0.07em; text-transform: uppercase;
+  cursor: pointer; border: none; background: transparent;
+  color: var(--muted); border-bottom: 2px solid transparent;
+  margin-bottom: -2px; white-space: nowrap; transition: all 0.18s;
+}
+.tab.active { color: var(--gold); border-bottom-color: var(--gold); font-weight: 600; }
+.tab:hover:not(.active) { color: var(--ink); }
+
+main { max-width: 760px; margin: 0 auto; padding: 28px 32px; }
+
+.prog-row { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; }
+.prog-text { font-family: 'DM Mono', monospace; font-size: 0.68rem; color: var(--muted); white-space: nowrap; }
+.prog-track { flex: 1; height: 3px; background: var(--border); border-radius: 2px; }
+.prog-fill { height: 100%; background: var(--gold); border-radius: 2px; transition: width 0.4s; }
+
+.situation-card {
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: 8px; padding: 28px 32px; margin-bottom: 16px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.06); position: relative; overflow: hidden;
+}
+.situation-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--gold), #d4aa50);
+}
+.sc-label { font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; }
+.sc-situation { font-size: 0.97rem; line-height: 1.75; color: var(--muted); margin-bottom: 10px; }
+.sc-prompt { font-family: 'Lora', serif; font-style: italic; font-size: 1.18rem; color: var(--ink); line-height: 1.55; }
+
+.reveal-box {
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: 8px; padding: 24px 28px; margin-bottom: 16px; display: none;
+}
+.reveal-box.show { display: block; }
+.reveal-label { font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--green); margin-bottom: 12px; }
+.reveal-phrase { font-family: 'Lora', serif; font-size: 1.5rem; font-weight: 600; color: var(--ink); margin-bottom: 10px; line-height: 1.3; }
+.reveal-example { font-family: 'Lora', serif; font-style: italic; font-size: 0.9rem; color: var(--muted); border-left: 2px solid var(--gold); padding-left: 14px; line-height: 1.65; margin-bottom: 12px; }
+.reveal-tip { font-size: 0.82rem; color: var(--blue); background: var(--blue-bg); padding: 10px 14px; border-radius: 5px; line-height: 1.55; }
+
+.rate-row { display: flex; gap: 9px; margin-top: 14px; }
+.rate-btn { flex: 1; padding: 10px; border-radius: 5px; border: 1px solid; font-family: 'DM Mono', monospace; font-size: 0.66rem; letter-spacing: 0.04em; text-transform: uppercase; cursor: pointer; transition: all 0.15s; }
+.rate-hard { border-color: var(--red); color: var(--red); background: transparent; }
+.rate-hard:hover { background: var(--red-bg); }
+.rate-ok { border-color: var(--gold); color: var(--gold); background: transparent; }
+.rate-ok:hover { background: var(--gold-bg); }
+.rate-easy { border-color: var(--green); color: var(--green); background: transparent; }
+.rate-easy:hover { background: var(--green-bg); }
+
+.nav-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.btn { padding: 9px 22px; border-radius: 5px; border: 1px solid; font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 0.05em; text-transform: uppercase; cursor: pointer; transition: all 0.15s; }
+.btn-ghost { background: transparent; color: var(--muted); border-color: var(--border); }
+.btn-ghost:hover { color: var(--ink); border-color: var(--muted); }
+.btn-gold { background: var(--gold); color: white; border-color: var(--gold); }
+.btn-gold:hover { opacity: 0.88; }
+.btn-sm { padding: 6px 14px; font-size: 0.62rem; }
+
+#m-choice { display: none; }
+.choice-card {
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: 8px; padding: 24px 28px; margin-bottom: 16px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+}
+.choice-label { font-family: 'DM Mono', monospace; font-size: 0.62rem; color: var(--gold); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+.choice-q { font-size: 0.97rem; line-height: 1.7; color: var(--ink); }
+.choice-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.choice-opt {
+  padding: 13px 16px; border: 1.5px solid var(--border); border-radius: 6px;
+  background: var(--surface); font-size: 0.85rem; line-height: 1.5;
+  cursor: pointer; text-align: left; font-family: 'DM Sans', sans-serif;
+  transition: all 0.15s; color: var(--ink);
+}
+.choice-opt:hover:not(:disabled) { border-color: var(--gold); background: var(--gold-bg); }
+.choice-opt.correct { border-color: var(--green); background: var(--green-bg); color: var(--green); font-weight: 600; }
+.choice-opt.wrong { border-color: var(--red); background: var(--red-bg); color: var(--red); }
+.choice-opt.reveal-correct { border-color: var(--green); background: var(--green-bg); }
+.choice-fb { padding: 11px 14px; border-radius: 5px; font-size: 0.84rem; line-height: 1.6; display: none; margin-bottom: 12px; }
+.choice-fb.show { display: block; }
+.choice-fb.ok { background: var(--green-bg); border-left: 3px solid var(--green); color: var(--green); }
+.choice-fb.no { background: var(--red-bg); border-left: 3px solid var(--red); color: var(--red); }
+.score-badge { font-family: 'DM Mono', monospace; font-size: 0.68rem; color: var(--muted); }
+
+#m-roleplay { display: none; }
+.rp-scene {
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: 8px; padding: 24px 28px; margin-bottom: 14px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+}
+.rp-context { font-family: 'DM Mono', monospace; font-size: 0.62rem; color: var(--accent); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 7px; }
+.rp-setup { font-size: 0.88rem; color: var(--muted); line-height: 1.65; margin-bottom: 12px; font-style: italic; }
+.rp-cue { background: var(--surface2); border-left: 3px solid var(--accent); padding: 12px 16px; border-radius: 0 6px 6px 0; font-size: 0.95rem; line-height: 1.65; color: var(--ink); }
+.rp-textarea {
+  width: 100%; min-height: 88px; padding: 13px 15px;
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: 6px; color: var(--ink); font-size: 0.93rem; line-height: 1.65;
+  font-family: 'DM Sans', sans-serif; resize: vertical; outline: none;
+  margin-bottom: 10px; transition: border 0.2s;
+}
+.rp-textarea:focus { border-color: var(--accent); }
+.rp-reveal { background: var(--surface); border: 1.5px solid var(--border); border-radius: 8px; padding: 20px 24px; display: none; margin-bottom: 14px; }
+.rp-reveal.show { display: block; }
+.rp-reveal-label { font-family: 'DM Mono', monospace; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--gold); margin-bottom: 10px; }
+.model-resp { font-family: 'Lora', serif; font-size: 1.05rem; line-height: 1.8; color: var(--ink); margin-bottom: 10px; }
+.rp-why { font-size: 0.8rem; color: var(--muted); line-height: 1.6; background: var(--blue-bg); padding: 9px 13px; border-radius: 5px; }
+
+#m-browse { display: none; }
+.br-search {
+  width: 100%; padding: 11px 15px; font-size: 0.88rem; font-family: 'DM Sans', sans-serif;
+  border: 1.5px solid var(--border); border-radius: 6px; background: var(--surface);
+  color: var(--ink); outline: none; margin-bottom: 14px; transition: border 0.2s;
+}
+.br-search:focus { border-color: var(--gold); }
+.br-count { font-family: 'DM Mono', monospace; font-size: 0.68rem; color: var(--muted); margin-bottom: 10px; }
+.br-table { border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+.br-item { padding: 14px 18px; background: var(--surface); border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.12s; }
+.br-item:last-child { border-bottom: none; }
+.br-item:hover { background: var(--surface2); }
+.bi-phrase { font-family: 'Lora', serif; font-weight: 600; font-size: 0.95rem; color: var(--ink); }
+.bi-ex { font-family: 'Lora', serif; font-style: italic; font-size: 0.8rem; color: var(--muted); margin-top: 3px; line-height: 1.5; }
+.bi-exp { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+.bi-exp.open { display: block; }
+.bi-def { font-size: 0.84rem; color: var(--ink); line-height: 1.6; margin-bottom: 8px; }
+.bi-tip { font-size: 0.78rem; color: var(--blue); background: var(--blue-bg); padding: 8px 12px; border-radius: 4px; line-height: 1.5; }
+
+@media(max-width:580px){
+  main { padding: 16px; }
+  header, .tabs { padding-left: 16px; padding-right: 16px; }
+  .choice-opts { grid-template-columns: 1fr; }
+  .rate-row { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-title">Problem-Solving <em>Phrases</em></div>
+  <div class="header-meta">Done: <strong id="s-done">0</strong> &nbsp;|&nbsp; Fluent: <strong id="s-fluent">0</strong></div>
+</header>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('speak',this)">① Speaking Drill</button>
+  <button class="tab" onclick="switchTab('choice',this)">② Right Phrase?</button>
+  <button class="tab" onclick="switchTab('roleplay',this)">③ Role-Play</button>
+  <button class="tab" onclick="switchTab('browse',this)">④ Browse All</button>
+</div>
+
+<main>
+
+<!-- ① SPEAKING DRILL -->
+<div id="m-speak">
+  <div class="prog-row">
+    <span class="prog-text" id="sp-cnt">1 / 15</span>
+    <div class="prog-track"><div class="prog-fill" id="sp-prg" style="width:0%"></div></div>
+    <span class="prog-text" id="sp-lbl">—</span>
+  </div>
+  <div class="situation-card">
+    <div class="sc-label">🎯 Situation — say a natural response out loud first</div>
+    <div class="sc-situation" id="sp-sit">—</div>
+    <div class="sc-prompt" id="sp-prompt">—</div>
+  </div>
+  <div class="reveal-box" id="sp-reveal">
+    <div class="reveal-label">✓ Model Phrase</div>
+    <div class="reveal-phrase" id="sp-phrase">—</div>
+    <div class="reveal-example" id="sp-ex">—</div>
+    <div class="reveal-tip" id="sp-tip">—</div>
+    <div class="rate-row">
+      <button class="rate-btn rate-hard" onclick="rateSp('hard')">🔴 Couldn't say it</button>
+      <button class="rate-btn rate-ok" onclick="rateSp('ok')">🟡 Said it, not fluently</button>
+      <button class="rate-btn rate-easy" onclick="rateSp('easy')">🟢 Said it naturally</button>
+    </div>
+  </div>
+  <div class="nav-row">
+    <button class="btn btn-ghost" onclick="spNav(-1)">← Prev</button>
+    <button class="btn btn-gold" id="sp-rev-btn" onclick="revealSp()">Reveal Phrase</button>
+    <button class="btn btn-ghost" onclick="spNav(1)">Next →</button>
+  </div>
+  <div style="text-align:center;margin-top:10px">
+    <button class="btn btn-ghost btn-sm" onclick="shuffleSp()">⇄ Shuffle order</button>
+  </div>
+</div>
+
+<!-- ② RIGHT PHRASE? -->
+<div id="m-choice">
+  <div class="prog-row">
+    <span class="prog-text" id="ch-cnt">1 / 15</span>
+    <div class="prog-track"><div class="prog-fill" id="ch-prg" style="width:0%"></div></div>
+    <span class="score-badge" id="ch-score">Score: 0 / 0</span>
+  </div>
+  <div class="choice-card">
+    <div class="choice-label">📍 Which phrase fits this moment?</div>
+    <div class="choice-q" id="ch-q">—</div>
+  </div>
+  <div class="choice-opts" id="ch-opts"></div>
+  <div class="choice-fb" id="ch-fb"></div>
+  <div class="nav-row">
+    <button class="btn btn-ghost" id="ch-next" style="display:none" onclick="nextChoice()">Next →</button>
+  </div>
+</div>
+
+<!-- ③ ROLE-PLAY -->
+<div id="m-roleplay">
+  <div class="prog-row">
+    <span class="prog-text" id="rp-cnt">1 / 15</span>
+    <div class="prog-track"><div class="prog-fill" id="rp-prg" style="width:0%"></div></div>
+    <span class="prog-text" id="rp-lbl">—</span>
+  </div>
+  <div class="rp-scene">
+    <div class="rp-context" id="rp-ctx">—</div>
+    <div class="rp-setup" id="rp-setup">—</div>
+    <div class="rp-cue" id="rp-cue">—</div>
+  </div>
+  <textarea class="rp-textarea" id="rp-ta" placeholder="Write what you would say in this situation…"></textarea>
+  <div class="nav-row" style="margin-bottom:12px">
+    <button class="btn btn-ghost" onclick="rpNav(-1)">← Prev</button>
+    <button class="btn btn-gold" id="rp-rev-btn" onclick="revealRP()">See Model Response</button>
+    <button class="btn btn-ghost" onclick="rpNav(1)">Next →</button>
+  </div>
+  <div class="rp-reveal" id="rp-reveal">
+    <div class="rp-reveal-label">Model Response — key phrases highlighted</div>
+    <div class="model-resp" id="rp-model">—</div>
+    <div class="rp-why" id="rp-why">—</div>
+    <div class="rate-row">
+      <button class="rate-btn rate-hard" onclick="rateRP('hard')">🔴 Very different</button>
+      <button class="rate-btn rate-ok" onclick="rateRP('ok')">🟡 Similar but less natural</button>
+      <button class="rate-btn rate-easy" onclick="rateRP('easy')">🟢 Close to model</button>
+    </div>
+  </div>
+</div>
+
+<!-- ④ BROWSE -->
+<div id="m-browse">
+  <input class="br-search" type="text" id="br-q" placeholder="Search phrases, meanings, examples…" oninput="renderBrowse(this.value)">
+  <div class="br-count" id="br-count"></div>
+  <div class="br-table" id="br-list"></div>
+</div>
+
+</main>
+
+<script>
+const P = [
+  {
+    phrase: "Move the needle",
+    def: "To generate a significant, measurable result or impact. If an action doesn't 'move the needle', it's not worth the effort — it's noise, not signal.",
+    sit: "Your team has been busy with several small initiatives but revenue targets are still being missed.",
+    prompt: "Challenge the team to focus only on actions that will produce real, measurable results…",
+    ex: "\"Giving out free pens is nice, but it's not going to move the needle on our total sales.\"",
+    tip: "Always follow with what WILL move the needle. The phrase is a challenge, not just a criticism — it demands a better alternative.",
+    cq: "The team has been running three small marketing campaigns but Q3 revenue is still flat. In the review meeting, you say:",
+    cc: "None of these initiatives are moving the needle — we need to identify one high-impact action and concentrate our resources there.",
+    cw: ["These campaigns haven't been very effective so far.", "We need to do something more impactful than these small ideas.", "The results are disappointing — we should try different things."],
+    ctx: "Q3 revenue review — marketing and sales leadership",
+    setup: "Three months of activity, flat results. The team is proud of the campaigns but the numbers haven't moved. You're the head of sales.",
+    cue: "Marketing lead: \"We've run campaigns across all three channels — brand awareness is definitely up.\"",
+    model: "Brand awareness is useful, but it's not <b>moving the needle</b> on revenue, which is what we're accountable for this quarter. <b>I want us to identify one thing — one — that has a direct line to a closed deal in the next six weeks.</b> Everything else goes on the back burner until we've found that lever.",
+    why: "'One thing that has a direct line to a closed deal' is a laser-sharp redirect. It refuses to be distracted by activity and forces the conversation to outcomes. 'Back burner' also reinforces earlier vocabulary."
+  },
+  {
+    phrase: "Square away",
+    def: "To finish something completely, settle all the details, and put it into its final, organised place. The gold standard phrase for being thorough and reliable.",
+    sit: "Before an important call or meeting, you want to make sure all preparation is fully complete — nothing left hanging.",
+    prompt: "Confirm that all preparation and loose ends are fully resolved before a key moment…",
+    ex: "\"Before we hop on the call with the CEO, let's make sure our talking points are squared away.\"",
+    tip: "'Squared away' implies not just done, but done properly — neat, complete, nothing loose. It carries a military precision about it. Very powerful when paired with 'before we...'",
+    cq: "The deal launch is tomorrow morning and you're checking in with the team at the end of the day. You ask:",
+    cc: "Is everything squared away on our end? I want to be sure there are no loose ends before the market opens tomorrow.",
+    cw: ["Is everything finished and ready for tomorrow?", "Have we completed all the preparation we need to do?", "Are we fully prepared for the launch tomorrow morning?"],
+    ctx: "Day-before-launch check-in with the deal team",
+    setup: "The convertible bond launches at 8 AM tomorrow. It's 7 PM the evening before.",
+    cue: "MD: \"Where do we stand? Are we ready?\"",
+    model: "Almost. The pricing assumptions are <b>squared away</b>, the investor list is confirmed, and the announcement is drafted. The one remaining item is the legal sign-off on the use-of-proceeds language — counsel said by 9 PM. <b>Once that's in, we're fully squared away and I'll send the green light to the team.</b>",
+    why: "Using 'squared away' twice — once mid-update, once as the final confirmation — shows the phrase working naturally in context. The structure (what's done, what's pending, what triggers completion) is exactly how a good execution update sounds."
+  },
+  {
+    phrase: "Revolves around",
+    def: "That a specific person, thing, or idea is the central focus of a situation — everything else is secondary and organised around it, like planets around a sun.",
+    sit: "You're explaining the core strategic priority that everything else in your plan depends on.",
+    prompt: "Identify the single central focus that all other decisions and actions are built around…",
+    ex: "\"Our entire growth strategy revolves around expanding our footprint in Southeast Asia.\"",
+    tip: "More vivid and authoritative than 'is focused on' or 'depends on'. It implies a gravitational pull — everything else orbits this central point. Use it to signal what truly matters.",
+    cq: "A new analyst asks what the most important factor is in your current deal strategy. You explain:",
+    cc: "Everything in this mandate revolves around execution certainty — pricing, timing, and communication all serve that one goal.",
+    cw: ["The most important thing in this deal is the execution.", "Our main focus in this mandate is getting it done properly.", "Execution certainty is our top priority right now."],
+    ctx: "New analyst onboarding — explaining deal strategy",
+    setup: "A junior analyst has just joined the deal team mid-execution and wants to understand what drives the decisions being made.",
+    cue: "Analyst: \"There seem to be a lot of moving parts — what's the thing I should always keep in mind?\"",
+    model: "Good question. <b>The whole mandate revolves around execution certainty.</b> The issuer has one window, one chance to access this market cleanly. Every decision — how we price, how we communicate, which investors we prioritise — <b>revolves around protecting that window.</b> If you keep that at the centre, the rest of the decisions become much clearer.",
+    why: "Repeating 'revolves around' twice reinforces the concept and models how native speakers use a phrase naturally across a short piece of speech — not just once, mechanically."
+  },
+  {
+    phrase: "Grounded in",
+    def: "Based on solid facts, logic, or reality — not guesswork or wishful thinking. It implies stability, credibility, and truth.",
+    sit: "You're defending a recommendation or strategy and want to signal that it is built on evidence, not assumptions.",
+    prompt: "Establish that your argument or strategy is firmly based in real data and facts…",
+    ex: "\"Our marketing strategy is grounded in extensive consumer data, not just guesswork.\"",
+    tip: "More authoritative than 'based on'. It implies depth — the idea has roots, not just a surface connection to evidence. Especially powerful when followed by a specific data point.",
+    cq: "A committee member challenges your valuation as too optimistic. You respond:",
+    cc: "Our valuation is grounded in three years of audited financials and current sector comps — it's not a number we've chosen, it's a number the data supports.",
+    cw: ["Our valuation is based on the actual financial data we reviewed.", "We didn't just pick this number — it comes from the financials.", "The valuation is supported by real data and comparable transactions."],
+    ctx: "Investment committee — defending a valuation",
+    setup: "The committee is reviewing your recommended valuation for an acquisition target. One member thinks it's too high.",
+    cue: "Committee member: \"That multiple looks aggressive to me. What's it based on?\"",
+    model: "The valuation is <b>grounded in</b> three inputs: three years of audited EBITDA, a peer group of eight comparable transactions from the last 18 months, and a DCF cross-check at a 10% discount rate. <b>It's grounded in what the market has actually paid for assets of this quality</b> — not what we'd like the number to be. I'm happy to walk through each component.",
+    why: "Offering to 'walk through each component' after stating a confident position is a professional move. It says: I'm not defensive, I'm thorough. The willingness to explain is itself a form of confidence."
+  },
+  {
+    phrase: "Predicated on",
+    def: "Means that one thing can only happen or be true if another specific thing happens first — a logical dependency. Slightly more formal than 'based on', very common in finance and legal contexts.",
+    sit: "You need to explain that your recommendation or forecast has a specific condition that must be met first.",
+    prompt: "Make clear that your conclusion depends on a specific condition being true…",
+    ex: "\"The valuation of the company is predicated on its ability to maintain 20% growth year-over-year.\"",
+    tip: "Stronger than 'depends on' — it implies a foundational dependency, not just an influence. If the condition fails, the conclusion fails with it. Use it to flag risk in a sophisticated way.",
+    cq: "You're presenting a bull-case investment scenario to the committee. You need to flag its key assumption clearly:",
+    cc: "The bull case is predicated on the company maintaining its current EBITDA margin through the expansion — if that slips, the returns compress significantly.",
+    cw: ["The bull case only works if the company keeps its margins during the expansion.", "The returns depend on the margin staying stable as they grow.", "If margins fall during expansion, this investment case breaks down."],
+    ctx: "Investment case presentation — risk and assumptions slide",
+    setup: "You're presenting a leveraged buyout case. The returns look compelling but hinge on a key operational assumption.",
+    cue: "Partner: \"The IRR looks strong — what's the bear case risk?\"",
+    model: "The whole investment case is <b>predicated on</b> two assumptions: first, margin stability through the integration phase; second, the management team executing the cost synergies within 18 months. <b>If either of those is predicated on conditions that don't materialise</b> — macro slowdown, management turnover — the IRR compresses from 22% to around 14%. That's still acceptable, but it's a very different story.",
+    why: "Presenting a specific IRR figure for both scenarios (22% vs 14%) makes the risk concrete and credible. Abstract risk warnings are forgettable; numbers make them real."
+  },
+  {
+    phrase: "Goes hand in hand with",
+    def: "Two things are so closely connected that when one occurs, the other almost always follows. They are naturally and inseparably linked.",
+    sit: "You want to show that two trends, problems, or solutions are connected — addressing one naturally addresses the other.",
+    prompt: "Explain that two things are so closely linked that you can't address one without the other…",
+    ex: "\"Economic growth usually goes hand in hand with an increase in energy consumption.\"",
+    tip: "More elegant than 'is connected to' or 'comes with'. It implies a natural, almost inevitable pairing — not a forced relationship. Works well to build a two-part argument.",
+    cq: "A colleague argues that cutting costs and improving quality are contradictory goals. You push back:",
+    cc: "I'd actually argue that discipline goes hand in hand with quality — when teams are forced to be efficient, they tend to make smarter decisions.",
+    cw: ["I think cost discipline and quality are actually connected.", "Cutting costs doesn't have to mean lower quality — they can both improve together.", "Being more efficient and being better at what we do are not opposites."],
+    ctx: "Strategic planning debate — cost vs quality",
+    setup: "The leadership team is debating whether a cost reduction programme will hurt product quality. Views are split.",
+    cue: "COO: \"I'm worried that cutting 15% from the operations budget will inevitably compromise our service standards.\"",
+    model: "It's a fair concern — but in my experience, operational discipline <b>goes hand in hand with</b> service quality when it's done right. Inefficiency isn't the same as excellence. <b>The teams I've seen deliver the best client outcomes are usually the ones with the clearest processes and the least waste</b> — not the ones with the biggest budgets.",
+    why: "'Inefficiency isn't the same as excellence' is a sharp, memorable line. It reframes the whole debate by separating two concepts that the COO had incorrectly linked."
+  },
+  {
+    phrase: "Have a knock-on effect",
+    def: "One event causes a chain of further events — like a row of dominoes. The first event 'knocks on' to trigger consequences that may be far removed from the original cause.",
+    sit: "You're warning that a decision in one area will create unintended consequences in other areas.",
+    prompt: "Warn that a decision will trigger a chain of further consequences beyond the immediate one…",
+    ex: "\"The factory closure will have a knock-on effect on the entire local economy, affecting shops and schools alike.\"",
+    tip: "Very common in risk conversations and impact assessments. Always name what the knock-on effect will be — the phrase sets up the consequence, it doesn't describe it.",
+    cq: "The team is considering delaying the bond launch by two weeks. You warn about the implications:",
+    cc: "Delaying by two weeks will have a knock-on effect on the entire roadshow schedule — and we risk losing the market window entirely.",
+    cw: ["If we delay, other things will also be affected and might get worse.", "Pushing the launch back could cause problems for everything else.", "A two-week delay will create complications across the whole process."],
+    ctx: "Deal timing discussion — bookrunner team call",
+    setup: "The issuer has asked to delay the launch by two weeks due to an internal board process. The market window is narrow.",
+    cue: "Issuer CFO: \"Can we push the launch back two weeks? Our board process isn't complete.\"",
+    model: "I understand the constraint — but I have to flag that a two-week delay <b>will have a knock-on effect</b> across the whole process. The roadshow shifts into a period where three of our anchor investors are in blackout. We also risk losing the current rates window — <b>if the Fed speaks in that gap, we could be repricing into a very different market.</b> Can we explore whether the board process can be expedited?",
+    why: "Ending with a question — 'Can we explore whether the board process can be expedited?' — is the right move. You've delivered the warning clearly, and now you're offering a path forward rather than just blocking the request."
+  },
+  {
+    phrase: "Boils down to",
+    def: "To simplify a complex situation until only the most essential point remains — like reducing a sauce until only the concentrated flavour is left.",
+    sit: "After a long, complex discussion, you want to cut through the noise and identify the single most important underlying issue.",
+    prompt: "Cut through the complexity and identify the one essential point that everything reduces to…",
+    ex: "\"The entire 200-page report boils down to one simple fact: we need more customers.\"",
+    tip: "A powerful tool for closing a meandering discussion. It signals analytical confidence — you've processed all the complexity and found the core. Follow with a single, clear statement.",
+    cq: "After an hour of debate about strategy, pricing, and structure, you bring the meeting to its essential point:",
+    cc: "All of this debate boils down to one question: do we believe this management team can deliver the synergies within 18 months?",
+    cw: ["The most important thing we need to decide is whether we trust the management team.", "When you take away all the other factors, the real question is about management execution.", "Everything we've discussed comes back to the same fundamental issue about the team."],
+    ctx: "Investment committee — closing a long strategic debate",
+    setup: "The committee has been debating an acquisition for 75 minutes. Valuation, structure, and timing have all been discussed at length.",
+    cue: "Chair: \"We're going in circles. Can someone cut to what actually matters here?\"",
+    model: "Happy to. <b>It boils down to one thing:</b> do we believe the management team can execute the integration plan within the stated timeline? The valuation is fair, the structure is workable, the market timing is reasonable. <b>Every other risk we've discussed this afternoon is a derivative of that single question.</b> If the answer is yes, we proceed. If it's no — or if we can't get comfortable — we walk away.",
+    why: "'Every other risk is a derivative of that single question' is a brilliant distillation. It doesn't dismiss the prior discussion — it organises it. The committee hears that the 75 minutes wasn't wasted; it was context for the real decision."
+  },
+  {
+    phrase: "Drill down into",
+    def: "To move from general information to very specific detail — to examine something closely and deeply. Like zooming in on a map from country level to street level.",
+    sit: "A high-level summary has flagged something unexpected and you need to examine the detail behind it.",
+    prompt: "Signal that you need to examine the detail behind a surprising or unclear figure…",
+    ex: "\"We know sales are up, but we need to drill down into the regional data to see which city is driving the growth.\"",
+    tip: "Always say what you're drilling into. The phrase points direction — into what? Into which data, which assumption, which part of the model. Vague drilling is just a meeting that goes on too long.",
+    cq: "The P&L shows a sharp spike in costs in November. In the review meeting you say:",
+    cc: "I'd like to drill down into that November spike — a 30% jump in one month needs a clear explanation before we sign off.",
+    cw: ["We should look more closely at the November cost number.", "Can we examine what caused the increase in November in more detail?", "That November figure seems unusual and we should investigate it further."],
+    ctx: "Monthly P&L review with the finance team",
+    setup: "The management accounts show costs spiking 30% in November with no obvious explanation in the commentary.",
+    cue: "CFO: \"Any questions on the P&L before we move to the balance sheet?\"",
+    model: "Yes — I'd like to <b>drill down into</b> the November cost line before we move on. A 30% spike in a single month without commentary is a red flag. <b>Can we drill into whether that's a timing difference, a one-off, or something structural?</b> The answer changes how we read the full-year run-rate significantly.",
+    why: "'The answer changes how we read the full-year run-rate' justifies the time spent drilling down. It connects a detailed question to a material consequence — always the right way to defend a request to go deeper."
+  },
+  {
+    phrase: "Unpack this",
+    def: "To analyse a complex idea, statement, or problem by breaking it into smaller, manageable parts — like unpacking a suitcase to see what's really inside.",
+    sit: "Someone has made a statement that sounds simple but contains several distinct issues that each need examining.",
+    prompt: "Signal that a complex or loaded statement needs to be broken down before you can respond to it properly…",
+    ex: "\"That was a very detailed presentation — there's a lot to unpack before we make a decision.\"",
+    tip: "Trendy in both professional and academic settings. It signals intellectual engagement — you're not brushing past complexity, you're committing to examine it properly. Often used at the start of a structured response.",
+    cq: "The client has made a sweeping statement about their requirements that covers pricing, timeline, and structure all at once. You respond:",
+    cc: "There's quite a lot in that request — let me unpack it so we can address each element properly.",
+    cw: ["You've raised several different points which I'd like to address separately.", "That covers a few different topics so let me go through them one by one.", "Let me break down what you've said and respond to each part."],
+    ctx: "Client call — responding to a complex, multi-part request",
+    setup: "The client has just said: 'We want better pricing, faster turnaround, and a dedicated team — and we need it in place before Q4.' You need to respond without either agreeing to everything or shutting anything down.",
+    cue: "Client: \"We want better pricing, faster turnaround, and a dedicated team — and we need it in place before Q4.\"",
+    model: "I appreciate the directness — there's a lot to <b>unpack</b> there, so let me take each piece in turn. On pricing, I think there's room for a constructive conversation once we've agreed scope. On turnaround, that depends heavily on what's driving the bottleneck — <b>let me unpack that with your ops team separately.</b> On the dedicated resource, that's something I can take back internally today. <b>Q4 is tight but not impossible — let me give you a proper answer by end of week.</b>",
+    why: "'Q4 is tight but not impossible — let me give you a proper answer by end of week' is a masterclass in managing expectations without closing doors. It's honest, specific, and action-oriented."
+  },
+  {
+    phrase: "As it unfolds",
+    def: "Describes how a situation, event, or plan reveals itself progressively over time — like a map being opened or a story developing chapter by chapter.",
+    sit: "You're in the middle of a developing situation and need to describe how you'll respond as more information becomes clear.",
+    prompt: "Describe how you'll manage a situation that is still developing and not yet fully clear…",
+    ex: "\"The scandal unfolded over several months, eventually leading to the resignation of the entire board.\"",
+    tip: "More elegant than 'as it develops' or 'as things progress'. It implies a narrative arc — events have a direction and a shape. Often used in crisis management and market commentary.",
+    cq: "A market situation is volatile and uncertain. An investor asks for your view. You respond:",
+    cc: "It's too early for a definitive call — we're watching it closely and will adjust our position as the situation unfolds.",
+    cw: ["Things are still changing so we'll see what happens and decide later.", "The situation is unclear right now and we'll make decisions as we learn more.", "We're monitoring it and will respond as things develop over the coming days."],
+    ctx: "Investor call during a volatile macro event",
+    setup: "A central bank has made a surprise announcement and markets are reacting sharply. Investors are asking what to do.",
+    cue: "Investor: \"The Fed just surprised everyone. What's your positioning recommendation?\"",
+    model: "It's too early to make a definitive call — the market is still processing the language. <b>As this unfolds</b> over the next 24 to 48 hours, we'll get a clearer read on whether this is a genuine pivot or a one-meeting adjustment. <b>We're watching three things specifically: the two-year move, credit spreads, and how the dollar responds.</b> I'll be back to you with a concrete view by tomorrow morning.",
+    why: "'We're watching three things specifically' is an excellent technique. It shows structured thinking under pressure, reassures the investor that there is a framework, and creates a natural follow-up touchpoint."
+  },
+  {
+    phrase: "Unveil",
+    def: "To reveal or show something new — a product, plan, or strategy — for the very first time. Implies significance and a degree of ceremony.",
+    sit: "Your company is about to publicly reveal a new strategy, product, or initiative for the first time.",
+    prompt: "Announce that something significant is about to be revealed for the first time…",
+    ex: "\"The company is expected to unveil its new AI strategy during the earnings call.\"",
+    tip: "More dramatic and deliberate than 'announce' or 'reveal'. Use it when the reveal is intentional and significant. Often signals that something has been prepared carefully before being shown.",
+    cq: "The CEO is about to present the new five-year strategic plan to analysts for the first time. You brief a colleague:",
+    cc: "This is the first time we'll be unveiling the five-year plan externally — the messaging needs to be tight.",
+    cw: ["The CEO will announce the new strategy to analysts for the first time today.", "We're revealing our five-year plan to the market today and it needs to go well.", "Today is when investors will first hear about our long-term strategic direction."],
+    ctx: "Pre-earnings call briefing with the IR team",
+    setup: "The CEO will present a new five-year strategic plan to sell-side analysts for the first time on today's earnings call.",
+    cue: "IR director: \"How should we frame the strategy section for the analysts?\"",
+    model: "We should treat this as a proper <b>unveiling</b> — not just an update. This is the first time the market is hearing the five-year vision, so the framing matters enormously. <b>Lead with the destination, not the steps.</b> Analysts want to know where we're going, not just what we're doing this quarter. Then we walk them through the pillars. <b>The first impression of a new strategy tends to stick — let's make sure what they hear today is exactly what we want them to write.</b>",
+    why: "'The first impression of a new strategy tends to stick' is a simple but important truth that justifies the level of care being taken. It gives the IR director a compelling reason to treat this as a high-stakes communication moment."
+  },
+  {
+    phrase: "Get this off the ground",
+    def: "To take something from the planning or idea stage into actual execution — the critical transition from talking about something to actually doing it.",
+    sit: "A new initiative has been approved in principle but is still stuck in planning, and you need to move it into action.",
+    prompt: "Push for the transition from planning to actual execution of a new initiative…",
+    ex: "\"It took six months of pitching, but we finally got the new project off the ground.\"",
+    tip: "Implies the early stage is the hardest — like a plane needing speed to lift. Once it's off the ground, momentum takes over. Pair it with a specific first action to make it concrete.",
+    cq: "A new ESG reporting initiative has been discussed for months but no one has taken ownership. In the meeting you say:",
+    cc: "We've been talking about this for two quarters — it's time to get it off the ground. I'm happy to own the first phase if someone can resource it.",
+    cw: ["We should stop discussing this and actually start doing it.", "This has been planned for too long and needs to begin now.", "Let's move from the planning stage and actually implement something."],
+    ctx: "ESG steering committee — stalled initiative",
+    setup: "An ESG data reporting project has been approved for six months but has been delayed by resourcing disagreements and competing priorities.",
+    cue: "Chair: \"This keeps getting pushed back. What does it take to actually make progress here?\"",
+    model: "Two things — a named owner and a 30-day deliverable. <b>Without those, this will never get off the ground.</b> I'm willing to take ownership of the data mapping phase if the committee commits to providing one analyst from each business line for four weeks. <b>Give me that resource, and I'll have the framework off the ground before the next meeting.</b>",
+    why: "'A named owner and a 30-day deliverable' is a decisive, practical answer to a frustrated question. It doesn't ask for more discussion — it asks for two specific things and offers something concrete in return."
+  },
+  {
+    phrase: "Getting bogged down",
+    def: "Becoming stuck in details, bureaucracy, or process to the point where you can't make meaningful progress — like a vehicle stuck in a bog or marsh.",
+    sit: "A project or negotiation is losing momentum because it's stuck in minor details rather than moving toward resolution.",
+    prompt: "Flag that the process is getting stuck in unnecessary detail and redirect toward progress…",
+    ex: "\"The merger negotiations got bogged down in disagreements over intellectual property rights.\"",
+    tip: "The phrase carries a sense of sinking — the longer you stay, the worse it gets. Use it to justify stepping back, escalating, or changing approach. Always follow with what you propose to do instead.",
+    cq: "Contract negotiations have spent two weeks on a minor indemnity clause while the rest of the deal is ready. You raise it:",
+    cc: "We're getting bogged down on this indemnity clause — it's a standard provision. Can we agree to use market language and move on?",
+    cw: ["We've been spending too much time on this clause and need to move forward.", "This part of the negotiation has been going too slowly and needs to be resolved.", "We keep discussing the same indemnity issue without making any progress."],
+    ctx: "Legal negotiation — deal on verge of completion",
+    setup: "All major terms are agreed. One minor indemnity clause has taken two weeks of back-and-forth between legal teams. Completion is at risk.",
+    cue: "Client: \"Legal is still going back and forth on paragraph 14. Is this normal?\"",
+    model: "It's not unusual, but we've reached the point where we're <b>getting bogged down</b> on a provision that won't materially affect either party. <b>I'd recommend we table the current redlines and propose market-standard language from a recent comparable transaction</b> — that gives both counsels a neutral benchmark to accept rather than a position to fight. If we can agree that approach today, we can close this by Friday.",
+    why: "Proposing 'market-standard language from a recent comparable transaction' is a brilliant de-escalation technique. It removes the adversarial dynamic by introducing a neutral third reference point that neither party wrote."
+  },
+  {
+    phrase: "Beneath the surface",
+    def: "What is actually happening below the visible, polished exterior — the hidden reality that isn't immediately obvious to an outside observer.",
+    sit: "Something looks fine on the surface but you suspect — or know — that there are significant issues underneath that aren't visible yet.",
+    prompt: "Signal that the reality of a situation is more complex or concerning than the visible picture suggests…",
+    ex: "\"The company's profits look great, but beneath the surface, they are losing their best employees.\"",
+    tip: "Extremely powerful in due diligence, risk management, and analytical contexts. It signals that you're looking deeper than the headline. Always say what's beneath the surface — the phrase is a setup, not a complete thought.",
+    cq: "A target company's financials look strong, but your due diligence has uncovered some concerning signals. You report back:",
+    cc: "The headline numbers look attractive, but beneath the surface there are some structural issues with the customer concentration we need to flag.",
+    cw: ["The financials look good on paper but there are some hidden issues we found.", "The company seems healthy from the outside but we've found some problems underneath.", "Behind the strong numbers, there are some concerns that didn't show up at first glance."],
+    ctx: "Due diligence report-back to the investment committee",
+    setup: "The acquisition target has strong reported revenues, but your team has spent three weeks in the data room.",
+    cue: "Partner: \"The business looks solid from the outside. Any concerns from the due diligence?\"",
+    model: "The headline numbers are genuine — revenue is real and the growth is not manufactured. But <b>beneath the surface</b>, there are two issues worth flagging. First, 68% of revenue comes from a single customer whose contract is up for renewal in 18 months. Second, we've seen meaningful attrition at the senior management level over the last two years. <b>Neither of these is a deal-breaker individually, but together they tell a different story from the one the CIM presents.</b>",
+    why: "'Neither is a deal-breaker individually, but together they tell a different story' is a sophisticated analytical observation. It avoids alarmism while making clear the picture is genuinely more complex than the surface suggests."
+  }
+];
+
+// ─── STATE ───────────────────────────────────
+let spIdx = 0, spOrder = P.map((_,i)=>i);
+let chIdx = 0, chOrder = P.map((_,i)=>i), chScore = 0, chAnswered = false;
+let rpIdx = 0, rpOrder = P.map((_,i)=>i);
+let done = 0, fluent = 0;
+
+// ─── TABS ────────────────────────────────────
+function switchTab(t, btn) {
+  ['speak','choice','roleplay','browse'].forEach(id => {
+    document.getElementById('m-'+id).style.display = 'none';
+  });
+  document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('m-'+t).style.display = 'block';
+  btn.classList.add('active');
+  if (t === 'choice') renderChoice();
+  if (t === 'roleplay') renderRP();
+  if (t === 'browse') renderBrowse('');
+}
+
+// ─── SPEAKING DRILL ──────────────────────────
+function renderSp() {
+  const p = P[spOrder[spIdx]];
+  document.getElementById('sp-cnt').textContent = `${spIdx+1} / ${P.length}`;
+  document.getElementById('sp-prg').style.width = `${(spIdx/P.length)*100}%`;
+  document.getElementById('sp-lbl').textContent = p.phrase;
+  document.getElementById('sp-sit').textContent = p.sit;
+  document.getElementById('sp-prompt').textContent = p.prompt;
+  document.getElementById('sp-phrase').textContent = p.phrase;
+  document.getElementById('sp-ex').textContent = p.ex;
+  document.getElementById('sp-tip').textContent = p.tip;
+  document.getElementById('sp-reveal').classList.remove('show');
+  document.getElementById('sp-rev-btn').style.display = 'inline-block';
+}
+function revealSp() {
+  document.getElementById('sp-reveal').classList.add('show');
+  document.getElementById('sp-rev-btn').style.display = 'none';
+}
+function rateSp(r) {
+  done++; if (r==='easy') fluent++;
+  updateStats(); spNav(1);
+}
+function spNav(d) {
+  spIdx = (spIdx + d + P.length) % P.length; renderSp();
+}
+function shuffleSp() {
+  for (let i=spOrder.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[spOrder[i],spOrder[j]]=[spOrder[j],spOrder[i]];}
+  spIdx=0; renderSp();
+}
+
+// ─── CHOICE ──────────────────────────────────
+function renderChoice() {
+  const p = P[chOrder[chIdx]];
+  document.getElementById('ch-cnt').textContent = `${chIdx+1} / ${P.length}`;
+  document.getElementById('ch-prg').style.width = `${(chIdx/P.length)*100}%`;
+  document.getElementById('ch-q').textContent = p.cq;
+  document.getElementById('ch-fb').className = 'choice-fb';
+  document.getElementById('ch-next').style.display = 'none';
+  chAnswered = false;
+  const opts = [p.cc, ...p.cw].sort(()=>Math.random()-0.5);
+  const cont = document.getElementById('ch-opts');
+  cont.innerHTML = '';
+  opts.forEach(o => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-opt';
+    btn.textContent = o;
+    btn.onclick = () => pickChoice(btn, o===p.cc, p.cc);
+    cont.appendChild(btn);
+  });
+}
+function pickChoice(btn, correct, correctText) {
+  if (chAnswered) return;
+  chAnswered = true;
+  document.querySelectorAll('.choice-opt').forEach(b => {
+    b.disabled = true;
+    if (b.textContent === correctText) b.classList.add('reveal-correct');
+  });
+  if (correct) { btn.classList.add('correct'); chScore++; }
+  else btn.classList.add('wrong');
+  const fb = document.getElementById('ch-fb');
+  fb.className = 'choice-fb show ' + (correct ? 'ok' : 'no');
+  fb.textContent = correct
+    ? '✓ Exactly right. This is the most natural way to say it in English.'
+    : `✗ Not quite. The most natural phrase is: "${correctText}"`;
+  document.getElementById('ch-score').textContent = `Score: ${chScore} / ${chIdx+1}`;
+  document.getElementById('ch-next').style.display = 'inline-block';
+}
+function nextChoice() {
+  chIdx = (chIdx+1) % P.length; renderChoice();
+}
+
+// ─── ROLE-PLAY ───────────────────────────────
+function renderRP() {
+  const p = P[rpOrder[rpIdx]];
+  document.getElementById('rp-cnt').textContent = `${rpIdx+1} / ${P.length}`;
+  document.getElementById('rp-prg').style.width = `${(rpIdx/P.length)*100}%`;
+  document.getElementById('rp-lbl').textContent = p.phrase;
+  document.getElementById('rp-ctx').textContent = p.ctx;
+  document.getElementById('rp-setup').textContent = p.setup;
+  document.getElementById('rp-cue').textContent = p.cue;
+  document.getElementById('rp-ta').value = '';
+  document.getElementById('rp-reveal').classList.remove('show');
+  document.getElementById('rp-rev-btn').style.display = 'inline-block';
+  document.getElementById('rp-model').innerHTML = p.model;
+  document.getElementById('rp-why').textContent = p.why;
+}
+function revealRP() {
+  document.getElementById('rp-reveal').classList.add('show');
+  document.getElementById('rp-rev-btn').style.display = 'none';
+}
+function rateRP(r) {
+  done++; if (r==='easy') fluent++;
+  updateStats(); rpNav(1);
+}
+function rpNav(d) {
+  rpIdx = (rpIdx+d+P.length) % P.length; renderRP();
+}
+
+// ─── BROWSE ──────────────────────────────────
+function renderBrowse(q) {
+  const lower = q.toLowerCase();
+  const filtered = P.filter(p =>
+    p.phrase.toLowerCase().includes(lower) ||
+    p.def.toLowerCase().includes(lower) ||
+    p.ex.toLowerCase().includes(lower) ||
+    p.tip.toLowerCase().includes(lower)
+  );
+  document.getElementById('br-count').textContent = `Showing ${filtered.length} of ${P.length} phrases`;
+  const list = document.getElementById('br-list');
+  list.innerHTML = '';
+  filtered.forEach((p, i) => {
+    const item = document.createElement('div');
+    item.className = 'br-item';
+    item.innerHTML = `
+      <div class="bi-phrase">${p.phrase}</div>
+      <div class="bi-ex">${p.ex}</div>
+      <div class="bi-exp" id="bi-exp-${i}">
+        <div class="bi-def">${p.def}</div>
+        <div class="bi-tip" style="margin-top:8px">💡 ${p.tip}</div>
+      </div>`;
+    item.onclick = () => document.getElementById(`bi-exp-${i}`).classList.toggle('open');
+    list.appendChild(item);
+  });
+}
+
+// ─── STATS ───────────────────────────────────
+function updateStats() {
+  document.getElementById('s-done').textContent = done;
+  document.getElementById('s-fluent').textContent = fluent;
+}
+
+// ─── INIT ────────────────────────────────────
+renderSp();
+</script>
+</body>
+</html>

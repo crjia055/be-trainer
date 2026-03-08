@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Word Power — Personality Roots</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f5f5f5;--surface:#fff;--surface2:#ebebeb;--border:#dcdcdc;--ink:#1c1c2e;--muted:#7a7f94;--gold:#b8892a;--gold-bg:#fdf6e3;--green:#1a7a4a;--green-bg:#edf7f1;--red:#c0392b;--red-bg:#fdf0ee;--blue:#2060a8;--blue-bg:#edf3fd;--accent:#5b3fa0;--accent2:#2e7d6e}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
+header{background:var(--ink);color:#f4efe4;padding:17px 32px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid var(--gold)}
+.header-title{font-family:'Lora',serif;font-size:1.3rem}.header-title em{color:#d4aa50}
+.header-sub{font-family:'DM Mono',monospace;font-size:.65rem;opacity:.6;margin-top:3px}
+.header-meta{font-family:'DM Mono',monospace;font-size:.68rem;opacity:.7;text-align:right}.header-meta strong{color:#d4aa50}
+.tabs{display:flex;background:var(--surface2);border-bottom:2px solid var(--border);padding:0 32px;overflow-x:auto}
+.tab{padding:13px 20px;font-family:'DM Mono',monospace;font-size:.68rem;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;border:none;background:transparent;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap;transition:all .18s}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold);font-weight:600}.tab:hover:not(.active){color:var(--ink)}
+main{padding-bottom:env(safe-area-inset-bottom,0px);max-width:800px;margin:0 auto;padding:28px 32px}
+
+/* ROOT FAMILY CARD */
+.root-card{background:var(--surface);border:1.5px solid var(--border);border-radius:10px;margin-bottom:20px;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,.06)}
+.root-header{display:flex;align-items:center;gap:14px;padding:18px 24px;background:var(--ink);color:#f4efe4;cursor:pointer;transition:opacity .15s}
+.root-header:hover{opacity:.9}
+.root-latin{font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:3px}
+.root-title{font-family:'Lora',serif;font-size:1.25rem;font-weight:600}
+.root-meaning{font-family:'DM Mono',monospace;font-size:.62rem;color:rgba(244,239,228,.55);margin-top:2px}
+.root-toggle{margin-left:auto;font-family:'DM Mono',monospace;font-size:.7rem;color:var(--gold)}
+.root-body{display:none;padding:0}
+.root-body.open{display:block}
+.word-row{padding:16px 24px;border-bottom:1px solid var(--border);display:grid;grid-template-columns:160px 1fr;gap:16px;align-items:start}
+.word-row:last-child{border-bottom:none}
+.word-row:hover{background:var(--surface2)}
+.wr-left{}
+.wr-word{font-family:'Lora',serif;font-weight:600;font-size:.98rem;color:var(--ink)}
+.wr-pos{font-family:'DM Mono',monospace;font-size:.58rem;color:var(--accent);margin-top:2px;text-transform:uppercase;letter-spacing:.06em}
+.wr-note{font-family:'DM Mono',monospace;font-size:.57rem;color:var(--muted);margin-top:3px;font-style:italic}
+.wr-right{}
+.wr-def{font-size:.87rem;line-height:1.65;color:var(--ink);margin-bottom:7px}
+.wr-ex{font-family:'Lora',serif;font-style:italic;font-size:.83rem;color:var(--muted);line-height:1.6;padding-left:10px;border-left:2px solid var(--gold)}
+.family-note{background:var(--gold-bg);border-top:1px solid var(--border);padding:14px 24px;font-size:.82rem;line-height:1.65;color:var(--ink)}
+.family-note strong{color:var(--gold)}
+
+/* DRILL MODE */
+.prog-row{display:flex;align-items:center;gap:12px;margin-bottom:22px}
+.prog-text{font-family:'DM Mono',monospace;font-size:.68rem;color:var(--muted);white-space:nowrap}
+.prog-track{flex:1;height:3px;background:var(--border);border-radius:2px}
+.prog-fill{height:100%;background:var(--gold);border-radius:2px;transition:width .4s}
+.drill-card{background:var(--surface);border:1.5px solid var(--border);border-radius:8px;padding:24px 28px;margin-bottom:16px;box-shadow:0 1px 6px rgba(0,0,0,.06);position:relative;overflow:hidden}
+.drill-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),#7c5fd4)}
+.dc-root{font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
+.dc-sit{font-size:.95rem;line-height:1.75;color:var(--muted);margin-bottom:10px}
+.dc-prompt{font-family:'Lora',serif;font-style:italic;font-size:1.15rem;color:var(--ink);line-height:1.55}
+.reveal-box{background:var(--surface);border:1.5px solid var(--border);border-radius:8px;padding:22px 26px;margin-bottom:16px;display:none}
+.reveal-box.show{display:block}
+.rev-label{font-family:'DM Mono',monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin-bottom:10px}
+.rev-word{font-family:'Lora',serif;font-size:1.5rem;font-weight:600;color:var(--ink);margin-bottom:6px}
+.rev-pos{font-family:'DM Mono',monospace;font-size:.62rem;color:var(--accent);margin-bottom:10px}
+.rev-ex{font-family:'Lora',serif;font-style:italic;font-size:.88rem;color:var(--muted);border-left:2px solid var(--gold);padding-left:14px;line-height:1.65;margin-bottom:10px}
+.rev-tip{font-size:.82rem;color:var(--blue);background:var(--blue-bg);padding:10px 14px;border-radius:5px;line-height:1.55}
+.rate-row{display:flex;gap:9px;margin-top:14px}
+.rate-btn{flex:1;padding:10px;border-radius:5px;border:1px solid;font-family:'DM Mono',monospace;font-size:.66rem;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;transition:all .15s}
+.rate-hard{border-color:var(--red);color:var(--red);background:transparent}.rate-hard:hover{background:var(--red-bg)}
+.rate-ok{border-color:var(--gold);color:var(--gold);background:transparent}.rate-ok:hover{background:var(--gold-bg)}
+.rate-easy{border-color:var(--green);color:var(--green);background:transparent}.rate-easy:hover{background:var(--green-bg)}
+.nav-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.btn{padding:9px 22px;border-radius:5px;border:1px solid;font-family:'DM Mono',monospace;font-size:.68rem;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;transition:all .15s}
+.btn-ghost{background:transparent;color:var(--muted);border-color:var(--border)}.btn-ghost:hover{color:var(--ink);border-color:var(--muted)}
+.btn-gold{background:var(--gold);color:#fff;border-color:var(--gold)}.btn-gold:hover{opacity:.88}
+.btn-sm{padding:6px 14px;font-size:.62rem}
+
+/* CHOICE */
+#m-choice{display:none}
+.choice-card{background:var(--surface);border:1.5px solid var(--border);border-radius:8px;padding:22px 26px;margin-bottom:16px;box-shadow:0 1px 6px rgba(0,0,0,.06)}
+.ch-label{font-family:'DM Mono',monospace;font-size:.62rem;color:var(--gold);letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px}
+.ch-q{font-size:.97rem;line-height:1.7;color:var(--ink)}
+.ch-opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
+.ch-opt{padding:13px 15px;border:1.5px solid var(--border);border-radius:6px;background:var(--surface);font-size:.84rem;line-height:1.5;cursor:pointer;text-align:left;font-family:'DM Sans',sans-serif;transition:all .15s;color:var(--ink)}
+.ch-opt:hover:not(:disabled){border-color:var(--gold);background:var(--gold-bg)}
+.ch-opt.correct{border-color:var(--green);background:var(--green-bg);color:var(--green);font-weight:600}
+.ch-opt.wrong{border-color:var(--red);background:var(--red-bg);color:var(--red)}
+.ch-opt.show-correct{border-color:var(--green);background:var(--green-bg)}
+.ch-fb{padding:11px 14px;border-radius:5px;font-size:.84rem;line-height:1.6;display:none;margin-bottom:10px}
+.ch-fb.show{display:block}.ch-fb.ok{background:var(--green-bg);border-left:3px solid var(--green);color:var(--green)}
+.ch-fb.no{background:var(--red-bg);border-left:3px solid var(--red);color:var(--red)}
+.score-badge{font-family:'DM Mono',monospace;font-size:.68rem;color:var(--muted)}
+
+/* ROLEPLAY */
+#m-roleplay{display:none}
+.rp-scene{background:var(--surface);border:1.5px solid var(--border);border-radius:8px;padding:22px 26px;margin-bottom:14px;box-shadow:0 1px 6px rgba(0,0,0,.06)}
+.rp-ctx{font-family:'DM Mono',monospace;font-size:.6rem;color:var(--accent);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px}
+.rp-setup{font-size:.87rem;color:var(--muted);line-height:1.65;margin-bottom:10px;font-style:italic}
+.rp-cue{background:var(--surface2);border-left:3px solid var(--accent);padding:12px 16px;border-radius:0 6px 6px 0;font-size:.95rem;line-height:1.65;color:var(--ink)}
+.rp-ta{width:100%;min-height:85px;padding:12px 14px;background:var(--surface);border:1.5px solid var(--border);border-radius:6px;color:var(--ink);font-size:.92rem;line-height:1.65;font-family:'DM Sans',sans-serif;resize:vertical;outline:none;margin-bottom:10px;transition:border .2s}
+.rp-ta:focus{border-color:var(--accent)}
+.rp-reveal{background:var(--surface);border:1.5px solid var(--border);border-radius:8px;padding:20px 24px;display:none;margin-bottom:14px}
+.rp-reveal.show{display:block}
+.rp-rev-label{font-family:'DM Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.1em;color:var(--gold);margin-bottom:10px}
+.model-resp{font-family:'Lora',serif;font-size:1.03rem;line-height:1.82;color:var(--ink);margin-bottom:10px}
+.rp-why{font-size:.8rem;color:var(--muted);line-height:1.6;background:var(--blue-bg);padding:9px 13px;border-radius:5px}
+
+@media(max-width:580px){main{padding-bottom:env(safe-area-inset-bottom,0px);padding:16px}header,.tabs{padding-left:16px;padding-right:16px}.word-row{grid-template-columns:1fr;gap:6px}.ch-opts{grid-template-columns:1fr}.rate-row{flex-direction:column}}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <div class="header-title">Word Power — <em>Personality Roots</em></div>
+    <div class="header-sub">Sections 1-1 &amp; 1-2 · Ego · Alter · Verto · Dexter/Gauche · Misein · Anthrope · Gamos</div>
+  </div>
+  <div class="header-meta">Done: <strong id="s-done">0</strong> &nbsp;|&nbsp; Fluent: <strong id="s-fluent">0</strong></div>
+</header>
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('families',this)">① Word Families</button>
+  <button class="tab" onclick="switchTab('drill',this)">② Usage Drill</button>
+  <button class="tab" onclick="switchTab('choice',this)">③ Right Word?</button>
+  <button class="tab" onclick="switchTab('roleplay',this)">④ Role-Play</button>
+</div>
+<main>
+
+<!-- ① WORD FAMILIES -->
+<div id="m-families">
+
+  <div class="root-card">
+    <div class="root-header" onclick="toggleRoot(this)">
+      <div><div class="root-latin">Latin Root</div><div class="root-title">EGO</div><div class="root-meaning">Self — the sense of "I"</div></div>
+      <div class="root-toggle">▾ expand</div>
+    </div>
+    <div class="root-body">
+      <div class="word-row"><div class="wr-left"><div class="wr-word">Egoist</div><div class="wr-pos">noun</div></div><div class="wr-right"><div class="wr-def">A person who believes their own interests are the most important — operates from pure self-interest.</div><div class="wr-ex">"He's a total egoist; he only cares about what's in it for him."</div></div></div>
+      <div class="word-row"><div class="wr-left"><div class="wr-word">Egotist</div><div class="wr-pos">noun</div></div><div class="wr-right"><div class="wr-def">A person who talks excessively about themselves and their own achievements — self-obsessed in conversation.</div><div class="wr-ex">"Talking to that egotist is exhausting — he only talks about his own success."</div></div></div>
+      <div class="word-row"><div class="wr-left"><div class="wr-word">Ego</div><div class="wr-pos">noun</div></div><div class="wr-right"><div class="wr-def">One's sense of self-importance and self-worth. A healthy ego is positive; a fragile or inflated ego causes problems.</div><div class="wr-ex">"Winning that competition really gave his ego a huge boost."</div></div></div>
+      <div class="word-row"><div class="wr-left"><div class="wr-word">Egocentric</div><div class="wr-pos">adjective</div></div><div class="wr-right"><div class="wr-def">Seeing the world only from one's own perspective — unable to genuinely consider others' viewpoints or feelings.</div><div class="wr-ex">"Small children are naturally egocentric and don't realise others have feelings too."</div></div></div>
+      <div class="word-row"><div class="wr-left"><div class="wr-word">Egomaniac</div><div class="wr-pos">noun</div></div><div class="wr-right"><div class="wr-def">A person with an obsessive, almost pathological belief in their own importance — beyond egotism into something dangerous.</div><div class="wr-ex">"The CEO was such an egomaniac that he wouldn't listen to any advice from his team."</div></div></div>
+      <div class="word-row"><div class="wr-left"><div class="wr-word">Egomaniacal</div><div class="wr-pos">adjective</div><div class="wr-note">describes behaviour</div></div><div class="wr-right"><div class="wr-def">Characteristic of an egomaniac — driven by an obsessive need for control and admiration.</div><div class="wr-ex">"His egomaniacal behaviour eventually drove all his friends away."</div></div></div>
+      <div class="family-note"><strong>The spectrum:</strong> The egoist is self-interested (obnoxious), the egotist talks too much about themselves (tiresome), the egocentric cannot see others' perspectives (intolerable), and the egomaniac is obsessively self-important — potentially dangerous and slightly mad. Each step on this spectrum is more severe than the last.</div>
+    </div>
+  </div>
+
+  <div class="root-card">
+    <div class="root-header" onclick="toggleRoot(this)">
+      <div><div class="root-latin">Latin Root</div><div class="root-title">ALTER</div><div class="root-meaning">Other — the other one, another</div></div>
+      <div class="root-toggle">▾ expand</div>
+    </div>
+    <div class="root-body">
+      <div class="word-row"><div class="wr-left"><div class="wr-word">Altruist</div><div class="wr-pos">noun</div></div><div class="wr-right"><div class="wr-def">A person who puts others' wellbeing above their own — the opposite of an egoist.</div><div class="wr-ex">"As a true altruist, she spent her entire inheritance building a local hospital."</div></div></div>
+      <div class="word-row"><div class="wr-left"><div class="wr-word">Altruism</div><div class="wr-pos">noun</div></div><div class="wr-right"><div class="wr-def">Selfless concern for others; the practice of giving without expectation of return.</div><div class="wr-ex">"The organisation relies on the altruism of everyday people to keep running."</div></div></div>
+      <div class="word-row"><div class="wr-left"><div class="wr-word">Altruistic</div><div class="wr-pos">adjective</div></div><div class="wr-right"><div class="wr-def">Acting out of concern for others rather than self-interest.</div><div class="wr-ex">"It was an altruistic move to give up his seat for the elderly lady."</div></div></div>
+      <div class="word-row"><div class="wr-left"><div class="wr-word">Alteration</div><div class="wr-pos">noun</div></div><div class="wr-right"><div class="wr-def">A change or modification — making something different from what it was.</div><div class="wr-ex">"The dress is perfect, but it needs a small alteration in the sleeves."</div></div></div>
+      <div class="word-row"><div class="wr-left"><div class="wr-word">Altercation</div><div class="wr-pos">noun</div><div class="wr-note">formal/legal tone</div></div><div class="wr-right"><div class="wr-def">A noisy, heated argument or disagreement — more formal than 'argument', often implying a public scene.</div><div class="wr-ex">"The two drivers had a loud altercation over a parking spot."</div></div></div>
+      <div class="word-row"><div class="wr-left"><div class="wr-word">Alter ego</div><div class="wr-pos">noun phrase</div></div><div class="wr-right"><div class="wr-def">A second self — a different version of oneself, often a persona adopted in a specific context.</div><div class="wr-ex">"By day he's a shy accountant, but on stage his alter ego is a rock star."</div></div></div>
+      <div class="word-row"><div class="wr-left"><div class="wr-word">Alternate</div><div class="wr-pos">adj / verb</div></div><div class="wr-right"><div class="wr-def">Every other one (adj); to take turns or switch between two things (verb).</div><div class="wr-ex">"We should alternate who picks the music so everyone gets a turn."</div></div></div>
+      <div class="word-row"><div class="wr-left"><div class="wr-word">Alternative</div><div class="wr-pos">noun / adj</div></div><div class="wr-right"><div class="wr-def">A different option; another available choice.</div><div class="wr-ex">"Is there an alternative to surgery, like physical therapy?"</div></div></div>
+      <div class="family-note"><strong>Key distinction:</strong> <em>Altruism</em> comes from alter (other) — it literally means orientating yourself toward the other person. The opposite is not 'selfishness' but rather egoism — both words get their meaning from which direction (self vs other) your concern flows.</div>
+    </div>
+  </div>
+
+  <div class="root-card">
+    <div class="root-header" onclick="toggleRoot(this)">
+      <div><div class="root-latin">Latin Root</div><div class="root-title">VERTO</div><div class="root-meaning">To turn — to face inward or outward</div></div>
+      <div class="root-toggle">▾ expand</div>
+    </div>
+    <div class="root-body">
+      <div class="word-row"><div class="wr-left"><div class="wr-word">Introvert</div><div class="wr-pos">noun / adj</div></div><div class="wr-right"><div class="wr-def">A person who is energised by solitude and internal thought — social interaction drains rather than recharges them.</div><div class="wr-ex">"I'm an introvert, so I usually need a quiet night at home after a busy work week."</div></div></div>
+      <div class="word-row"><div class="wr-left"><div class="wr-word">Extrovert</div><div class="wr-pos">noun / adj</div></div><div class="wr-right"><div class="wr-def">A person energised by social interaction — they gain energy from being around others.</div><div class="wr-ex">"My sister is an extrovert who feels energised by being in large crowds."</div></div></div>
+      <div class="word-row"><div class="wr-left"><div class="wr-word">Ambivert</div><div class="wr-pos">noun</div></div><div class="wr-right"><div class="wr-def">A person who falls between introvert and extrovert — comfortable in both social and solitary situations.</div><div class="wr-ex">"I'm an ambivert; I love parties, but I also value my alone time."</div></div></div>
+      <div class="family-note"><strong>The root meaning:</strong> Intro (inward) + verto (turn) = turned inward. Extra (outward) + verto = turned outward. Ambi (both) = turned both ways. The energy model, not the shyness model, is the most accurate way to use these words.</div>
+    </div>
+  </div>
+
+  <div class="root-card">
+    <div class="root-header" onclick="toggleRoot(this)">
+      <div><div class="root-latin">Latin / French Roots</div><div class="root-title">DEXTER · GAUCHE · ADROIT</div><div class="root-meaning">Skill, dexterity, social grace — or the lack of it</div></div>
+      <div class="root-toggle">▾ expand</div>
+    </div>
+    <div class="root-body">
+      <div class="word-row"><div class="wr-left"><div class="wr-word">Dexterity</div><div class="wr-pos">noun</div></div><div class="wr-right"><div class="wr-def">Skill and precision in using one's hands — or, more broadly, mental agility and nimbleness.</div><div class="wr-ex">"Playing video games at a high level requires a lot of manual dexterity."</div></div></div>
+      <div class="word-row"><div class="wr-left"><div class="wr-word">Dexterous</div><div class="wr-pos">adjective</div></div><div class="wr-right"><div class="wr-def">Skilful, precise, and nimble — with hands or in thinking.</div><div class="wr-ex">"The surgeon was so dexterous that the operation was finished in record time."</div></div></div>
+      <div class="word-row"><div class="wr-left"><div class="wr-word">Ambidextrous</div><div class="wr-pos">adjective</div><div class="wr-note">ambi = both</div></div><div class="wr-right"><div class="wr-def">Able to use both hands with equal skill — or, metaphorically, comfortable in two very different roles.</div><div class="wr-ex">"She is ambidextrous, so she can write with both hands simultaneously."</div></div></div>
+      <div class="word-row"><div class="wr-left"><div class="wr-word">Gauche</div><div class="wr-pos">adjective</div><div class="wr-note">from French: left-handed</div></div><div class="wr-right"><div class="wr-def">Socially awkward or tactless — lacking grace or awareness in social situations. The French word for 'left' carries the association of clumsiness.</div><div class="wr-ex">"It was a bit gauche of him to ask how much money I make at a dinner party."</div></div></div>
+      <div class="word-row"><div class="wr-left"><div class="wr-word">Gaucherie</div><div class="wr-pos">noun</div></div><div class="wr-right"><div class="wr-def">A socially awkward act or remark — an instance of gauche behaviour.</div><div class="wr-ex">"His social gaucherie made the whole room feel awkward."</div></div></div>
+      <div class="word-row"><div class="wr-left"><div class="wr-word">Adroit</div><div class="wr-pos">adjective</div><div class="wr-note">from French: right-handed</div></div><div class="wr-right"><div class="wr-def">Clever, skilled, and nimble — especially in handling difficult situations smoothly. The opposite of gauche.</div><div class="wr-ex">"The politician was admired for his adroitness in avoiding difficult questions."</div></div></div>
+      <div class="word-row"><div class="wr-left"><div class="wr-word">Adroitness</div><div class="wr-pos">noun</div></div><div class="wr-right"><div class="wr-def">The quality of being adroit — clever, smooth handling of a situation.</div><div class="wr-ex">"She navigated the difficult negotiation with remarkable adroitness."</div></div></div>
+      <div class="family-note"><strong>Etymology worth knowing:</strong> In French, 'droit' = right (direction), 'gauche' = left. In most European languages, right-handedness was associated with skill and correctness; left with awkwardness. That's why 'gauche' means socially clumsy and 'adroit' means skilful — both literally just mean 'left-handed' and 'right-handed' in French. <br><br><strong>Synonyms of gauche:</strong> clumsy, tactless, bumbling. <strong>Synonyms of adroit:</strong> ingenious, nimble, dexterous.</div>
+    </div>
+  </div>
+
+  <div class="root-card">
+    <div class="root-header" onclick="toggleRoot(this)">
+      <div><div class="root-latin">Greek Root</div><div class="root-title">MISEIN · ANTHROPE · GYNE · GAMOS</div><div class="root-meaning">To hate · Mankind · Woman · Marriage</div></div>
+      <div class="root-toggle">▾ expand</div>
+    </div>
+    <div class="root-body">
+      <div class="word-row"><div class="wr-left"><div class="wr-word">Misanthrope</div><div class="wr-pos">noun</div></div><div class="wr-right"><div class="wr-def">A person who dislikes and distrusts people in general — tends to avoid human company.</div><div class="wr-ex">"The old man was a bit of a misanthrope and hated when neighbours walked near his lawn."</div></div></div>
+      <div class="word-row"><div class="wr-left"><div class="wr-word">Misogynist</div><div class="wr-pos">noun / adj</div><div class="wr-note">miso + gyne (woman)</div></div><div class="wr-right"><div class="wr-def">A person who harbours prejudice or hostility toward women.</div><div class="wr-ex">"The manager was fired for making misogynist remarks about his female employees."</div></div></div>
+      <div class="word-row"><div class="wr-left"><div class="wr-word">Philanthropist</div><div class="wr-pos">noun</div><div class="wr-note">philos (love) + anthrope</div></div><div class="wr-right"><div class="wr-def">A person who promotes human welfare through generous charitable donations and action.</div><div class="wr-ex">"The philanthropist donated millions to help find a cure for cancer."</div></div></div>
+      <div class="word-row"><div class="wr-left"><div class="wr-word">Philanthropy</div><div class="wr-pos">noun</div></div><div class="wr-right"><div class="wr-def">The practice of donating time, money, or resources to benefit society — love of mankind in action.</div><div class="wr-ex">"The university was built through the philanthropy of a local businessman."</div></div></div>
+      <div class="word-row"><div class="wr-left"><div class="wr-word">Philanthropic</div><div class="wr-pos">adjective</div></div><div class="wr-right"><div class="wr-def">Relating to or characterised by philanthropy.</div><div class="wr-ex">"The company has a philanthropic mission to provide clean water globally."</div></div></div>
+      <div class="word-row"><div class="wr-left"><div class="wr-word">Monogamy</div><div class="wr-pos">noun</div><div class="wr-note">mono (one) + gamos</div></div><div class="wr-right"><div class="wr-def">The practice of having only one partner at a time.</div><div class="wr-ex">"Many people believe that monogamy is the best foundation for a stable family."</div></div></div>
+      <div class="word-row"><div class="wr-left"><div class="wr-word">Polygamy</div><div class="wr-pos">noun</div><div class="wr-note">poly (many) + gamos</div></div><div class="wr-right"><div class="wr-def">The practice of having more than one spouse simultaneously.</div><div class="wr-ex">"In some cultures, polygamy is a legal and traditional practice."</div></div></div>
+      <div class="word-row"><div class="wr-left"><div class="wr-word">Bigamy</div><div class="wr-pos">noun</div><div class="wr-note">bi (two) + gamos</div></div><div class="wr-right"><div class="wr-def">The crime of marrying someone while already legally married to another person.</div><div class="wr-ex">"He was charged with bigamy because he was still married to his first wife."</div></div></div>
+      <div class="family-note"><strong>The miso- prefix:</strong> miso + anthrope = misanthrope (hates people); miso + gyne = misogynist (hates women); miso + gamos = misogamist (hates marriage). Once you know the prefix, the meaning is always predictable.<br><br><strong>Philanthropy in professional use:</strong> In finance and business, 'philanthropic', 'philanthropist', and 'philanthropy' appear constantly in ESG contexts, foundation work, family office discussions, and corporate social responsibility. These three forms are worth having at your fingertips.</div>
+    </div>
+  </div>
+
+</div><!-- end families -->
+
+<!-- ② USAGE DRILL -->
+<div id="m-drill" style="display:none">
+  <div class="prog-row">
+    <span class="prog-text" id="dr-cnt">1 / 18</span>
+    <div class="prog-track"><div class="prog-fill" id="dr-prg" style="width:0%"></div></div>
+    <span class="prog-text" id="dr-lbl">—</span>
+  </div>
+  <div class="drill-card">
+    <div class="dc-root" id="dr-root">—</div>
+    <div class="dc-sit" id="dr-sit">—</div>
+    <div class="dc-prompt" id="dr-prompt">—</div>
+  </div>
+  <div class="reveal-box" id="dr-reveal">
+    <div class="rev-label">✓ Target Word</div>
+    <div class="rev-word" id="dr-word">—</div>
+    <div class="rev-pos" id="dr-pos">—</div>
+    <div class="rev-ex" id="dr-ex">—</div>
+    <div class="rev-tip" id="dr-tip">—</div>
+    <div class="rate-row">
+      <button class="rate-btn rate-hard" onclick="rateDr('hard')">🔴 Couldn't use it</button>
+      <button class="rate-btn rate-ok" onclick="rateDr('ok')">🟡 Used it, not fluently</button>
+      <button class="rate-btn rate-easy" onclick="rateDr('easy')">🟢 Used it naturally</button>
+    </div>
+  </div>
+  <div class="nav-row">
+    <button class="btn btn-ghost" onclick="drNav(-1)">← Prev</button>
+    <button class="btn btn-gold" id="dr-rev-btn" onclick="revealDr()">Reveal Word</button>
+    <button class="btn btn-ghost" onclick="drNav(1)">Next →</button>
+  </div>
+  <div style="text-align:center;margin-top:10px">
+    <button class="btn btn-ghost btn-sm" onclick="shuffleDr()">⇄ Shuffle</button>
+  </div>
+</div>
+
+<!-- ③ CHOICE -->
+<div id="m-choice">
+  <div class="prog-row">
+    <span class="prog-text" id="ch-cnt">1 / 18</span>
+    <div class="prog-track"><div class="prog-fill" id="ch-prg" style="width:0%"></div></div>
+    <span class="score-badge" id="ch-score">Score: 0 / 0</span>
+  </div>
+  <div class="choice-card">
+    <div class="ch-label">📍 Which sentence uses the word correctly?</div>
+    <div class="ch-q" id="ch-q">—</div>
+  </div>
+  <div class="ch-opts" id="ch-opts"></div>
+  <div class="ch-fb" id="ch-fb"></div>
+  <div class="nav-row"><button class="btn btn-ghost" id="ch-next" style="display:none" onclick="nextChoice()">Next →</button></div>
+</div>
+
+<!-- ④ ROLEPLAY -->
+<div id="m-roleplay">
+  <div class="prog-row">
+    <span class="prog-text" id="rp-cnt">1 / 8</span>
+    <div class="prog-track"><div class="prog-fill" id="rp-prg" style="width:0%"></div></div>
+    <span class="prog-text" id="rp-lbl">—</span>
+  </div>
+  <div class="rp-scene">
+    <div class="rp-ctx" id="rp-ctx">—</div>
+    <div class="rp-setup" id="rp-setup">—</div>
+    <div class="rp-cue" id="rp-cue">—</div>
+  </div>
+  <textarea class="rp-ta" id="rp-ta" placeholder="Write what you would say — use the target word naturally…"></textarea>
+  <div class="nav-row" style="margin-bottom:12px">
+    <button class="btn btn-ghost" onclick="rpNav(-1)">← Prev</button>
+    <button class="btn btn-gold" id="rp-rev-btn" onclick="revealRP()">See Model Response</button>
+    <button class="btn btn-ghost" onclick="rpNav(1)">Next →</button>
+  </div>
+  <div class="rp-reveal" id="rp-reveal">
+    <div class="rp-rev-label">Model Response — target word highlighted</div>
+    <div class="model-resp" id="rp-model">—</div>
+    <div class="rp-why" id="rp-why">—</div>
+    <div class="rate-row">
+      <button class="rate-btn rate-hard" onclick="rateRP('hard')">🔴 Very different</button>
+      <button class="rate-btn rate-ok" onclick="rateRP('ok')">🟡 Similar but less natural</button>
+      <button class="rate-btn rate-easy" onclick="rateRP('easy')">🟢 Close to model</button>
+    </div>
+  </div>
+</div>
+
+</main>
+<script>
+// ── DRILL DATA ──────────────────────────────
+const DR=[
+  {root:"EGO — Self",word:"Egoist",pos:"noun",sit:"A colleague describes a senior manager who consistently takes credit for team work and never advocates for others' interests in leadership meetings.",prompt:"Name the personality type precisely — someone who operates entirely from self-interest…",ex:"\"Honestly, he's an egoist — every decision he makes, you can trace it back to what's best for him personally.\"",tip:"Egoist = self-interested in a calculating way. More precise than 'selfish'. Use it when you want to make a clinical observation about motivation, not just complain.",cq:"Which uses 'egoist' correctly?",cc:"He's a complete egoist — every decision he makes, you can trace it back to what benefits him personally.",cw:["She was such an egoist that she spent the whole dinner talking about her achievements.","The company's egoist strategy focused entirely on market share at the expense of everything else."]},
+  {root:"EGO — Self",word:"Egotist",pos:"noun",sit:"You've just come out of a networking dinner where one person dominated every conversation with stories about themselves.",prompt:"Name the type precisely — someone who cannot stop talking about themselves…",ex:"\"He's a classic egotist — every conversation eventually circles back to his own achievements, no matter where it started.\"",tip:"Egotist = obsessed with talking about themselves. The egoist is more calculating; the egotist is more tiresome. Both are self-centred, but in different ways.",cq:"Which uses 'egotist' correctly?",cc:"He's a classic egotist — every conversation eventually circles back to his own achievements, regardless of the original topic.",cw:["The company hired an egotist to help the team focus on collective goals rather than individual gain.","His egotist approach to the budget saved the firm millions by cutting unnecessary expenses."]},
+  {root:"EGO — Self",word:"Egomaniac",pos:"noun",sit:"A founder CEO refuses all external advice, overrides the board on every decision, and genuinely believes the company cannot function without him personally.",prompt:"Name this behaviour at its most extreme — beyond ego into something almost pathological…",ex:"\"He's not just confident — he's an egomaniac. He genuinely believes the company would collapse without him personally running every meeting.\"",tip:"Egomaniac = the most extreme form. It has a touch of pathology — almost a clinical word. Use it sparingly and only when the behaviour is genuinely excessive, not just confident.",cq:"Which uses 'egomaniac' correctly?",cc:"The founder was an egomaniac — he genuinely believed no decision could be made without his personal involvement.",cw:["She was an egomaniac about punctuality, always arriving exactly on time for every meeting.","The egomaniac filing system organised all documents alphabetically by topic and date."]},
+  {root:"ALTER — Other",word:"Altruistic",pos:"adjective",sit:"A senior partner voluntarily gave up a significant portion of their bonus to fund junior analyst training, with no public recognition.",prompt:"Describe a genuinely selfless action that was done entirely for others' benefit…",ex:"\"What she did with her bonus was genuinely altruistic — she didn't tell anyone, she didn't need the credit. She just thought it was the right thing to do.\"",tip:"More precise and sophisticated than 'generous'. Altruistic implies the action is primarily motivated by concern for others, not by any personal gain including the gain of being seen to be generous.",cq:"Which uses 'altruistic' correctly?",cc:"Her decision to redirect her bonus to junior training was entirely altruistic — she sought no recognition for it.",cw:["The fund's altruistic returns outperformed the benchmark by 3% over the past year.","His altruistic filing system made it easy for the whole team to find documents quickly."]},
+  {root:"ALTER — Other",word:"Altercation",pos:"noun",sit:"Two clients had a heated public disagreement at a conference about the direction of a joint venture. Security had to intervene.",prompt:"Describe a heated, noisy public argument in formal terms…",ex:"\"There was quite an altercation between the two parties at the conference — it became public and security had to intervene.\"",tip:"More formal than 'argument' or 'fight'. Often implies a public scene. Very useful in professional and legal contexts where you need to describe a conflict without being informal or sensationalist.",cq:"Which uses 'altercation' correctly?",cc:"There was a public altercation between the two executives at the conference — voices were raised and security was called.",cw:["The altercation of the new strategy led to a 15% increase in quarterly revenue.","She underwent an altercation to her investment thesis after the new data came in."]},
+  {root:"ALTER — Other",word:"Alter ego",pos:"noun phrase",sit:"A famously reserved and introverted analyst is known to be a completely different person on stage when presenting to large audiences.",prompt:"Describe someone's different public or professional persona — their 'other self' that appears in certain contexts…",ex:"\"When she presents to a large audience, it's like watching a different person — her alter ego completely takes over.\"",tip:"Very effective for describing the gap between someone's private and public self, or between how a person behaves in different professional roles. Common in creative, media, and business development contexts.",cq:"Which uses 'alter ego' correctly?",cc:"In client meetings she is quiet and analytical, but her alter ego emerges when she presents to large audiences.",cw:["The company's alter ego strategy involved a complete rebrand of its product line.","He used his alter ego to calculate the risk-adjusted return on the investment."]},
+  {root:"DEXTER/GAUCHE — Skill",word:"Gauche",pos:"adjective",sit:"A new hire asked a senior MD how much he earns within the first ten minutes of their first meeting.",prompt:"Describe a socially tactless, awkward thing to do — something that shows a lack of social awareness…",ex:"\"It was a bit gauche of him to ask about salary in the first meeting — that's not how you build a relationship with an MD.\"",tip:"More precise and elegant than 'rude' or 'awkward'. It implies a specific kind of social unawareness — the person isn't malicious, just lacking in grace. Excellent for professional settings where you want to flag poor social judgement without being harsh.",cq:"Which uses 'gauche' correctly?",cc:"It was quite gauche of him to ask about compensation on a first meeting — it immediately made the MD uncomfortable.",cw:["The gauche performance of the fund last year delivered strong risk-adjusted returns.","She prepared a gauche presentation that covered all the key financial metrics clearly."]},
+  {root:"DEXTER/GAUCHE — Skill",word:"Adroit",pos:"adjective",sit:"A banker smoothly navigated a difficult moment in a pitch when a client raised a point that undermined part of the analysis — acknowledging it, reframing it, and moving on without losing momentum.",prompt:"Describe someone who handles a difficult or delicate situation with skill and smooth intelligence…",ex:"\"The way she handled that question was incredibly adroit — she acknowledged the point, reframed it, and moved on without losing the room.\"",tip:"More sophisticated than 'clever' or 'skilful'. Adroit specifically implies smooth, nimble handling of a difficult moment — particularly in social or professional navigation. It's one of the best words for describing someone who is both intelligent and socially skilled.",cq:"Which uses 'adroit' correctly?",cc:"Her adroit handling of the client's objection — acknowledging it, reframing it, and moving on — kept the pitch on track.",cw:["The fund's adroit return of 12% significantly outperformed the sector benchmark.","He submitted an adroit analysis of the company's balance sheet to the committee."]},
+  {root:"ANTHROPE — Mankind",word:"Philanthropist",pos:"noun",sit:"A family office client has indicated they want to dedicate a significant portion of their wealth to charitable causes alongside their investment activity.",prompt:"Refer to this client precisely in the context of their charitable orientation — someone devoted to giving…",ex:"\"She is genuinely a philanthropist — this isn't about tax efficiency, it's about her conviction that wealth carries an obligation.\"",tip:"In finance, this word appears constantly in family office, wealth management, and ESG contexts. Know the full family: philanthropist (person), philanthropy (the practice), philanthropic (the adjective). 'Philanthropic goals' is a very common phrase in client conversations.",cq:"Which uses 'philanthropist' correctly?",cc:"As a committed philanthropist, she dedicated a third of her net worth to education and clean water initiatives.",cw:["The company hired a philanthropist to improve the efficiency of its supply chain management.","His philanthropist returns on investment consistently outperformed the market over a decade."]},
+  {root:"MISEIN — To hate",word:"Misanthrope",pos:"noun",sit:"A brilliant but famously anti-social analyst refuses all team dinners, client events, and social occasions — preferring to work alone and communicate by email only.",prompt:"Describe someone who genuinely dislikes and avoids human company as a general disposition…",ex:"\"He's a brilliant analyst but a complete misanthrope — he'd rather have root canal surgery than attend a team dinner.\"",tip:"More precise and literary than 'antisocial'. A misanthrope doesn't just dislike particular people — they distrust humanity in general. Often used with a slightly amused tone in professional contexts.",cq:"Which uses 'misanthrope' correctly?",cc:"A brilliant but confirmed misanthrope, he communicated exclusively by email and refused every social invitation.",cw:["The misanthrope fund strategy avoided all human interaction by using fully automated trading algorithms.","She was a misanthrope presenter who covered all the key points in under ten minutes."]},
+  {root:"EGO",word:"Egocentric",pos:"adjective",sit:"A strategy session keeps getting derailed because one participant frames every proposed action around how it affects their own department, never engaging with the broader firm impact.",prompt:"Describe someone whose thinking is locked to their own perspective — unable to consider the wider picture…",ex:"\"His thinking is completely egocentric — every proposal gets evaluated through the lens of how it affects his team, never the firm.\"",tip:"More analytical than 'selfish'. Egocentric describes a limitation of perspective — the person may not even realise they're doing it. Useful in leadership and organisational discussions.",cq:"Which uses 'egocentric' correctly?",cc:"His contribution to strategy discussions is always egocentric — every option gets evaluated through the lens of his own department.",cw:["The fund delivered egocentric performance last year, focusing on niche market segments.","Her egocentric filing approach organised all documents by department, making retrieval faster."]},
+  {root:"ALTER",word:"Philanthropy",pos:"noun",sit:"You are describing the investment strategy of a family office whose mandate explicitly includes charitable allocation alongside financial returns.",prompt:"Refer to the charitable giving dimension of a client's wealth strategy with precision…",ex:"\"For this family office, philanthropy isn't separate from the investment mandate — it's integrated into how they think about capital allocation.\"",tip:"Philanthropy = the practice or activity of giving. Philanthropist = the person. Philanthropic = the adjective. In wealth management and ESG, these three forms come up constantly. Know all three.",cq:"Which uses 'philanthropy' correctly?",cc:"For this family office, philanthropy is integrated into the investment strategy — not treated as a separate afterthought.",cw:["The fund's philanthropy of 12% annual returns made it one of the best performers in its category.","She applied philanthropy to the risk model by weighting charitable outcomes alongside financial ones."]},
+  {root:"VERTO",word:"Ambivert",pos:"noun",sit:"A colleague is trying to describe how they recharge differently depending on the week — sometimes they need solitude, sometimes they need people.",prompt:"Describe someone who genuinely sits between introvert and extrovert — comfortable in both modes…",ex:"\"I'm an ambivert — some weeks I need a Friday night in to recharge, other weeks I need people around me. It depends on the week.\"",tip:"More accurate than most people's self-description. In professional life, ambiverts are often the most effective in client-facing roles because they can switch modes. The word is increasingly common in HR, leadership, and coaching discussions.",cq:"Which uses 'ambivert' correctly?",cc:"I'm genuinely an ambivert — some weeks I need solitude to recharge, others I need social energy. It depends on the context.",cw:["The ambivert financial model combined both debt and equity components in equal proportion.","Her ambivert presentation style covered both qualitative and quantitative aspects of the analysis."]},
+  {root:"DEXTER",word:"Ambidextrous",pos:"adjective",sit:"A colleague describes a senior manager who is equally effective in highly technical quantitative work and in client-facing relationship management — rare skills that are usually found in different people.",prompt:"Describe someone who is equally skilled in two very different domains or roles…",ex:"\"She's genuinely ambidextrous in this role — she can build a complex DCF in the morning and present to the board in the afternoon, and both are excellent.\"",tip:"Literal meaning: equal skill with both hands. Metaphorical use: equally capable in two different types of work or context. Very effective for describing versatility in professional performance.",cq:"Which uses 'ambidextrous' correctly in a professional context?",cc:"She's genuinely ambidextrous — equally strong in quantitative analysis and client-facing communication, which is rare.",cw:["The fund's ambidextrous strategy invested in both growth and value stocks with equal weighting.","His ambidextrous report covered the topic from both a historical and forward-looking perspective."]},
+  {root:"ALTER — Other",word:"Alternative",pos:"noun / adjective",sit:"A client has rejected the initial fee structure and you need to offer a different option that still works commercially.",prompt:"Introduce a different option professionally — signalling you have flexibility without abandoning your position…",ex:"\"If the current structure doesn't work for you, we do have an alternative arrangement we could explore — a success-fee model rather than a retainer.\"",tip:"'Alternative' in business English is a precision word — it implies a genuine second path, not just a modification of the first. 'Is there an alternative?' is a very common client phrase. Having your alternatives ready before a meeting is standard professional preparation.",cq:"Which uses 'alternative' correctly?",cc:"If the retainer structure doesn't work, we have an alternative model based on success fees that some clients prefer.",cw:["The alternative performance of the portfolio was driven primarily by the tech sector overweight.","She submitted the alternative version of the report, which was identical to the original."]},
+  {root:"EGO",word:"Ego",pos:"noun",sit:"A junior colleague has just been praised publicly by the CEO in front of the whole firm for a piece of work they led.",prompt:"Describe the effect of public recognition on someone's sense of self-worth and confidence…",ex:"\"That public recognition from the CEO is going to give his ego a real boost — and honestly, he's earned it.\"",tip:"'Give someone's ego a boost' is a very high-frequency phrase. 'A fragile ego', 'a healthy ego', 'bruised ego', 'ego driven' — these collocations come up constantly in professional and personal conversation. Knowing the collocations matters more than knowing the word in isolation.",cq:"Which uses 'ego' correctly in a professional context?",cc:"That public praise from the CEO gave his ego a real boost — and given the work he put in, it was well deserved.",cw:["The fund's ego of 8% annual returns made it attractive to conservative investors.","She submitted an ego analysis of the company's competitive positioning in the market."]},
+  {root:"ALTER",word:"Altruism",pos:"noun",sit:"You are explaining why a successful hedge fund manager has decided to dedicate the rest of their career to impact investing at below-market returns.",prompt:"Name the underlying motivation precisely — acting for others' benefit rather than financial gain…",ex:"\"What he's doing is driven by genuine altruism — he's walked away from returns that most managers would die for because he believes his capital can do more good than that.\"",tip:"Altruism is the noun; altruistic is the adjective. In finance and ESG contexts, both appear constantly. Be precise: altruism is motivation-based (why someone acts), not just outcome-based (what the result is).",cq:"Which uses 'altruism' correctly?",cc:"His decision to move into impact investing at below-market returns reflects genuine altruism — it's about what his capital can do for others.",cw:["The fund's altruism of 15% returns significantly outperformed its benchmark last year.","Her altruism to the project involved working an extra 10 hours per week to meet the deadline."]},
+  {root:"MISEIN + ANTHROPE",word:"Misogynist",pos:"noun / adjective",sit:"A client is describing a culture problem at a company they are considering acquiring — there are patterns in promotion data and exit interview language that suggest a systemic bias.",prompt:"Name the specific form of prejudice precisely — hostility or bias directed against women…",ex:"\"The exit interview data is telling — the language in the comments is consistently misogynist in tone, and the promotion disparity at VP level is too consistent to be coincidental.\"",tip:"Misogynist = noun (a person) or adjective (describing the behaviour). Misogyny = the noun for the belief/attitude itself. In professional settings — particularly in M&A due diligence, HR investigations, and ESG assessments — precision with this word matters. It's stronger and more specific than 'sexist'.",cq:"Which uses 'misogynist' correctly?",cc:"The exit interview data revealed consistently misogynist language in comments about female managers — a serious cultural red flag.",cw:["The misogynist returns of the women's investment fund significantly outperformed the market.","Her misogynist presentation approach favoured structured data over narrative explanations."]}
+];
+
+// ── ROLEPLAY DATA ───────────────────────────
+const RP=[
+  {word:"Egomaniac / Egocentric",ctx:"Confidential conversation — assessing a leader",setup:"You are being asked privately by a search committee to give your candid assessment of a CEO candidate you have worked with. The candidate is brilliant but has significant blind spots.",cue:"Committee Chair: \"Be honest with us — what's the main thing we need to know about him before we make this decision?\"",model:"He's genuinely brilliant — I wouldn't qualify that. But I'd be doing you a disservice if I didn't tell you that his thinking is deeply <b>egocentric</b>. Every strategic question gets filtered through the lens of his own legacy and reputation first. Left unchecked, that becomes <b>egomaniacal</b> — he's shown that tendency under pressure. If you put the right board structure around him, with people willing to push back, he can be extraordinary. Without that structure, the same qualities that make him compelling will make him dangerous.",why:"Using both 'egocentric' (a structural thinking problem) and 'egomaniac' (what it becomes under pressure) shows precise vocabulary and real analytical sophistication. The recommendation — right structure changes the outcome — turns the assessment into something actionable rather than just a verdict."},
+  {word:"Altruistic / Altruism",ctx:"Family office client meeting — philanthropic strategy",setup:"A long-standing client has just told you they want to restructure their entire investment mandate to weight charitable impact equally with financial return. This is a significant shift.",cue:"Client: \"I want to be clear — this isn't about tax efficiency or optics. I genuinely want my capital to matter. Can you help me build something that reflects that?\"",model:"I hear you — and I want to say directly: what you're describing is <b>altruistic</b> in the truest sense. This isn't a marketing exercise. We've worked with clients who lead with <b>altruism</b> as the primary value, and the most effective structures we've seen are the ones that make it explicit in the mandate rather than treating it as a side constraint. I'd like to propose a full strategy review where we build the impact objectives first — and then design the financial architecture around them, not the other way around. That's a different process, but I think it's the right one for what you're actually trying to do.",why:"Naming their motivation as 'altruistic in the truest sense' immediately validates them — not as a compliment, but as a precise characterisation that shows you understand exactly what they mean. Proposing to 'build the impact objectives first' honours the altruism structurally."},
+  {word:"Gauche / Adroit",ctx:"Post-pitch debrief with a junior colleague",setup:"A junior banker asked the client CFO during a pitch how much the company had budgeted for advisory fees — before the bank had presented its value proposition. The room went cold.",cue:"Junior: \"I thought it was a reasonable question — why did everyone react that way?\"",model:"It wasn't a bad question — it was a question with a bad timing. Asking about budget before you've demonstrated value is <b>gauche</b> — it signals you're thinking about the fee before thinking about the client's problem. The <b>adroit</b> way to handle it is to establish the problem, show what you'd do, get them nodding — and then let the fee discussion come naturally at the end when they're already sold. Same question, different moment — completely different effect. That's what we're working on.",why:"'Same question, different moment — completely different effect' is a precise teaching insight. Using both 'gauche' and 'adroit' as a contrast pair shows how the words actually work as opposites — and the lesson becomes memorable because it's concrete rather than abstract."},
+  {word:"Philanthropist / Philanthropy",ctx:"New client onboarding — family office introduction",setup:"A new client is the head of a wealthy family office. Their wealth originated in manufacturing but they have been transitioning to impact investing over the past decade.",cue:"Client: \"I want to make sure you understand something about us from the start — we are not a typical family office. How we allocate capital matters as much as what the capital returns.\"",model:"I appreciate you saying that directly — it helps me understand the mandate from the right starting point. The families we work with who lead with <b>philanthropy</b> as a core value — not as a sidebar to the investment strategy — tend to want a very different kind of conversation than most clients. Less about maximising returns in isolation, more about what kind of <b>philanthropist</b> legacy this capital is building over a generation. I'd like to start our first proper session by understanding your impact thesis before we talk about asset allocation. That's where the real mandate lives.",why:"Responding to the client's signal by immediately using 'philanthropy' and 'philanthropist' shows you absorbed what they said and are meeting them in their own language. Proposing to start with the impact thesis rather than asset allocation demonstrates you genuinely understood the priority they stated."},
+  {word:"Misanthrope",ctx:"Team management — integrating a difficult but brilliant hire",setup:"A newly hired quant analyst is performing brilliantly on the analytical work but refusing all team interactions, client events, and social occasions. Your MD asks for your assessment.",cue:"MD: \"Is this person going to be a problem? Should we have a conversation with them?\"",model:"I'd frame it carefully before we do. He's not difficult — he's a <b>misanthrope</b> in the original sense: he genuinely doesn't want social interaction and finds it draining rather than energising. That's not the same as being disruptive or disrespectful. The question is whether the role actually requires the social dimension or whether we've assumed it does. His output is exceptional. If we can structure his work so the client-facing components are handled by others, we lose nothing and keep someone who's genuinely exceptional at the core work. If the role structurally requires social engagement, then yes, we have a conversation — but let's be honest about which it is.",why:"Using 'misanthrope in the original sense' signals precision and fairness — you're not labelling him pejoratively, you're explaining a disposition that has a real name. The practical solution (restructure the role) shows the vocabulary is in service of a decision, not just description."},
+  {word:"Altercation",ctx:"Post-event debrief — client incident",setup:"At an industry conference last week, two client executives had a heated public argument in the lobby that several other clients witnessed. You are debriefing your senior partner.",cue:"Senior Partner: \"What exactly happened at the conference? I've been hearing different versions.\"",model:"I'll give you the factual version. There was a public <b>altercation</b> between the CFO and the Head of Strategy in the hotel lobby, after the dinner. Raised voices, some pointed language — it lasted about four minutes before a colleague intervened. Several other delegates witnessed it, including two from the competitor firm. It was uncomfortable and it will have been noticed. The underlying tension has been visible for some time in meetings, but this was the first time it became public. I'd suggest we reach out privately to both parties this week — not to referee, but to make sure they know we're available if it's creating any operational complexity on the transaction.",why:"Using 'altercation' gives the incident its correct formal weight — more serious than a 'disagreement', less catastrophic than a 'fight'. The response then demonstrates exactly what a good advisor does: describe accurately, contextualise, and propose a proportionate action."},
+  {word:"Egotist",ctx:"Mentoring conversation — networking advice",setup:"A junior colleague is preparing for their first major industry conference and asks how to handle conversations with senior people.",cue:"Junior: \"I'm nervous about talking to MDs and senior clients at these events. Any advice?\"",model:"The best advice I can give you is this: most people at these events are <b>egotists</b> to some degree — they're more interested in being heard than in listening. The person who asks good questions and actually listens to the answers is remarkable because they're rare. You don't need to have the most impressive career history in the room — you need to make the other person feel genuinely interesting. That is a skill, and it's one of the most commercially valuable skills in this industry. So go in curious, not impressive.",why:"Using 'egotist' not as an insult but as an analytical observation about social dynamics is sophisticated. It reframes the junior's anxiety — the problem isn't that they're not impressive enough, it's that most people are too focused on being impressive to actually connect. The advice ('go in curious, not impressive') flows directly from the vocabulary insight."},
+  {word:"Ambidextrous",ctx:"Performance review conversation",setup:"You are giving a mid-year review to a senior analyst who has been successfully combining both quantitative modelling work and client-facing relationship management — an unusual combination.",cue:"Analyst: \"I'm glad the role is working, but sometimes I wonder if the breadth is seen as lacking depth in either area.\"",model:"I want to address that directly because I think the opposite is true. What you're demonstrating is something I'd describe as genuinely <b>ambidextrous</b> — you're equally effective in two modes that most people can only do one of. The modelling work is rigorous and the client feedback on your presence in meetings is consistently strong. In this industry, that combination is rare and genuinely valuable. The concern I'd raise is not breadth versus depth — it's making sure people see both sides of what you do. The risk isn't that you're spread thin. The risk is that each group only sees one half of you.",why:"Using 'ambidextrous' as the characterising word immediately reframes the analyst's anxiety as a strength. 'Each group only sees one half of you' is the precise, actionable observation — it identifies the real risk (invisibility of the full skill set) and implicitly suggests the solution (make both sides visible to both audiences)."}
+];
+
+// ── STATE ──────────────────────────────────
+let drIdx=0,drOrder=DR.map((_,i)=>i);
+let chIdx=0,chOrder=DR.map((_,i)=>i),chScore=0,chAnswered=false;
+let rpIdx=0,rpOrder=RP.map((_,i)=>i);
+let done=0,fluent=0;
+
+function toggleRoot(hdr){const body=hdr.nextElementSibling;const tog=hdr.querySelector('.root-toggle');const open=body.classList.toggle('open');tog.textContent=open?'▴ collapse':'▾ expand'}
+function switchTab(t,btn){['families','drill','choice','roleplay'].forEach(id=>{const el=document.getElementById('m-'+id)||document.getElementById('m-'+id.replace('drill','drill'));if(el)el.style.display='none'});document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));const target=document.getElementById('m-'+t)||document.getElementById('m-drill');if(target)target.style.display='block';btn.classList.add('active');if(t==='choice')renderChoice();if(t==='roleplay')renderRP();if(t==='drill')renderDr()}
+
+function renderDr(){const d=DR[drOrder[drIdx]];document.getElementById('dr-cnt').textContent=`${drIdx+1} / ${DR.length}`;document.getElementById('dr-prg').style.width=`${(drIdx/DR.length)*100}%`;document.getElementById('dr-lbl').textContent=d.word;document.getElementById('dr-root').textContent=d.root;document.getElementById('dr-sit').textContent=d.sit;document.getElementById('dr-prompt').textContent=d.prompt;document.getElementById('dr-word').textContent=d.word;document.getElementById('dr-pos').textContent=d.pos;document.getElementById('dr-ex').textContent=d.ex;document.getElementById('dr-tip').textContent=d.tip;document.getElementById('dr-reveal').classList.remove('show');document.getElementById('dr-rev-btn').style.display='inline-block'}
+function revealDr(){document.getElementById('dr-reveal').classList.add('show');document.getElementById('dr-rev-btn').style.display='none'}
+function rateDr(r){done++;if(r==='easy')fluent++;updateStats();drNav(1)}
+function drNav(d){drIdx=(drIdx+d+DR.length)%DR.length;renderDr()}
+function shuffleDr(){for(let i=drOrder.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[drOrder[i],drOrder[j]]=[drOrder[j],drOrder[i]]}drIdx=0;renderDr()}
+
+function renderChoice(){const d=DR[chOrder[chIdx]];document.getElementById('ch-cnt').textContent=`${chIdx+1} / ${DR.length}`;document.getElementById('ch-prg').style.width=`${(chIdx/DR.length)*100}%`;document.getElementById('ch-q').textContent=d.cq+' [Target word: '+d.word+']';document.getElementById('ch-fb').className='ch-fb';document.getElementById('ch-next').style.display='none';chAnswered=false;const opts=[d.cc,...d.cw].sort(()=>Math.random()-.5);const cont=document.getElementById('ch-opts');cont.innerHTML='';opts.forEach(o=>{const btn=document.createElement('button');btn.className='ch-opt';btn.textContent=o;btn.onclick=()=>pickChoice(btn,o===d.cc,d.cc);cont.appendChild(btn)})}
+function pickChoice(btn,correct,ct){if(chAnswered)return;chAnswered=true;document.querySelectorAll('.ch-opt').forEach(b=>{b.disabled=true;if(b.textContent===ct)b.classList.add('show-correct')});if(correct){btn.classList.add('correct');chScore++}else btn.classList.add('wrong');const fb=document.getElementById('ch-fb');fb.className='ch-fb show '+(correct?'ok':'no');fb.textContent=correct?'✓ Correct — that is the precise, natural usage.':'✗ Not quite. The correct sentence is: "'+ct+'"';document.getElementById('ch-score').textContent=`Score: ${chScore} / ${chIdx+1}`;document.getElementById('ch-next').style.display='inline-block'}
+function nextChoice(){chIdx=(chIdx+1)%DR.length;renderChoice()}
+
+function renderRP(){const r=RP[rpOrder[rpIdx]];document.getElementById('rp-cnt').textContent=`${rpIdx+1} / ${RP.length}`;document.getElementById('rp-prg').style.width=`${(rpIdx/RP.length)*100}%`;document.getElementById('rp-lbl').textContent=r.word;document.getElementById('rp-ctx').textContent=r.ctx;document.getElementById('rp-setup').textContent=r.setup;document.getElementById('rp-cue').textContent=r.cue;document.getElementById('rp-ta').value='';document.getElementById('rp-reveal').classList.remove('show');document.getElementById('rp-rev-btn').style.display='inline-block';document.getElementById('rp-model').innerHTML=r.model;document.getElementById('rp-why').textContent=r.why}
+function revealRP(){document.getElementById('rp-reveal').classList.add('show');document.getElementById('rp-rev-btn').style.display='none'}
+function rateRP(r){done++;if(r==='easy')fluent++;updateStats();rpNav(1)}
+function rpNav(d){rpIdx=(rpIdx+d+RP.length)%RP.length;renderRP()}
+
+function updateStats(){document.getElementById('s-done').textContent=done;document.getElementById('s-fluent').textContent=fluent}
+
+// init
+document.getElementById('m-drill').style.display='none';
+document.getElementById('m-choice').style.display='none';
+document.getElementById('m-roleplay').style.display='none';
+renderDr();
+</script>
+</body>
+</html>
